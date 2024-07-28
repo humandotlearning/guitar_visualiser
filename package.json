@@ -2,6 +2,7 @@
   "name": "guitar_scale_visualizer",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://humandotlearning.github.io/guitar_visualiser"
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.1.1",
     "@radix-ui/react-collapsible": "^1.1.0",
