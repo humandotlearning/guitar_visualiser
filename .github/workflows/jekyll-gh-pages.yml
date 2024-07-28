@@ -28,13 +28,22 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-      - name: Build with Jekyll
-        uses: actions/jekyll-build-pages@v1
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
-          source: ./
-          destination: ./_site
+          node-version: '20.11.1'  # You can specify the Node.js version
+
+      - name: Install dependencies
+        run: |
+          npm install
+          bundle install
+
+      - name: Build with Jekyll
+        run: |
+          npm run build    # If you have a build script in your package.json
+          bundle exec jekyll build --destination ./_site
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
 
