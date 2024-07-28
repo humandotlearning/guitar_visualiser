@@ -1,4 +1,3 @@
-// File: src/App.js
 import React, { useState } from 'react';
 import ScaleSelector from './components/ScaleSelector';
 import Fretboard from './components/Fretboard';

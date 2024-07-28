@@ -35,24 +35,32 @@ export const getScaleNotes = (root, scale) => {
   return scale.map(interval => NOTES[(rootIndex + interval) % 12]);
 };
 
-export const getChordNotes = (root, scaleType) => {
-  if (!root || !scaleType) return {};
-  const scaleFamily = scaleType === 'major' ? 'Major Family' : 'Minor Family';
-  const scaleName = scaleType.charAt(0).toUpperCase() + scaleType.slice(1);
-  const scale = SCALE_LIBRARY[scaleFamily][scaleName];
+export const getChordNotes = (root, selectedScale) => {
+  if (!root || !selectedScale) return {};
+  const { category, name } = selectedScale;
+  const scale = SCALE_LIBRARY[category][name];
   
   if (!scale) return {};
 
   const scaleNotes = getScaleNotes(root, scale);
-  return {
-    I: [scaleNotes[0], scaleNotes[2], scaleNotes[4]],
-    ii: [scaleNotes[1], scaleNotes[3], scaleNotes[5]],
-    iii: [scaleNotes[2], scaleNotes[4], scaleNotes[6]],
-    IV: [scaleNotes[3], scaleNotes[5], scaleNotes[0]],
-    V: [scaleNotes[4], scaleNotes[6], scaleNotes[1]],
-    vi: [scaleNotes[5], scaleNotes[0], scaleNotes[2]],
-    vii: [scaleNotes[6], scaleNotes[1], scaleNotes[3]]
-  };
+  
+  // For pentatonic and blues scales, we'll use triads based on the available notes
+  const chordDegrees = scale.length === 5 ? [0, 2, 4] : [0, 2, 4]; // Adjust as needed for different scale lengths
+  
+  const chords = {};
+  scale.forEach((_, index) => {
+    const chordRoot = scaleNotes[index];
+    chords[chordRoot] = chordDegrees.map(degree => scaleNotes[(index + degree) % scale.length]);
+  });
+
+  return chords;
+};
+
+export const CHORD_TYPES = {
+  'Major Family': ['', 'm', 'm', '', '', 'm', 'dim'],
+  'Minor Family': ['m', 'dim', '', 'm', 'm', '', ''],
+  'Pentatonic': ['', 'm', 'm', '', 'm'],
+  'Blues': ['7', 'm', 'm', '7', '7', 'm'],
 };
 
 export const getScaleDegree = (note, rootNote, scale) => {
