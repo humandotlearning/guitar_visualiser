@@ -1,6 +1,7 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* File: index.css */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
 
 body {
   margin: 0;
@@ -14,4 +15,61 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+.fretboard-string {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.fretboard-note {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.fretboard-note.root {
+  background-color: rgba(255, 0, 0, 0.5);
+}
+
+.fretboard-note:hover {
+  background-color: #f0f0f0;
+}
+
+/* Custom styles for improved UI */
+.tab-content {
+  @apply mt-4;
+}
+
+.card {
+  @apply bg-white shadow-md rounded-lg overflow-hidden;
+}
+
+.card-header {
+  @apply bg-gray-100 px-4 py-2 font-semibold;
+}
+
+.card-content {
+  @apply p-4;
+}
+
+.btn {
+  @apply px-4 py-2 rounded font-semibold text-white transition-colors duration-200;
+}
+
+.btn-primary {
+  @apply bg-blue-500 hover:bg-blue-600;
+}
+
+.btn-secondary {
+  @apply bg-gray-500 hover:bg-gray-600;
+}
+
+.btn-disabled {
+  @apply opacity-50 cursor-not-allowed;
 }
