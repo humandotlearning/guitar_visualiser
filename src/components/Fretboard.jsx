@@ -45,6 +45,8 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
         />
         Show Scale Degrees
       </label>
+      <br></br>
+      <br></br>
     <div className="overflow-x-auto">
       <div className="flex flex-col min-w-max">
         {tuning.map((string, index) => (
