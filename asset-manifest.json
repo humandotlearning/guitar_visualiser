@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/guitar_visualiser/static/css/main.111f3a57.css",
-    "main.js": "/guitar_visualiser/static/js/main.b9215d36.js",
-    "static/js/818.1dc6f607.chunk.js": "/guitar_visualiser/static/js/818.1dc6f607.chunk.js",
+    "main.css": "/guitar_visualiser/static/css/main.b50f9651.css",
+    "main.js": "/guitar_visualiser/static/js/main.0d839768.js",
+    "static/js/453.85ff4825.chunk.js": "/guitar_visualiser/static/js/453.85ff4825.chunk.js",
     "index.html": "/guitar_visualiser/index.html",
-    "main.111f3a57.css.map": "/guitar_visualiser/static/css/main.111f3a57.css.map",
-    "main.b9215d36.js.map": "/guitar_visualiser/static/js/main.b9215d36.js.map",
-    "818.1dc6f607.chunk.js.map": "/guitar_visualiser/static/js/818.1dc6f607.chunk.js.map"
+    "main.b50f9651.css.map": "/guitar_visualiser/static/css/main.b50f9651.css.map",
+    "main.0d839768.js.map": "/guitar_visualiser/static/js/main.0d839768.js.map",
+    "453.85ff4825.chunk.js.map": "/guitar_visualiser/static/js/453.85ff4825.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.111f3a57.css",
-    "static/js/main.b9215d36.js"
+    "static/css/main.b50f9651.css",
+    "static/js/main.0d839768.js"
   ]
 }
