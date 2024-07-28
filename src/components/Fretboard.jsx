@@ -43,7 +43,7 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
           checked={showScaleDegrees}
           onChange={(e) => setShowScaleDegrees(e.target.checked)}
         />
-        Show Scale Degrees
+        <t>  </t>Show Scale Degrees
       </label>
       <br></br>
       <br></br>
