@@ -5,6 +5,7 @@ import ChordVisualizer from './components/ChordVisualizer';
 import AudioPlayback from './components/AudioPlayback';
 import FretboardCustomization from './components/FretboardCustomization';
 import { getScaleNotes, SCALE_LIBRARY } from './utils/musicTheory';
+import './App.css';
 
 const App = () => {
   const [rootNote, setRootNote] = useState('C');
@@ -22,7 +23,7 @@ const App = () => {
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-4">Guitar Scale Visualizer</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
+        <div className="card">
           <h2 className="text-xl font-semibold mb-2">Select Scale</h2>
           <ScaleSelector
             rootNote={rootNote}
@@ -31,7 +32,7 @@ const App = () => {
             setSelectedScale={setSelectedScale}
           />
         </div>
-        <div>
+        <div className="card">
           <h2 className="text-xl font-semibold mb-2">Fretboard Customization</h2>
           <FretboardCustomization
             tuning={tuning}
@@ -41,7 +42,7 @@ const App = () => {
           />
         </div>
       </div>
-      <div className="mt-4">
+      <div className="card mt-4">
         <h2 className="text-xl font-semibold mb-2">Fretboard</h2>
         <Fretboard
           rootNote={rootNote}
@@ -52,7 +53,7 @@ const App = () => {
           fretCount={fretCount}
         />
       </div>
-      <div className="mt-4">
+      <div className="card mt-4">
         <h2 className="text-xl font-semibold mb-2">Chords in the Scale</h2>
         <ChordVisualizer
           rootNote={rootNote}
@@ -60,7 +61,7 @@ const App = () => {
           onChordSelect={setSelectedChord}
         />
       </div>
-      <div className="mt-4">
+      <div className="card mt-4">
         <AudioPlayback scaleNotes={scaleNotes} chordNotes={selectedChord} />
       </div>
     </div>
