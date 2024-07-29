@@ -1,33 +1,29 @@
-// ScaleNotes.jsx
+// File: components/ScaleNotes.jsx
+
 import React from 'react';
-import { getScaleNotes, SCALE_LIBRARY } from '../utils/musicTheory';
+import { getScaleNotes, getScalePattern, SCALE_LIBRARY } from '../utils/musicTheory';
 
 const ScaleNotes = ({ rootNote, selectedScale }) => {
-  if (!selectedScale || !selectedScale.category || !selectedScale.name) {
-    return <div className="card mt-4"><h2 className="text-xl font-semibold mb-2">Notes at Different Degrees</h2><p>No scale selected.</p></div>;
-  }
+  if (!rootNote || !selectedScale) return null;
 
   const scaleNotes = getScaleNotes(rootNote, SCALE_LIBRARY[selectedScale.category][selectedScale.name]);
-  const degrees = ['1', '2', '3', '4', '5', '6', '7'];
-
-  console.log('ScaleNotes Component - Root Note:', rootNote);
-  console.log('ScaleNotes Component - Scale Notes:', scaleNotes);
+  const scalePattern = getScalePattern(SCALE_LIBRARY[selectedScale.category][selectedScale.name]);
 
   return (
-    <div className="card mt-4">
-      <h2 className="text-xl font-semibold mb-2">Notes of {rootNote} {selectedScale.name} </h2>
-      <table className="table-auto w-full">
+    <div>
+      <h2>Notes of {rootNote} {selectedScale.name} :  {scalePattern}</h2>
+      <table className="table-auto">
         <thead>
           <tr>
-            {degrees.slice(0, scaleNotes.length).map((degree, index) => (
-              <th key={index} className="px-4 py-2">{degree}</th>
+            {scaleNotes.map((note, index) => (
+              <th key={index}>{index + 1}</th>
             ))}
           </tr>
         </thead>
         <tbody>
           <tr>
             {scaleNotes.map((note, index) => (
-              <td key={index} className="border px-4 py-2">{note}</td>
+              <td key={index}>{note}</td>
             ))}
           </tr>
         </tbody>

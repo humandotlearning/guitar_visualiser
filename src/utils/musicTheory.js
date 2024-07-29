@@ -35,6 +35,17 @@ export const getScaleNotes = (root, scale) => {
   return scale.map(interval => NOTES[(rootIndex + interval) % 12]);
 };
 
+export const getScalePattern = (scale) => {
+  const pattern = [];
+  for (let i = 1; i < scale.length; i++) {
+    const interval = (scale[i] - scale[i - 1] + 12) % 12;
+    if (interval === 1) pattern.push('H');
+    else if (interval === 2) pattern.push('W');
+    else if (interval === 3) pattern.push('W+H'); // for augmented second
+  }
+  return pattern.join(' ');
+};
+
 export const getChordNotes = (root, selectedScale) => {
   if (!root || !selectedScale) return {};
   const { category, name } = selectedScale;
