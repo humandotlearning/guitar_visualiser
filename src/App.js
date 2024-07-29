@@ -50,7 +50,7 @@ const App = () => {
         </div> 
       </div>
       <div className="card">
-          <h2 className="text-xl font-semibold mb-2">Scale </h2>
+          {/* <h2 className="text-xl font-semibold mb-2">Scale </h2> */}
       <ScaleNotes rootNote={rootNote} selectedScale={selectedScale} />
       </div>
       <div className="card mt-4">
