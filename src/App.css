@@ -28,6 +28,7 @@ h1 {
   padding: 20px;
   margin-bottom: 20px;
   transition: box-shadow 0.3s;
+  width: 100%;
 }
 
 .card:hover {
@@ -49,6 +50,8 @@ button {
   font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.3s, transform 0.3s;
+  /* width: 100%; */
+  /* box-sizing: border-box; */
 }
 
 button:hover {
@@ -117,4 +120,25 @@ button:disabled {
   .grid-cols-2 {
     grid-template-columns: 1fr;
   }
+}
+
+.overflow-x-auto {
+  overflow-x: auto;
+}
+
+.table-auto {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-auto th,
+.table-auto td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.table-auto th {
+  background-color: #f2f2f2;
+  color: #333;
+  text-align: left;
 }

@@ -23,32 +23,34 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect }) => {
   return (
     <div className="card mt-4">
       <h2 className="text-xl font-semibold mb-2">Chords in the Scale</h2>
-      <table className="table-auto w-full">
-        <thead>
-          <tr>
-            {scaleNotes.map((note, index) => (
-              <th key={index} className="px-4 py-2">{note}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            {Object.keys(chords).map((chordRoot, index) => (
-              <td key={index} className="border px-4 py-2">
-                <button onClick={() => onChordSelect(chords[chordRoot])}>
-                  {chordRoot}{chordTypes[index]}
-                </button>
-                <div className="chord-notes">
-                  {chords[chordRoot].join(', ')}
-                </div>
-                <div className="chord-degree">
-                  {index + 1} {chordTypes[index]}
-                </div>
-              </td>
-            ))}
-          </tr>
-        </tbody>
-      </table>
+      <div className="overflow-x-auto">
+        <table className="table-auto w-full">
+          <thead>
+            <tr>
+              {scaleNotes.map((note, index) => (
+                <th key={index} className="px-4 py-2">{note}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              {Object.keys(chords).map((chordRoot, index) => (
+                <td key={index} className="border px-4 py-2">
+                  <button onClick={() => onChordSelect(chords[chordRoot])}>
+                    {chordRoot}{chordTypes[index]}
+                  </button>
+                  <div className="chord-notes">
+                    {chords[chordRoot].join(', ')}
+                  </div>
+                  <div className="chord-degree">
+                    {index + 1} {chordTypes[index]}
+                  </div>
+                </td>
+              ))}
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
