@@ -65,7 +65,7 @@ const App = () => {
         />
       </div>
       <div className="card mt-4">
-        <h2 className="text-xl font-semibold mb-2">Chords in the Scale</h2>
+        {/* <h2 className="text-xl font-semibold mb-2">Chords in the Scale</h2> */}
         <ChordVisualizer
           rootNote={rootNote}
           selectedScale={selectedScale}
