@@ -5,6 +5,7 @@ import ChordVisualizer from './components/ChordVisualizer';
 import AudioPlayback from './components/AudioPlayback';
 import FretboardCustomization from './components/FretboardCustomization';
 import { getScaleNotes, SCALE_LIBRARY } from './utils/musicTheory';
+import ScaleNotes from './components/ScaleNotes';  
 import './App.css';
 
 const App = () => {
@@ -40,7 +41,12 @@ const App = () => {
             selectedScale={selectedScale}
             setSelectedScale={setSelectedScale}
           />
+          
         </div> 
+      </div>
+      <div className="card">
+          <h2 className="text-xl font-semibold mb-2">Scale </h2>
+      <ScaleNotes rootNote={rootNote} selectedScale={selectedScale} />
       </div>
       <div className="card mt-4">
         <h2 className="text-xl font-semibold mb-2">Fretboard</h2>

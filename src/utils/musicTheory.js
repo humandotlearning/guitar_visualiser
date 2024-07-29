@@ -30,7 +30,7 @@ export const CHORDS = {
 };
 
 export const getScaleNotes = (root, scale) => {
-  if (!root || !scale) return [];
+  if (!root || !Array.isArray(scale)) return [];
   const rootIndex = NOTES.indexOf(root);
   return scale.map(interval => NOTES[(rootIndex + interval) % 12]);
 };
