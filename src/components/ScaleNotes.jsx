@@ -11,7 +11,9 @@ const ScaleNotes = ({ rootNote, selectedScale }) => {
 
   return (
     <div>
-      <h2>Notes of {rootNote} {selectedScale.name} :  {scalePattern}</h2>
+      <h2>Notes of {rootNote} {selectedScale.name} </h2>
+      <h3> {selectedScale.name} Scale Interval  :  {scalePattern}</h3>
+      <br></br>
       <table className="table-auto">
         <thead>
           <tr>
