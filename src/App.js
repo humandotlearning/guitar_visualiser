@@ -9,8 +9,13 @@ import ScaleNotes from './components/ScaleNotes';
 import './App.css';
 
 const App = () => {
-  const [rootNote, setRootNote] = useState('C');
-  const [selectedScale, setSelectedScale] = useState(null);
+
+  const defaultRootNote = 'A';
+  const defaultSelectedScale = { category: 'Pentatonic', name: 'Minor Pentatonic' };
+
+
+  const [rootNote, setRootNote] = useState(defaultRootNote);
+  const [selectedScale, setSelectedScale] = useState(defaultSelectedScale);
   const [showScaleDegrees, setShowScaleDegrees] = useState(false);
   const [tuning, setTuning] = useState(['E', 'B', 'G', 'D', 'A', 'E']);
   const [fretCount, setFretCount] = useState(24);
