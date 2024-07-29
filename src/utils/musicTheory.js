@@ -44,8 +44,16 @@ export const getChordNotes = (root, selectedScale) => {
 
   const scaleNotes = getScaleNotes(root, scale);
   
-  // For pentatonic and blues scales, we'll use triads based on the available notes
-  const chordDegrees = scale.length === 5 ? [0, 2, 4] : [0, 2, 4]; // Adjust as needed for different scale lengths
+  let chordDegrees;
+  if (scale.length === 5) {
+    chordDegrees = [0, 2, 4]; // Triads for pentatonic scales
+  } else if (scale.length === 6) {
+    chordDegrees = [0, 2, 4]; // Triads for hexatonic scales (can be adjusted if needed)
+  } else if (scale.length === 7) {
+    chordDegrees = [0, 2, 4]; // Triads for heptatonic scales
+  } else {
+    chordDegrees = [0, 2, 4]; // Default to triads if not explicitly handled
+  }
   
   const chords = {};
   scale.forEach((_, index) => {

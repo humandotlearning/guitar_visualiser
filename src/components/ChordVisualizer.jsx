@@ -1,41 +1,54 @@
-// File: src/components/ChordVisualizer.jsx
-import React from 'react';
-import { getChordNotes, CHORD_TYPES, NOTES } from '../utils/musicTheory';
+import React, { useEffect, useState } from 'react';
+import { getChordNotes, CHORD_TYPES, SCALE_LIBRARY, getScaleNotes } from '../utils/musicTheory';
 
 const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect }) => {
+  const [chords, setChords] = useState({});
+
+  useEffect(() => {
+    if (rootNote && selectedScale) {
+      const chordNotes = getChordNotes(rootNote, selectedScale);
+      setChords(chordNotes);
+    }
+  }, [rootNote, selectedScale]);
+
   if (!rootNote || !selectedScale) {
-    return <div>Please select a root note and scale type.</div>;
+    return <div className="card mt-4"><h2 className="text-xl font-semibold mb-2">Chords in the Scale</h2><p>Please select a scale.</p></div>;
   }
 
-  const chordNotes = getChordNotes(rootNote, selectedScale);
-  const chordTypes = CHORD_TYPES[selectedScale.category] || [];
-
-  if (Object.keys(chordNotes).length === 0) {
-    return <div>Unable to generate chord notes for the selected scale.</div>;
-  }
-
-  // Find the index of the root note in the NOTES array
-  const rootIndex = NOTES.indexOf(rootNote);
+  const { category, name } = selectedScale;
+  const scaleChords = SCALE_LIBRARY[category][name];
+  const chordTypes = CHORD_TYPES[category];
+  const scaleNotes = getScaleNotes(rootNote, scaleChords);
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      {Object.entries(chordNotes).map(([chordRoot, notes], index) => {
-        // Calculate the correct index for chord types
-        const chordTypeIndex = (NOTES.indexOf(chordRoot) - rootIndex + 12) % 12;
-        const chordType = chordTypes[chordTypeIndex] || '';
-
-        return (
-          <div key={chordRoot} className="flex flex-col items-center">
-            <button 
-              className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 mb-2"
-              onClick={() => onChordSelect(notes)}
-            >
-              {chordRoot}{chordType}
-            </button>
-            <div>{notes.join(', ')}</div>
-          </div>
-        );
-      })}
+    <div className="card mt-4">
+      <h2 className="text-xl font-semibold mb-2">Chords in the Scale</h2>
+      <table className="table-auto w-full">
+        <thead>
+          <tr>
+            {scaleNotes.map((note, index) => (
+              <th key={index} className="px-4 py-2">{note}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            {Object.keys(chords).map((chordRoot, index) => (
+              <td key={index} className="border px-4 py-2">
+                <button onClick={() => onChordSelect(chords[chordRoot])}>
+                  {chordRoot}{chordTypes[index]}
+                </button>
+                <div className="chord-notes">
+                  {chords[chordRoot].join(', ')}
+                </div>
+                <div className="chord-degree">
+                  {index + 1} {chordTypes[index]}
+                </div>
+              </td>
+            ))}
+          </tr>
+        </tbody>
+      </table>
     </div>
   );
 };

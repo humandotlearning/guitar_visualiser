@@ -61,6 +61,19 @@ button:disabled {
   cursor: not-allowed;
 }
 
+.chord-notes {
+  margin-top: 8px;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.chord-degree {
+  margin-top: 4px;
+  font-size: 0.8rem;
+  color: #777;
+  font-style: italic;
+}
+
 .fretboard-string {
   display: flex;
   align-items: center;
