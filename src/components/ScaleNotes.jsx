@@ -12,11 +12,12 @@ const ScaleNotes = ({ rootNote, selectedScale }) => {
   return (
     <div>
       <h2>Notes of {rootNote} {selectedScale.name} </h2>
-      <h3> {selectedScale.name} Scale Interval  :  {scalePattern}</h3>
+      <h3> {selectedScale.name} Scale Pattern  :  <b>{scalePattern}</b></h3>
       <br></br>
       <table className="table-auto">
         <thead>
           <tr>
+          <th className="border p-2">Degree</th>
             {scaleNotes.map((note, index) => (
               <th key={index}>{index + 1}</th>
             ))}
@@ -24,12 +25,22 @@ const ScaleNotes = ({ rootNote, selectedScale }) => {
         </thead>
         <tbody>
           <tr>
+          <td className="border p-2 font-medium"><b>Note</b></td>
             {scaleNotes.map((note, index) => (
               <td key={index}>{note}</td>
             ))}
           </tr>
         </tbody>
-      </table>
+      </table><br/>
+      <p className="text-sm text-gray-600">
+        This table shows the notes of the {rootNote} {selectedScale.name} scale in order, 
+        along with their scale degrees. The scale pattern represents the intervals between each note. 
+      </p>
+      <br/>
+      <p className="text-sm text-gray-600">
+        <b>W </b> refers to Whole Step.<br/>
+        <b>H </b> refers to Half Step
+      </p>
     </div>
   );
 };

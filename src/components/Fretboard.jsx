@@ -20,7 +20,7 @@ const FretboardNote = ({ note, fret, stringIndex, isRoot, selectedScale, showSca
       {isInScale && (
         <div
           className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${isRoot ? 'ring-2 ring-black' : ''}`}
-          style={{ backgroundColor: isRoot ? 'rgba(255, 0, 0, 0.5)' : 'rgba(49, 181, 178, 0.51)' }}
+          style={{ backgroundColor: isRoot ? 'rgba(255, 0, 0, 0.5)' : 'rgba(255, 159, 100, 0.7)' }}
         >
           {showScaleDegrees ? scaleDegree : note}
         </div>
