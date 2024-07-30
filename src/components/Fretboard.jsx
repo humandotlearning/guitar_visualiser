@@ -20,7 +20,7 @@ const FretboardNote = ({ note, fret, stringIndex, isRoot, selectedScale, showSca
       {isInScale && (
         <div
           className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${isRoot ? 'ring-2 ring-black' : ''}`}
-          style={{ backgroundColor: isRoot ? 'rgba(255, 0, 0, 0.5)' : 'rgba(0, 0, 255, 0.5)' }}
+          style={{ backgroundColor: isRoot ? 'rgba(255, 0, 0, 0.5)' : 'rgba(49, 181, 178, 0.51)' }}
         >
           {showScaleDegrees ? scaleDegree : note}
         </div>
@@ -43,45 +43,50 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
           checked={showScaleDegrees}
           onChange={(e) => setShowScaleDegrees(e.target.checked)}
         />
-        <t>  </t>Show Scale Degrees
+        <span>  </span>Show Scale Degrees
       </label>
-      <br></br>
-      <br></br>
-    <div className="overflow-x-auto">
-      <div className="flex flex-col min-w-max">
-        {tuning.map((string, index) => (
-          <div key={index} className="flex items-center">
-            <div className="w-8 text-center font-bold">{string}</div>
-            {[...Array(fretCount + 1)].map((_, fret) => {
-              const noteIndex = (NOTES.indexOf(string) + fret) % 12;
-              const note = NOTES[noteIndex];
-              const isRoot = note === rootNote;
-
-              return (
-                <FretboardNote
-                  key={fret}
-                  note={note}
-                  fret={fret}
-                  stringIndex={tuning.indexOf(string)}
-                  isRoot={isRoot}
-                  selectedScale={selectedScale}
-                  showScaleDegrees={showScaleDegrees}
-                  rootNote={rootNote}
-                />
-              );
-            })}
-          </div>
-        ))}
-        <div className="flex mt-2">
-          <div className="w-8"></div>
-          {[...Array(fretCount + 1)].map((_, fret) => (
-            <div key={fret} className="text-center" style={{ width: '40px' }}>
-              {fret}
-            </div>
+      <br />
+      <br />
+      <div className="fretboard-container">
+        <div className="string-labels">
+          {tuning.map((string, index) => (
+            <div key={index} className="string-label">{string}</div>
           ))}
         </div>
+        <div className="fretboard-scroll">
+          <div className="fretboard">
+            {tuning.map((string, index) => (
+              <div key={index} className="string">
+                {[...Array(fretCount + 1)].map((_, fret) => {
+                  const noteIndex = (NOTES.indexOf(string) + fret) % 12;
+                  const note = NOTES[noteIndex];
+                  const isRoot = note === rootNote;
+
+                  return (
+                    <FretboardNote
+                      key={fret}
+                      note={note}
+                      fret={fret}
+                      stringIndex={tuning.indexOf(string)}
+                      isRoot={isRoot}
+                      selectedScale={selectedScale}
+                      showScaleDegrees={showScaleDegrees}
+                      rootNote={rootNote}
+                    />
+                  );
+                })}
+              </div>
+            ))}
+            <div className="flex mt-2 fret-numbers">
+                            {[...Array(fretCount + 1)].map((_, fret) => (
+                <div key={fret} className="fret-number">
+                  {fret}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
     </div>
   );
 };
