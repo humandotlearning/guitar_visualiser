@@ -24,7 +24,7 @@ const FretboardNote = ({ note, fret, stringIndex, isRoot, selectedScale, showSca
 
   return (
     <div
-      className="fret"
+      className={`fret ${fret === 0 ? 'first-fret' : ''}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -56,11 +56,11 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
       <br />
       <br />
       <div className="fretboard-container">
-        <div className="string-labels">
+        {/* <div className="string-labels">
           {tuning.map((string, index) => (
             <div key={index} className="string-label">{string}</div>
           ))}
-        </div>
+        </div> */}
         <div className="fretboard-scroll">
           <div className="fretboard">
             {tuning.map((string, index) => (
