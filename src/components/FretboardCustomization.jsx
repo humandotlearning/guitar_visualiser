@@ -15,7 +15,7 @@ const FretboardCustomization = ({ tuning, setTuning, fretCount, setFretCount }) 
 
   const currentTuning = Object.entries(TUNINGS).find(([_, notes]) => 
     notes.join(',') === tuning.join(',')
-  )?.[1] || 'Standard';
+  )?.[0] || 'Standard';
 
   return (
     <div className="mb-4 space-y-4">
