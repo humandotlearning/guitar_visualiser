@@ -124,11 +124,13 @@ button:disabled {
 }
 
 .fret-number {
-  width: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   font-size: 0.8rem;
+    width: 3rem;
+    border-right: 1px solid #B8D8FF;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .fretboard-note {
@@ -144,7 +146,7 @@ button:disabled {
 }
 
 .fretboard-note.root {
-  background-color: rgba(255, 0, 0, 0.7);
+  background-color: rgba(21, 120, 213, 0.567);
 }
 
 .fretboard-note:hover {

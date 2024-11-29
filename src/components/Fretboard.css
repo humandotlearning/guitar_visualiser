@@ -1,0 +1,171 @@
+/* Color Scheme from stylescheme.md */
+:root {
+  /* Chord Tones */
+  --color-root: #e57373;      /* Root Note (Muted Red) */
+  --color-third: #64b5f6;     /* Third (Muted Blue) */
+  --color-fifth: #81c784;     /* Fifth (Muted Green) */
+  --color-seventh: #ba68c8;   /* Seventh (Muted Purple) */
+  --color-extension: #ffb74d; /* Extensions (Muted Orange) */
+
+  /* Scale Degrees */
+  --color-tonic: #e57373;     /* Tonic (I) - Same as root */
+  --color-major: #64b5f6;     /* Major Steps (II, VI) - Same as third */
+  --color-minor: #ff9800;     /* Minor Steps (III, VI, VII) - Orange */
+  --color-perfect: #4db6ac;   /* Perfect Intervals (IV, V) - Teal */
+}
+
+/* Existing styles... */
+.fretboard-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .fretboard {
+    display: inline-flex;
+    flex-direction: column;
+    min-width: max-content;
+    background-color: #ffffff; /* white */
+  }
+  
+  .string {
+    display: flex;
+    height: 3rem;
+    border-bottom: 1px solid #B8D8FF; /* Medium light blue for borders */
+  }
+  
+  .fret-number {
+    width: 3rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    color: #333;
+    background-color: #E6F3FF;
+  }
+  
+  .fret {
+    width: 3rem;
+    /* height: 3rem; don't need height */
+    border-right: 1px solid #B8D8FF;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* background-color: #E6F3FF; */
+  }
+  
+  .fret:nth-child(3),  /* 3rd fret */
+  .fret:nth-child(5),  /* 5th fret */
+  .fret:nth-child(7),  /* 7th fret */
+  .fret:nth-child(9)   /* 9th fret */
+  {
+    background-color: #D4E9FF;
+  }
+  /* .fret:nth-child(3n+1) {} */
+  
+  .fret:nth-child(12) {
+    background-color: #C3DFFF;  /* Slightly darker to indicate double dots */
+  }
+  
+  .fret:nth-child(15), /* 15th fret */
+  .fret:nth-child(17), /* 17th fret */
+  .fret:nth-child(19), /* 19th fret */
+  .fret:nth-child(21)  /* 21st fret */
+  {
+    background-color: #D4E9FF;
+  }
+  
+  .fret:nth-child(24) { /* 24th fret - double dots */
+    background-color: #C3DFFF;
+  }
+  
+  .note-marker {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: bold;
+    color: white;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+  }
+  
+  .note-marker.root {
+    background-color: var(--color-root);
+    color: white;
+  }
+  
+  .note-marker.third {
+    background-color: var(--color-third);
+    color: white;
+  }
+  
+  .note-marker.fifth {
+    background-color: var(--color-fifth);
+    color: white;
+  }
+  
+  .note-marker.seventh {
+    background-color: var(--color-seventh);
+    color: white;
+  }
+  
+  .note-marker.extension {
+    background-color: var(--color-extension);
+    color: black;
+  }
+  
+  .note-marker.tonic {
+    background-color: var(--color-tonic);
+  }
+  
+  .note-marker.major-step {
+    background-color: var(--color-major);
+  }
+  
+  .note-marker.minor-step {
+    background-color: var(--color-minor);
+  }
+  
+  .note-marker.perfect {
+    background-color: var(--color-perfect);
+  }
+  
+  .scale-note {
+    background-color: var(--color-perfect);
+  }
+  
+  .string-labels {
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    left: 0;
+    background-color: white;
+    z-index: 10;
+  }
+  
+  .string-label {
+    height: 3rem;
+    width: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    background-color: #969da8;
+  }
+  
+  .fret-numbers {
+    display: flex;
+    height: 2rem;
+    
+
+  }
+  
+  

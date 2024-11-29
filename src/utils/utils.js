@@ -31,15 +31,6 @@ export const SCALE_LIBRARY = {
   },
 };
 
-export const SCALE_COLORS = [
-  'rgba(255, 0, 0, 0.5)',   // Red
-  'rgba(0, 255, 0, 0.5)',   // Green
-  'rgba(0, 0, 255, 0.5)',   // Blue
-  'rgba(255, 255, 0, 0.5)', // Yellow
-  'rgba(255, 0, 255, 0.5)', // Magenta
-  'rgba(0, 255, 255, 0.5)', // Cyan
-];
-
 export const getScaleNotes = (root, scale) => {
   const rootIndex = NOTES.indexOf(root);
   return scale.map(interval => NOTES[(rootIndex + interval) % 12]);

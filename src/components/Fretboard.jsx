@@ -1,6 +1,7 @@
 // File: components/Fretboard.jsx
 import React, { useState } from 'react';
 import { NOTES, getScaleNotes, SCALE_LIBRARY, getScaleDegree } from '../utils/musicTheory';
+import './Fretboard.css';
 
 const FretboardNote = ({ note, fret, stringIndex, isRoot, selectedScale, showScaleDegrees, rootNote }) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -8,20 +9,27 @@ const FretboardNote = ({ note, fret, stringIndex, isRoot, selectedScale, showSca
   const isInScale = scaleNotes.includes(note);
   const scaleDegree = isInScale ? getScaleDegree(note, rootNote, SCALE_LIBRARY[selectedScale.category][selectedScale.name]) : '';
 
+  // Determine note type for coloring
+  const getNoteType = () => {
+    if (!isInScale) return '';
+    if (isRoot) return 'root';
+    const interval = scaleNotes.indexOf(note);
+    switch(interval) {
+      case 2: return 'third';
+      case 4: return 'fifth';
+      case 6: return 'seventh';
+      default: return 'scale-note';
+    }
+  };
+
   return (
     <div
-      className={`relative border-r border-gray-300 ${fret === 0 ? 'border-l border-gray-800' : ''} 
-        ${[3, 5, 7, 9, 15, 17, 19, 21].includes(fret) ? 'bg-gray-200' : ''} 
-        ${fret === 0 || fret === 12 ? 'bg-gray-300' : ''}`}
-      style={{ width: '40px', height: '40px' }}
+      className="fret"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {isInScale && (
-        <div
-          className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${isRoot ? 'ring-2 ring-black' : ''}`}
-          style={{ backgroundColor: isRoot ? 'rgba(255, 0, 0, 0.5)' : 'rgba(255, 159, 100, 0.7)' }}
-        >
+        <div className={`note-marker ${getNoteType()}`}>
           {showScaleDegrees ? scaleDegree : note}
         </div>
       )}
@@ -67,7 +75,7 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
                       key={fret}
                       note={note}
                       fret={fret}
-                      stringIndex={tuning.indexOf(string)}
+                      stringIndex={index}
                       isRoot={isRoot}
                       selectedScale={selectedScale}
                       showScaleDegrees={showScaleDegrees}
@@ -77,13 +85,13 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
                 })}
               </div>
             ))}
-            <div className="flex mt-2 fret-numbers">
-                            {[...Array(fretCount + 1)].map((_, fret) => (
-                <div key={fret} className="fret-number">
-                  {fret}
-                </div>
-              ))}
-            </div>
+          <div className="fret-numbers">
+            {[...Array(fretCount + 1)].map((_, fret) => (
+              <div key={fret} className="fret-number">
+                {fret}
+              </div>
+            ))}
+          </div>
           </div>
         </div>
       </div>
