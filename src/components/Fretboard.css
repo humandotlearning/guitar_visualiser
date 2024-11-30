@@ -18,6 +18,7 @@
 .fretboard-container {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    height: 100%;
   }
   
   .fretboard {
@@ -56,10 +57,11 @@
     /* background-color: #E6F3FF; */
   }
   
-  .fret:nth-child(3),  /* 3rd fret */
-  .fret:nth-child(5),  /* 5th fret */
-  .fret:nth-child(7),  /* 7th fret */
-  .fret:nth-child(9)   /* 9th fret */
+  /* fret numbering is starting from 0, so i-1 is the actual logicalfret number */
+  .fret:nth-child(4),  /* 4th fret */
+  .fret:nth-child(6),  /* 6th fret */
+  .fret:nth-child(8),  /* 8th fret */
+  .fret:nth-child(10)   /* 10th fret */
   {
     background-color: #D4E9FF;
   }

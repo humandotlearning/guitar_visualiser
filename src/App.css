@@ -104,7 +104,9 @@ button:disabled {
 
 .fretboard-scroll {
   overflow-x: auto;
+  overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
+  height: 100%;
 }
 
 .fretboard {
