@@ -67,14 +67,15 @@
   }
   /* .fret:nth-child(3n+1) {} */
   
-  .fret:nth-child(12) {
+  /* 12th fret is double dots */
+  .fret:nth-child(13) {
     background-color: #C3DFFF;  /* Slightly darker to indicate double dots */
   }
   
-  .fret:nth-child(15), /* 15th fret */
-  .fret:nth-child(17), /* 17th fret */
-  .fret:nth-child(19), /* 19th fret */
-  .fret:nth-child(21)  /* 21st fret */
+  .fret:nth-child(16), /* 16th fret */
+  .fret:nth-child(18), /* 18th fret */
+  .fret:nth-child(20), /* 20th fret */
+  .fret:nth-child(22)  /* 22nd fret */
   {
     background-color: #D4E9FF;
   }
