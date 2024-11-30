@@ -168,9 +168,25 @@ button:disabled {
   grid-template-columns: repeat(2, 1fr);
 }
 
+.grid-cols-3 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
 @media (max-width: 768px) {
   .grid-cols-2 {
-    grid-template-columns: 1fr;
+    grid-template-columns: 2fr;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .grid-cols-2 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1025px) {
+  .grid-cols-2 {
+    grid-template-columns: repeat(4, 1fr);
   }
 }
 
@@ -193,4 +209,12 @@ button:disabled {
   background-color: #f2f2f2;
   color: #333;
   text-align: left;
+}
+
+/* Add this CSS rule to highlight the selected chord button */
+button.selected-chord {
+  background-color: #0056b3; /* Darker blue for selected state */
+  color: white;
+  transform: scale(1.05); /* Slightly enlarge the button */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Add a shadow for emphasis */
 }
