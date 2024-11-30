@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { getScaleNotes, getScalePattern, SCALE_LIBRARY } from '../utils/musicTheory';
+import PropTypes from 'prop-types';
 
 const ScaleNotes = ({ rootNote, selectedScale }) => {
   if (!rootNote || !selectedScale) return null;
@@ -60,6 +61,14 @@ const ScaleNotes = ({ rootNote, selectedScale }) => {
       </p>
     </div>
   );
+};
+
+ScaleNotes.propTypes = {
+  rootNote: PropTypes.string.isRequired,
+  selectedScale: PropTypes.shape({
+    category: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+  }).isRequired,
 };
 
 export default ScaleNotes;

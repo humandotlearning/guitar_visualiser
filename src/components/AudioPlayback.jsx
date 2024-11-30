@@ -1,6 +1,7 @@
 // File: src/components/AudioPlayback.jsx
 import React, { useState } from 'react';
 import { playNote, getNoteFrequency, INSTRUMENTS } from '../utils/audioUtils';
+import PropTypes from 'prop-types';
 
 const AudioPlayback = ({ scaleNotes, chordNotes }) => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -60,6 +61,11 @@ const AudioPlayback = ({ scaleNotes, chordNotes }) => {
       </div>
     </div>
   );
+};
+
+AudioPlayback.propTypes = {
+  scaleNotes: PropTypes.arrayOf(PropTypes.string).isRequired,
+  chordNotes: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 
 export default AudioPlayback;

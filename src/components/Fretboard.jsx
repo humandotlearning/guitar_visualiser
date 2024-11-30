@@ -2,8 +2,9 @@
 import React, { useState } from 'react';
 import { NOTES, getScaleNotes, SCALE_LIBRARY, getScaleDegree } from '../utils/musicTheory';
 import './Fretboard.css';
+import PropTypes from 'prop-types';
 
-const FretboardNote = ({ note, fret, stringIndex, isRoot, selectedScale, showScaleDegrees, rootNote }) => {
+const FretboardNote = ({ note, fret, isRoot, selectedScale, showScaleDegrees, rootNote }) => {
   const [isHovered, setIsHovered] = useState(false);
   const scaleNotes = selectedScale ? getScaleNotes(rootNote, SCALE_LIBRARY[selectedScale.category][selectedScale.name]) : [];
   const isInScale = scaleNotes.includes(note);
@@ -42,6 +43,18 @@ const FretboardNote = ({ note, fret, stringIndex, isRoot, selectedScale, showSca
   );
 };
 
+FretboardNote.propTypes = {
+  note: PropTypes.string.isRequired,
+  fret: PropTypes.number.isRequired,
+  isRoot: PropTypes.bool.isRequired,
+  selectedScale: PropTypes.shape({
+    category: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+  }).isRequired,
+  showScaleDegrees: PropTypes.bool.isRequired,
+  rootNote: PropTypes.string.isRequired,
+};
+
 const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegrees, tuning, fretCount }) => {
   return (
     <div>
@@ -75,7 +88,6 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
                       key={fret}
                       note={note}
                       fret={fret}
-                      stringIndex={index}
                       isRoot={isRoot}
                       selectedScale={selectedScale}
                       showScaleDegrees={showScaleDegrees}
@@ -97,6 +109,21 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
       </div>
     </div>
   );
+};
+
+Fretboard.propTypes = {
+  note: PropTypes.string.isRequired,
+  fret: PropTypes.number.isRequired,
+  isRoot: PropTypes.bool.isRequired,
+  selectedScale: PropTypes.shape({
+    category: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+  }).isRequired,
+  showScaleDegrees: PropTypes.bool.isRequired,
+  rootNote: PropTypes.string.isRequired,
+  tuning: PropTypes.arrayOf(PropTypes.string).isRequired,
+  fretCount: PropTypes.number.isRequired,
+  setShowScaleDegrees: PropTypes.func.isRequired,
 };
 
 export default Fretboard;

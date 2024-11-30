@@ -1,5 +1,6 @@
 // File: src/components/FretboardCustomization.jsx
 import React from 'react';
+import PropTypes from 'prop-types';
 
 const TUNINGS = {
   'Standard': ['E', 'B', 'G', 'D', 'A', 'E'],
@@ -13,7 +14,7 @@ const FretboardCustomization = ({ tuning, setTuning, fretCount, setFretCount }) 
     setTuning(TUNINGS[e.target.value]);
   };
 
-  const currentTuning = Object.entries(TUNINGS).find(([_, notes]) => 
+  const currentTuning = Object.entries(TUNINGS).find(([, notes]) => 
     notes.join(',') === tuning.join(',')
   )?.[0] || 'Standard';
 
@@ -47,6 +48,13 @@ const FretboardCustomization = ({ tuning, setTuning, fretCount, setFretCount }) 
       </div>
     </div>
   );
+};
+
+FretboardCustomization.propTypes = {
+  tuning: PropTypes.arrayOf(PropTypes.string).isRequired,
+  setTuning: PropTypes.func.isRequired,
+  fretCount: PropTypes.number.isRequired,
+  setFretCount: PropTypes.func.isRequired,
 };
 
 export default FretboardCustomization;

@@ -1,6 +1,7 @@
 // File: src/components/ScaleSelector.jsx
 import React from 'react';
 import { NOTES, SCALE_LIBRARY } from '../utils/musicTheory';
+import PropTypes from 'prop-types';
 
 const ScaleSelector = ({ rootNote, setRootNote, selectedScale, setSelectedScale }) => {
   return (
@@ -43,6 +44,16 @@ const ScaleSelector = ({ rootNote, setRootNote, selectedScale, setSelectedScale 
       </div>
     </div>
   );
+};
+
+ScaleSelector.propTypes = {
+  rootNote: PropTypes.string.isRequired,
+  setRootNote: PropTypes.func.isRequired,
+  selectedScale: PropTypes.shape({
+    category: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+  }).isRequired,
+  setSelectedScale: PropTypes.func.isRequired,
 };
 
 export default ScaleSelector;

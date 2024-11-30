@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { getChordNotes, CHORD_TYPES, SCALE_LIBRARY, getScaleNotes } from '../utils/musicTheory';
 import Chord from '@tombatossals/react-chords/lib/Chord';
 import guitarChords from '@tombatossals/chords-db/lib/guitar.json';
+import PropTypes from 'prop-types';
 
 const CHORD_TYPE_MAP = {
   major: 'major',
@@ -139,6 +140,15 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect }) => {
       )}
     </div>
   );
+};
+
+ChordVisualizer.propTypes = {
+  rootNote: PropTypes.string.isRequired,
+  selectedScale: PropTypes.shape({
+    category: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+  }).isRequired,
+  onChordSelect: PropTypes.func.isRequired,
 };
 
 export default ChordVisualizer;
