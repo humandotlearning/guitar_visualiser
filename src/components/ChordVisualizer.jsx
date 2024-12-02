@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getChordNotes, CHORD_TYPES, SCALE_LIBRARY, getScaleNotes } from '../utils/musicTheory';
 import Chord from '@tombatossals/react-chords/lib/Chord';
-import guitarChords from '@tombatossals/chords-db/lib/guitar.json';
+import guitarChords from '../db/guitar.json';
 import PropTypes from 'prop-types';
 
 const CHORD_TYPE_MAP = {
