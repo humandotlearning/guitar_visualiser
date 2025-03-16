@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
+// Lazy load the larger components
+const Fretboard = lazy(() => import('./components/Fretboard'));
+const ChordVisualizer = lazy(() => import('./components/ChordVisualizer'));
+const AudioPlayback = lazy(() => import('./components/AudioPlayback'));
+const FretboardCustomization = lazy(() => import('./components/FretboardCustomization'));
+// Keep smaller components eagerly loaded
 import ScaleSelector from './components/ScaleSelector';
-import Fretboard from './components/Fretboard';
-import ChordVisualizer from './components/ChordVisualizer';
-import AudioPlayback from './components/AudioPlayback';
-import FretboardCustomization from './components/FretboardCustomization';
-import { getScaleNotes, SCALE_LIBRARY } from './utils/musicTheory';
 import ScaleNotes from './components/ScaleNotes';  
+import { getScaleNotes, SCALE_LIBRARY } from './utils/musicTheory';
 import './App.css';
 
 const App = () => {
@@ -44,28 +46,35 @@ const App = () => {
           {/* <h2 className="text-xl font-semibold mb-2">Scale </h2> */}
       <ScaleNotes rootNote={rootNote} selectedScale={selectedScale} />
       </div>
-      <div className="card mt-4">
-        <h2 className="text-xl font-semibold mb-2">Fretboard</h2>
-        <Fretboard
-          rootNote={rootNote}
-          selectedScale={selectedScale}
-          showScaleDegrees={showScaleDegrees}
-          setShowScaleDegrees={setShowScaleDegrees}
-          tuning={tuning}
-          fretCount={fretCount}
-        />
-      </div>
-      <div className="card mt-4">
-        {/* <h2 className="text-xl font-semibold mb-2">Chords in the Scale</h2> */}
-        <ChordVisualizer
-          rootNote={rootNote}
-          selectedScale={selectedScale}
-          onChordSelect={setSelectedChord}
-        />
-      </div>
-      <div className="card mt-4">
-        <AudioPlayback scaleNotes={scaleNotes} chordNotes={selectedChord} />
-      </div>
+      <Suspense fallback={<div className="card mt-4 p-4">Loading Fretboard...</div>}>
+        <div className="card mt-4">
+          <h2 className="text-xl font-semibold mb-2">Fretboard</h2>
+          <Fretboard
+            rootNote={rootNote}
+            selectedScale={selectedScale}
+            showScaleDegrees={showScaleDegrees}
+            setShowScaleDegrees={setShowScaleDegrees}
+            tuning={tuning}
+            fretCount={fretCount}
+          />
+        </div>
+      </Suspense>
+      <Suspense fallback={<div className="card mt-4 p-4">Loading Chord Visualizer...</div>}>
+        <div className="card mt-4">
+          {/* <h2 className="text-xl font-semibold mb-2">Chords in the Scale</h2> */}
+          <ChordVisualizer
+            rootNote={rootNote}
+            selectedScale={selectedScale}
+            onChordSelect={setSelectedChord}
+          />
+        </div>
+      </Suspense>
+      <Suspense fallback={<div className="card mt-4 p-4">Loading Audio Playback...</div>}>
+        <div className="card mt-4">
+          <AudioPlayback scaleNotes={scaleNotes} chordNotes={selectedChord} />
+        </div>
+      </Suspense>
+      <Suspense fallback={<div className="card p-4">Loading Customization...</div>}>
         <div className="card">
           <h2 className="text-xl font-semibold mb-2">Fretboard Customization</h2>
           <FretboardCustomization
@@ -75,6 +84,7 @@ const App = () => {
             setFretCount={setFretCount}
           />
         </div>
+      </Suspense>
     </div>
   );
 };

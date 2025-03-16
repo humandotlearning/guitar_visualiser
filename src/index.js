@@ -1,14 +1,28 @@
 import React from 'react';
-import ReactDOM from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+// Use window check to ensure client-side only execution
+if (typeof window !== 'undefined') {
+  const container = document.getElementById('root');
+  const root = createRoot(container);
+  
+  // Remove StrictMode in production for better performance
+  // as it causes double-rendering in development
+  root.render(
+    process.env.NODE_ENV === 'development' ? (
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>
+    ) : (
+      <App />
+    )
+  );
 
-reportWebVitals();
+  // Only measure performance in production
+  if (process.env.NODE_ENV === 'production') {
+    reportWebVitals();
+  }
+}
