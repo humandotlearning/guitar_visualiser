@@ -239,7 +239,7 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, selectedInstr
   };
 
   if (!rootNote || !selectedScale) {
-    return <div className="chord-visualizer"><h2 className="text-xl font-semibold mb-2">Chords in the Scale</h2><p>Please select a scale.</p></div>;
+    return <div className="chord-visualizer"><p>Please select a scale.</p></div>;
   }
 
   const { category, name } = selectedScale;
@@ -260,7 +260,7 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, selectedInstr
   return (
     <ClientOnly fallback={<div className="chord-visualizer p-4">Loading chord visualizer...</div>}>
       <div className="chord-visualizer">
-        <h2 className="text-xl font-semibold mb-2">Chords in the Scale</h2>
+        {/* <h2 className="text-xl font-semibold mb-2">Chords in the Scale</h2> */}
         
         {/* {selectedChordName && (
           // <div className="selected-chord-indicator mb-3">
