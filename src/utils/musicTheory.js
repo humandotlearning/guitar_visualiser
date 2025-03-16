@@ -29,6 +29,15 @@ export const CHORDS = {
   minor: ['i', 'ii°', 'III', 'iv', 'v', 'VI', 'VII']
 };
 
+// Get the note at a specific fret on a string
+export const getNoteAtFret = (openStringNote, fret) => {
+  const noteIndex = NOTES.indexOf(openStringNote);
+  if (noteIndex === -1) return null;
+  
+  const newNoteIndex = (noteIndex + fret) % 12;
+  return NOTES[newNoteIndex];
+};
+
 export const getScaleNotes = (root, scale) => {
   if (!root || !Array.isArray(scale)) return [];
   const rootIndex = NOTES.indexOf(root);

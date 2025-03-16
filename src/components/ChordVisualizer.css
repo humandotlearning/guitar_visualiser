@@ -1,0 +1,140 @@
+/* Chord Visualizer Styles */
+
+.chord-visualizer {
+  margin-top: 2rem;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+}
+
+.chord-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.chord-variation {
+  text-align: center;
+  padding: 1rem;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.chord-variation:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.chord-grid .variation-title {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.chord-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+}
+
+.chord-table th,
+.chord-table td {
+  padding: 0.75rem 1rem;
+  text-align: center;
+  border: 1px solid #e2e8f0;
+  background-color: #f0f4f8; /* Light background for all chord cells */
+}
+
+.chord-table th {
+  background-color: #f8fafc;
+  font-weight: 600;
+}
+
+.chord-button {
+  background-color: transparent;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  font-weight: 600;
+  width: 100%;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.chord-button:hover {
+  background-color: #e2e8f0;
+}
+
+.selected-chord {
+  color: white;
+  background-color: #3b82f6; /* Brighter blue for better contrast */
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.chord-notes {
+  font-size: 0.75rem;
+  color: #4b5563; /* Darker color for better visibility */
+  margin-top: 0.25rem;
+  font-weight: 500;
+}
+
+.chord-degree {
+  font-size: 0.75rem;
+  color: #4b5563;
+  margin-top: 0.25rem;
+  font-style: italic;
+  font-weight: 500;
+}
+
+.double-tap-instruction {
+  font-size: 0.875rem;
+  color: #4b5563;
+  margin-bottom: 0.75rem;
+  font-style: italic;
+}
+
+.play-button {
+  margin-top: 0.5rem;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.play-button:hover:not(:disabled) {
+  background-color: #2563eb;
+}
+
+.play-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Animation for playing state */
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.playing {
+  animation: pulse 1s infinite;
+}

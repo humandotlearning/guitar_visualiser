@@ -1,147 +1,341 @@
-// File: src/components/AudioPlayback.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import ClientOnly from '../utils/clientOnly';
+import * as SoundfontAudio from '../utils/soundfontAudioUtils';
+import { getScaleNotes, SCALE_LIBRARY } from '../utils/musicTheory';
+import './SoundSettings.css';
 
-const AudioPlayback = ({ scaleNotes, chordNotes }) => {
+const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrument, onInstrumentChange }) => {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [instrument, setInstrument] = useState('sine');
-  const [instruments, setInstruments] = useState({});
-  const [audioContext, setAudioContext] = useState(null);
+  const [audioInitialized, setAudioInitialized] = useState(false);
+  const [activeElement, setActiveElement] = useState(null);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [volume, setVolume] = useState(0.8);
+  const [sustain, setSustain] = useState(1.5);
+  const [localInstrument, setLocalInstrument] = useState(selectedInstrument || 'acoustic_guitar_steel');
   
-  // Initialize audio context and instruments only on client-side
+  // Reference to detect clicks outside the settings panel
+  const settingsRef = useRef(null);
+
+  // Available guitar instruments
+  const instruments = {
+    'acoustic_guitar_nylon': 'Acoustic Guitar (nylon)',
+    'acoustic_guitar_steel': 'Acoustic Guitar (steel)',
+    'electric_guitar_clean': 'Electric Guitar (clean)',
+    'electric_guitar_jazz': 'Electric Guitar (jazz)',
+    'electric_guitar_muted': 'Electric Guitar (muted)',
+    'overdriven_guitar': 'Overdriven Guitar',
+    'distortion_guitar': 'Distortion Guitar',
+    'guitar_harmonics': 'Guitar Harmonics'
+  };
+
+  // Get scale notes if rootNote and selectedScale are provided
+  const scaleNotes = selectedScale && rootNote ? 
+    getScaleNotes(rootNote, SCALE_LIBRARY[selectedScale.category][selectedScale.name]) : [];
+
+  // Close settings when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (settingsRef.current && !settingsRef.current.contains(event.target)) {
+        setIsSettingsOpen(false);
+      }
+    }
+
+    // Bind the event listener
+    if (isSettingsOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      // Unbind the event listener on clean up
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isSettingsOpen]);
+
+  // Initialize audio context on mount and handle instrument changes
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      // Define instruments here instead of importing them
-      const INSTRUMENTS = {
-        'Sine Wave': 'sine',
-        'Square Wave': 'square',
-        'Sawtooth Wave': 'sawtooth',
-        'Triangle Wave': 'triangle'
-      };
-      setInstruments(INSTRUMENTS);
-      
-      // Create AudioContext only when needed
-      const initAudio = () => {
-        // Use AudioContext with fallback for older browsers
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        if (AudioCtx && !audioContext) {
-          setAudioContext(new AudioCtx());
+      const initAudio = async () => {
+        try {
+          await SoundfontAudio.initializeAudio();
+          await SoundfontAudio.loadInstrument(localInstrument);
+          // Apply audio settings
+          SoundfontAudio.setVolume(volume);
+          SoundfontAudio.setSustain(sustain);
+          setAudioInitialized(true);
+        } catch (error) {
+          console.error('Error initializing audio:', error);
         }
       };
-      
-      // Initialize on user interaction to avoid autoplay restrictions
-      document.addEventListener('click', initAudio, { once: true });
-      
+
+      // Initialize on first user interaction
+      const handleFirstInteraction = () => {
+        initAudio();
+        document.removeEventListener('click', handleFirstInteraction);
+      };
+
+      document.addEventListener('click', handleFirstInteraction, { once: true });
+
       return () => {
-        document.removeEventListener('click', initAudio);
-        // Clean up AudioContext when component unmounts
-        if (audioContext) {
-          audioContext.close();
-        }
+        document.removeEventListener('click', handleFirstInteraction);
       };
     }
-  }, [audioContext]);
-  
-  const getNoteFrequency = (note) => {
-    const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-    const A4 = 440;
-    const A4Index = NOTES.indexOf('A');
-    const noteIndex = NOTES.indexOf(note);
-    const octave = 4; // Assuming middle octave
-    const halfSteps = noteIndex - A4Index + (octave - 4) * 12;
-    return A4 * Math.pow(2, halfSteps / 12);
-  };
-  
-  const playNote = (frequency, duration, type) => {
-    if (!audioContext) return;
-    
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    
-    oscillator.type = type;
-    oscillator.frequency.value = frequency;
-    
-    // Apply envelope
-    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-    gainNode.gain.linearRampToValueAtTime(0.7, audioContext.currentTime + 0.05);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    oscillator.start();
-    oscillator.stop(audioContext.currentTime + duration);
+  }, []);
+
+  // Handle instrument and audio setting changes
+  useEffect(() => {
+    if (audioInitialized) {
+      const updateAudioSettings = async () => {
+        try {
+          if (selectedInstrument && selectedInstrument !== localInstrument) {
+            setLocalInstrument(selectedInstrument);
+            await SoundfontAudio.loadInstrument(selectedInstrument);
+          }
+          // Update audio settings
+          SoundfontAudio.setVolume(volume);
+          SoundfontAudio.setSustain(sustain);
+        } catch (error) {
+          console.error('Error updating audio settings:', error);
+        }
+      };
+      updateAudioSettings();
+    }
+  }, [selectedInstrument, volume, sustain, audioInitialized, localInstrument]);
+
+  // Play a single note with the current instrument
+  const playNote = async (note, duration = null) => {
+    if (!audioInitialized) return;
+    try {
+      await SoundfontAudio.playNote(note, duration);
+    } catch (error) {
+      console.error('Error playing note:', error);
+    }
   };
 
-  const playScale = () => {
-    if (!audioContext) return;
+  // Play the entire scale sequentially
+  const playScale = async () => {
+    if (!audioInitialized || isPlaying || scaleNotes.length === 0) return;
     
+    setActiveElement('scale');
     setIsPlaying(true);
-    scaleNotes.forEach((note, index) => {
-      setTimeout(() => {
-        playNote(getNoteFrequency(note), 0.5, instrument);
-        if (index === scaleNotes.length - 1) setIsPlaying(false);
-      }, index * 500);
-    });
+    try {
+      // Play notes sequentially with a delay between them
+      for (let i = 0; i < scaleNotes.length; i++) {
+        await new Promise(resolve => {
+          setTimeout(() => {
+            playNote(scaleNotes[i]);
+            resolve();
+          }, i === 0 ? 0 : 500); // No delay for first note
+        });
+      }
+    } catch (err) {
+      console.error('Error playing scale:', err);
+    } finally {
+      setTimeout(() => setIsPlaying(false), 500);
+    }
   };
 
-  const playChord = () => {
-    if (!audioContext) return;
+  // Play chord (all notes together)
+  const playChord = async () => {
+    if (!audioInitialized || isPlaying || !selectedChord || selectedChord.length === 0) return;
     
+    setActiveElement('chord');
     setIsPlaying(true);
-    chordNotes.forEach((note, index) => {
-      // Slightly stagger chord notes for a more natural sound
-      setTimeout(() => {
-        playNote(getNoteFrequency(note), 1, instrument);
-      }, index * 30);
-    });
-    setTimeout(() => setIsPlaying(false), 1000);
+    try {
+      await SoundfontAudio.playChord(selectedChord);
+      setTimeout(() => setIsPlaying(false), 1500);
+    } catch (error) {
+      console.error('Error playing chord:', error);
+      setIsPlaying(false);
+    }
+  };
+
+  // Play an arpeggio of the selected chord
+  const playArpeggio = async () => {
+    if (!audioInitialized || isPlaying || !selectedChord || selectedChord.length === 0) return;
+    
+    setActiveElement('arpeggio');
+    setIsPlaying(true);
+    try {
+      // Play chord notes sequentially
+      for (let i = 0; i < selectedChord.length; i++) {
+        await new Promise(resolve => {
+          setTimeout(() => {
+            playNote(selectedChord[i]);
+            resolve();
+          }, i === 0 ? 0 : 250); // Faster than scale for arpeggio
+        });
+      }
+    } catch (error) {
+      console.error('Error playing arpeggio:', error);
+    } finally {
+      setTimeout(() => setIsPlaying(false), 500);
+    }
+  };
+
+  // Play a test note with the current instrument
+  const playTestNote = async () => {
+    try {
+      // Play a simple E chord to test the instrument
+      await SoundfontAudio.playChord(['E', 'G#', 'B'], sustain);
+    } catch (error) {
+      console.error('Error playing test note:', error);
+    }
+  };
+
+  // Get the first chord note for display
+  const getChordRootName = () => {
+    return selectedChord && selectedChord.length > 0 ? selectedChord[0] : '';
+  };
+
+  // Close the settings panel
+  const closeSettings = () => {
+    setIsSettingsOpen(false);
   };
 
   return (
-    <ClientOnly fallback={<div className="mt-4 p-4">Audio playback loading...</div>}>
-      <div className="mt-4 space-y-2">
-        <div>
-          <label htmlFor="instrument" className="mr-2">Instrument:</label>
-          <select
-            id="instrument"
-            value={instrument}
-            onChange={(e) => setInstrument(e.target.value)}
-            className="border rounded p-1"
-          >
-            {Object.entries(instruments).map(([name, value]) => (
-              <option key={value} value={value}>{name}</option>
-            ))}
-          </select>
-        </div>
-        <div className="space-x-2">
-          <button
-            onClick={playScale}
-            disabled={isPlaying || !scaleNotes.length || !audioContext}
-            className="px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50"
-          >
-            Play Scale
-          </button>
-          <button
-            onClick={playChord}
-            disabled={isPlaying || !chordNotes?.length || !audioContext}
-            className="px-4 py-2 bg-green-500 text-white rounded disabled:opacity-50"
-          >
-            Play Chord
-          </button>
-        </div>
-        {!audioContext && (
-          <p className="text-sm text-gray-600">Click anywhere to initialize audio</p>
-        )}
+    <div className="audio-playback relative">
+      {/* Overlay for when settings are open */}
+      {isSettingsOpen && <div className="overlay" onClick={closeSettings}></div>}
+      
+      <div className="flex justify-between items-center mb-2">
+        <h2 className="text-xl font-semibold">Audio Playback</h2>
+        
+        {/* Settings button */}
+        <button 
+          className={`settings-toggle settings-toggle-small ${isSettingsOpen ? 'active' : ''}`}
+          onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+          aria-label="Sound Settings"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="10" cy="10" r="2"></circle>
+            <path d="M13.45 13.45L13 17h-6l-.45-3.55a6.07 6.07 0 01-1.64-.95L1.5 14.5.5 12l2.9-1.74c-.02-.17-.03-.34-.03-.51 0-.17.01-.34.03-.51L.5 7.5l1-2.5 3.41 2c.53-.38 1.07-.7 1.64-.95L7 2.5h6l.45 3.55c.57.25 1.11.57 1.64.95l3.41-2 1 2.5-2.9 1.74c.02.17.03.34.03.51 0 .17-.01.34-.03.51l2.9 1.74-1 2.5-3.41-2a6.07 6.07 0 01-1.64.95z"></path>
+          </svg>
+        </button>
       </div>
-    </ClientOnly>
+        
+      {/* Settings panel (modal style) */}
+      {isSettingsOpen && (
+        <div className="settings-panel settings-panel-audio" ref={settingsRef}>
+          <div className="settings-header">
+            <div className="settings-title">Audio Settings</div>
+            <button className="settings-close" onClick={closeSettings}>
+              ×
+            </button>
+          </div>
+
+          <div className="setting-group">
+            <label htmlFor="audio-instrument-select">Guitar Sound</label>
+            <div className="instrument-controls instrument-row">
+              <div className="selected-instrument">
+                <span className="selected-instrument-name">{instruments[localInstrument]}</span>
+              </div>
+              <select
+                id="audio-instrument-select"
+                value={localInstrument}
+                onChange={(e) => {
+                  setLocalInstrument(e.target.value);
+                  onInstrumentChange(e.target.value);
+                }}
+                className="instrument-select"
+              >
+                {Object.entries(instruments).map(([value, name]) => (
+                  <option key={value} value={value}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+              <button 
+                className="test-sound-button"
+                onClick={playTestNote}
+              >
+                Test Sound
+              </button>
+            </div>
+          </div>
+          
+          <div className="setting-group">
+            <div className="slider-container">
+              <label htmlFor="volume-control-audio">Volume: {Math.round(volume * 100)}%</label>
+              <div className="slider-wrapper">
+                <input
+                  id="volume-control-audio"
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  value={volume}
+                  onChange={(e) => setVolume(parseFloat(e.target.value))}
+                  className="slider"
+                />
+              </div>
+            </div>
+          </div>
+          
+          <div className="setting-group">
+            <div className="slider-container">
+              <label htmlFor="sustain-control-audio">Sustain: {sustain.toFixed(1)}s</label>
+              <div className="slider-wrapper">
+                <input
+                  id="sustain-control-audio"
+                  type="range"
+                  min="0.5"
+                  max="3"
+                  step="0.1"
+                  value={sustain}
+                  onChange={(e) => setSustain(parseFloat(e.target.value))}
+                  className="slider"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+        
+      <div className="grid grid-cols-3 gap-2">
+        <button
+          onClick={playScale}
+          disabled={isPlaying || scaleNotes.length === 0}
+          className={`p-2 ${isPlaying && activeElement === 'scale' ? 'bg-green-500' : 'bg-blue-500'} text-white rounded disabled:opacity-50`}
+        >
+          {isPlaying && activeElement === 'scale' ? 'Playing...' : `${rootNote} ${selectedScale?.name || ''} Scale`}
+        </button>
+        <button
+          onClick={playChord}
+          disabled={isPlaying || !selectedChord || selectedChord.length === 0}
+          className={`p-2 ${isPlaying && activeElement === 'chord' ? 'bg-green-500' : 'bg-blue-500'} text-white rounded disabled:opacity-50`}
+        >
+          {isPlaying && activeElement === 'chord' ? 'Playing...' : `${getChordRootName()} Chord`}
+        </button>
+        <button
+          onClick={playArpeggio}
+          disabled={isPlaying || !selectedChord || selectedChord.length === 0}
+          className={`p-2 ${isPlaying && activeElement === 'arpeggio' ? 'bg-green-500' : 'bg-blue-500'} text-white rounded disabled:opacity-50`}
+        >
+          {isPlaying && activeElement === 'arpeggio' ? 'Playing...' : `${getChordRootName()} Arpeggio`}
+        </button>
+      </div>
+      {!audioInitialized && (
+        <p className="text-sm text-gray-500 mt-2">
+          Click anywhere to initialize audio...
+        </p>
+      )}
+      {selectedChord && selectedChord.length > 0 && (
+        <div className="mt-2">
+          <p className="text-sm">Selected Chord: <span className="font-medium">{selectedChord.join(' - ')}</span></p>
+        </div>
+      )}
+    </div>
   );
 };
 
 AudioPlayback.propTypes = {
-  scaleNotes: PropTypes.arrayOf(PropTypes.string).isRequired,
-  chordNotes: PropTypes.arrayOf(PropTypes.string).isRequired,
+  rootNote: PropTypes.string,
+  selectedScale: PropTypes.shape({
+    category: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+  }),
+  selectedChord: PropTypes.array,
+  selectedInstrument: PropTypes.string,
+  onInstrumentChange: PropTypes.func.isRequired
 };
 
 export default AudioPlayback;
