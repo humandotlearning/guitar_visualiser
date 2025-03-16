@@ -197,7 +197,10 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
       {isSettingsOpen && <div className="overlay" onClick={closeSettings}></div>}
       
       <div className="flex justify-between items-center mb-2">
-        <h2 className="text-xl font-semibold">Audio Playback</h2>
+        <div>
+          <h2 className="text-xl font-semibold">Audio Playback</h2>
+          <p className="text-sm text-gray-600">Using: {instruments[localInstrument]}</p>
+        </div>
         
         {/* Settings button */}
         <button 
