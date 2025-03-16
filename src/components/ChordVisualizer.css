@@ -65,6 +65,7 @@
   width: 100%;
   display: block;
   margin-bottom: 0.25rem;
+  color: #1e293b; /* Darker text color for better contrast */
 }
 
 .chord-button:hover {
@@ -81,14 +82,14 @@
 
 .chord-notes {
   font-size: 0.75rem;
-  color: #4b5563; /* Darker color for better visibility */
+  color: #1e293b; /* Much darker color for better visibility */
   margin-top: 0.25rem;
   font-weight: 500;
 }
 
 .chord-degree {
   font-size: 0.75rem;
-  color: #4b5563;
+  color: #1e293b; /* Much darker color for better visibility */
   margin-top: 0.25rem;
   font-style: italic;
   font-weight: 500;
