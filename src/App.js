@@ -29,15 +29,6 @@ const App = () => {
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-4">Guitar Scale Visualizer</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div className="card">
-          <h2 className="text-xl font-semibold mb-2">Fretboard Customization</h2>
-          <FretboardCustomization
-            tuning={tuning}
-            setTuning={setTuning}
-            fretCount={fretCount}
-            setFretCount={setFretCount}
-          />
-        </div>
         <div className="card">
           <h2 className="text-xl font-semibold mb-2">Select Scale</h2>
           <ScaleSelector
@@ -75,6 +66,15 @@ const App = () => {
       <div className="card mt-4">
         <AudioPlayback scaleNotes={scaleNotes} chordNotes={selectedChord} />
       </div>
+        <div className="card">
+          <h2 className="text-xl font-semibold mb-2">Fretboard Customization</h2>
+          <FretboardCustomization
+            tuning={tuning}
+            setTuning={setTuning}
+            fretCount={fretCount}
+            setFretCount={setFretCount}
+          />
+        </div>
     </div>
   );
 };
