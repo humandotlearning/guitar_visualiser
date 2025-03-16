@@ -262,11 +262,11 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, selectedInstr
       <div className="chord-visualizer">
         <h2 className="text-xl font-semibold mb-2">Chords in the Scale</h2>
         
-        {selectedChordName && (
-          <div className="selected-chord-indicator mb-3">
-            <p>Selected: <strong>{selectedChordName}{chordTypes[Object.keys(chords).indexOf(selectedChordName)]}</strong></p>
-          </div>
-        )}
+        {/* {selectedChordName && (
+          // <div className="selected-chord-indicator mb-3">
+          //   <p>Selected: <strong>{selectedChordName}{chordTypes[Object.keys(chords).indexOf(selectedChordName)]}</strong></p>
+          // </div>
+        )} */}
         
         <p className="double-tap-instruction">Double-tap on any chord to play it</p>
         
@@ -308,7 +308,7 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, selectedInstr
         
         {selectedChord && chordVariations.length > 0 ? (
           <>
-            <h3 className="text-lg font-semibold mt-4 mb-2">Chord Variations</h3>
+            <h3 className="text-lg font-semibold mt-4 mb-2">Chord Variations of {selectedChordName}{chordTypes[Object.keys(chords).indexOf(selectedChordName)]}</h3>
             <p className="text-sm mb-2">Double-tap on a chord diagram to hear how it sounds</p>
             <div className="chord-grid">
               {chordVariations.map((variation, index) => (

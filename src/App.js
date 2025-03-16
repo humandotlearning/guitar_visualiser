@@ -7,6 +7,7 @@ const FretboardCustomization = lazy(() => import('./components/FretboardCustomiz
 // Keep smaller components eagerly loaded
 import ScaleSelector from './components/ScaleSelector';
 import ScaleNotes from './components/ScaleNotes';  
+import OrientationPrompt from './components/OrientationPrompt';
 import './App.css';
 
 function App() {
@@ -31,6 +32,9 @@ function App() {
 
   return (
     <div className="container mx-auto p-4">
+      {/* Orientation prompt will only show on mobile devices in portrait mode */}
+      <OrientationPrompt />
+      
       <h1 className="text-3xl font-bold mb-4">Guitar Scale Visualizer</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="card">

@@ -218,3 +218,75 @@ button.selected-chord {
   transform: scale(1.05); /* Slightly enlarge the button */
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Add a shadow for emphasis */
 }
+
+/* Mobile Landscape Mode Optimizations */
+@media screen and (max-width: 768px) and (orientation: landscape) {
+  /* Optimize container spacing for landscape */
+  .container {
+    padding: 10px;
+    max-width: 100%;
+  }
+  
+  /* Reduce heading sizes to save vertical space */
+  h1 {
+    font-size: 1.8rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .card h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  /* Adjust card padding */
+  .card {
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+  
+  /* Optimize fretboard display for landscape */
+  .fretboard-container {
+    height: auto;
+    max-height: calc(100vh - 180px);
+  }
+  
+  .string {
+    height: 32px; /* Slightly smaller strings */
+  }
+  
+  .string-label {
+    height: 32px;
+    width: 25px;
+    font-size: 0.9rem;
+  }
+  
+  .fretboard-note {
+    width: 32px;
+    height: 32px;
+    font-size: 0.85rem;
+  }
+  
+  /* Improve touch targets for mobile */
+  button {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
+  
+  /* Adjust grid for landscape */
+  .grid-cols-1 {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+}
+
+/* Force landscape class (applied via JavaScript) */
+.force-landscape {
+  transform: rotate(-90deg);
+  transform-origin: left top;
+  width: 100vh;
+  height: 100vw;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  overflow: auto;
+}

@@ -139,3 +139,45 @@
 .playing {
   animation: pulse 1s infinite;
 }
+
+/* Mobile Responsive Adjustments */
+@media screen and (max-width: 768px) {
+  .chord-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 1rem;
+  }
+  
+  .chord-variation {
+    padding: 0.75rem;
+  }
+}
+
+/* Landscape Mode Optimizations */
+@media screen and (max-width: 768px) and (orientation: landscape) {
+  .chord-visualizer {
+    margin-top: 1rem;
+    padding: 0.75rem;
+  }
+  
+  .chord-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 0.75rem;
+  }
+  
+  /* Increase touch target size in landscape */
+  .chord-button {
+    padding: 0.75rem 0.5rem;
+  }
+  
+  /* Optimize space usage */
+  .chord-table th,
+  .chord-table td {
+    padding: 0.5rem;
+  }
+  
+  /* Better readability in landscape */
+  .chord-degree,
+  .chord-notes {
+    font-size: 0.7rem;
+  }
+}

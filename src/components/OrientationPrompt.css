@@ -1,0 +1,110 @@
+/* Orientation Prompt Styles */
+.orientation-prompt {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.orientation-prompt-content {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  max-width: 90%;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.orientation-prompt h3 {
+  margin-top: 1rem;
+  margin-bottom: 0.75rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.orientation-prompt p {
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+  color: #4b5563;
+}
+
+.dismiss-button {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.dismiss-button:hover {
+  background-color: #2563eb;
+}
+
+/* Rotating phone animation */
+.rotate-icon {
+  width: 100px;
+  height: 50px;
+  margin: 0 auto;
+  position: relative;
+  background-color: #333;
+  border-radius: 4px;
+  transform: rotate(0deg);
+  animation: rotate 2s infinite ease-in-out;
+}
+
+.rotate-icon:before {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: #333;
+  border-radius: 50%;
+  top: 50%;
+  left: -5px;
+  transform: translateY(-50%);
+}
+
+/* Animation for the rotation icon */
+@keyframes rotate {
+  0% { transform: rotate(0deg); }
+  50% { transform: rotate(90deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Media query to hide prompt in landscape mode */
+@media (orientation: landscape) {
+  .orientation-prompt {
+    display: none;
+  }
+}
+
+/* Media query for optimal fretboard viewing on mobile */
+@media (max-width: 768px) and (orientation: portrait) {
+  /* Add portrait-specific CSS here */
+  .chord-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+}
+
+@media (max-width: 768px) and (orientation: landscape) {
+  /* Add landscape-specific CSS here */
+  .chord-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+}
