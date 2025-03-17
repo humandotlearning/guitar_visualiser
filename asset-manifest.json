@@ -1,15 +1,34 @@
 {
   "files": {
-    "main.css": "/guitar_visualiser/static/css/main.b50f9651.css",
-    "main.js": "/guitar_visualiser/static/js/main.0d839768.js",
-    "static/js/453.85ff4825.chunk.js": "/guitar_visualiser/static/js/453.85ff4825.chunk.js",
-    "index.html": "/guitar_visualiser/index.html",
-    "main.b50f9651.css.map": "/guitar_visualiser/static/css/main.b50f9651.css.map",
-    "main.0d839768.js.map": "/guitar_visualiser/static/js/main.0d839768.js.map",
-    "453.85ff4825.chunk.js.map": "/guitar_visualiser/static/js/453.85ff4825.chunk.js.map"
+    "main.css": "/guitar_scale_visualizer/static/css/main.a2c55b33.css",
+    "main.js": "/guitar_scale_visualizer/static/js/main.2851f4d4.js",
+    "static/css/952.26a00398.chunk.css": "/guitar_scale_visualizer/static/css/952.26a00398.chunk.css",
+    "static/js/952.54e83e10.chunk.js": "/guitar_scale_visualizer/static/js/952.54e83e10.chunk.js",
+    "static/css/740.43b6aad3.chunk.css": "/guitar_scale_visualizer/static/css/740.43b6aad3.chunk.css",
+    "static/js/740.d62872cf.chunk.js": "/guitar_scale_visualizer/static/js/740.d62872cf.chunk.js",
+    "static/css/519.4e8c7e2c.chunk.css": "/guitar_scale_visualizer/static/css/519.4e8c7e2c.chunk.css",
+    "static/js/519.d71cc9f8.chunk.js": "/guitar_scale_visualizer/static/js/519.d71cc9f8.chunk.js",
+    "static/js/379.71f84edd.chunk.js": "/guitar_scale_visualizer/static/js/379.71f84edd.chunk.js",
+    "static/js/453.85ff4825.chunk.js": "/guitar_scale_visualizer/static/js/453.85ff4825.chunk.js",
+    "static/js/81.1996126b.chunk.js": "/guitar_scale_visualizer/static/js/81.1996126b.chunk.js",
+    "static/js/878.dfdd06ca.chunk.js": "/guitar_scale_visualizer/static/js/878.dfdd06ca.chunk.js",
+    "static/js/200.dbdc80e2.chunk.js": "/guitar_scale_visualizer/static/js/200.dbdc80e2.chunk.js",
+    "index.html": "/guitar_scale_visualizer/index.html",
+    "main.a2c55b33.css.map": "/guitar_scale_visualizer/static/css/main.a2c55b33.css.map",
+    "main.2851f4d4.js.map": "/guitar_scale_visualizer/static/js/main.2851f4d4.js.map",
+    "952.26a00398.chunk.css.map": "/guitar_scale_visualizer/static/css/952.26a00398.chunk.css.map",
+    "952.54e83e10.chunk.js.map": "/guitar_scale_visualizer/static/js/952.54e83e10.chunk.js.map",
+    "740.43b6aad3.chunk.css.map": "/guitar_scale_visualizer/static/css/740.43b6aad3.chunk.css.map",
+    "740.d62872cf.chunk.js.map": "/guitar_scale_visualizer/static/js/740.d62872cf.chunk.js.map",
+    "519.4e8c7e2c.chunk.css.map": "/guitar_scale_visualizer/static/css/519.4e8c7e2c.chunk.css.map",
+    "519.d71cc9f8.chunk.js.map": "/guitar_scale_visualizer/static/js/519.d71cc9f8.chunk.js.map",
+    "379.71f84edd.chunk.js.map": "/guitar_scale_visualizer/static/js/379.71f84edd.chunk.js.map",
+    "453.85ff4825.chunk.js.map": "/guitar_scale_visualizer/static/js/453.85ff4825.chunk.js.map",
+    "81.1996126b.chunk.js.map": "/guitar_scale_visualizer/static/js/81.1996126b.chunk.js.map",
+    "200.dbdc80e2.chunk.js.map": "/guitar_scale_visualizer/static/js/200.dbdc80e2.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.b50f9651.css",
-    "static/js/main.0d839768.js"
+    "static/css/main.a2c55b33.css",
+    "static/js/main.2851f4d4.js"
   ]
 }
