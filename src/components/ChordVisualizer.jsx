@@ -60,6 +60,11 @@ const mapChordNameToJsonKey = (chordName) => {
   return enharmonicMap[chordName] || chordName.replace('#', 'sharp');
 };
 
+const getRomanNumeral = (num) => {
+  const romanNumerals = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
+  return romanNumerals[num - 1];
+};
+
 const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, selectedInstrument }) => {
   const [chords, setChords] = useState({});
   const [selectedChord, setSelectedChord] = useState(null);
@@ -221,6 +226,10 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, selectedInstr
   const playAllChords = async () => {
     if (!audioInitialized || playingAllChords || Object.keys(chords).length === 0) return;
     
+    // Store the currently selected chord before playing all chords
+    const previouslySelectedChord = selectedChord;
+    const previouslySelectedChordName = selectedChordName;
+    
     setPlayingAllChords(true);
     try {
       // Play chords sequentially with a delay between them
@@ -242,10 +251,17 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, selectedInstr
     } catch (err) {
       console.error('Error playing chords:', err);
     } finally {
-      // Reset after playing is complete
+      // Reset after playing is complete and restore the previously selected chord
       setTimeout(() => {
         setPlayingAllChords(false);
         setCurrentChordIndex(null);
+        
+        // Restore the previously selected chord
+        if (previouslySelectedChord) {
+          setSelectedChord(previouslySelectedChord);
+          setSelectedChordName(previouslySelectedChordName);
+          onChordSelect(previouslySelectedChord);
+        }
       }, 500);
     }
   };
@@ -292,7 +308,7 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, selectedInstr
             <thead>
               <tr>
                 {scaleNotes.map((note, index) => (
-                  <th key={index}>{note}</th>
+                  <th key={index}>{getRomanNumeral(index + 1)}</th>
                 ))}
               </tr>
             </thead>
