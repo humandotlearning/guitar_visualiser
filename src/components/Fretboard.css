@@ -93,6 +93,9 @@
 
 .first-fret {
   border-right: 6px solid var(--nut-color);
+  max-width: 34px; /* Match with the fret-number-nut width */
+  min-width: 34px;
+  width: 34px;
 }
 
 /* Reset all fret marker styles */
@@ -299,13 +302,27 @@
 }
 
 .fret-number {
-  flex: 1;
   text-align: center;
   font-size: 0.7rem;
   color: #666;
   min-width: 40px;
   max-width: 70px;
   font-weight: 500;
+  flex: 1;
+  position: relative;
+  /* Ensure proper alignment with frets above */
+  box-sizing: border-box;
+}
+
+/* Special styling for the 0 fret number to match the nut width */
+.fret-number-nut {
+  border-right: 6px solid transparent; /* This compensates for the nut border width */
+  background-color: #e0ddc5;
+  color: #222;
+  font-weight: 800;
+  max-width: 34px; /* Making the 0 fret number narrower */
+  min-width: 34px; /* Ensuring fixed width */
+  width: 34px; /* Force exact width */
 }
 
 /* Highlight important fret numbers */
@@ -322,8 +339,7 @@
   background-color: #e9e7d9;
 }
 
-/* Higher shade for 0 and 12th fret */
-.fret-number:nth-child(1), /* 0 fret */
+/* Higher shade for 12th fret */
 .fret-number:nth-child(13) /* 12th fret */ {
   color: #222;
   font-weight: 800;
@@ -356,13 +372,54 @@
     min-width: 800px;
   }
   
-  .fret {
+  .fret, .fret-number {
     min-width: 30px;
+    max-width: 55px;
+  }
+  
+  .first-fret {
+    max-width: 28px; /* Match with fret-number-nut on smaller screens */
+    min-width: 28px;
+    width: 28px;
   }
   
   .note-marker {
     width: 25px;
     height: 25px;
     font-size: 0.75rem;
+  }
+
+  /* Ensure fretboard number alignment maintains on small screens */
+  .fret-number-nut {
+    border-right: 6px solid transparent;
+    max-width: 28px; /* Adjust for smaller screens */
+    min-width: 28px;
+    width: 28px;
+  }
+}
+
+/* Smallest screens */
+@media (max-width: 480px) {
+  .fret, .fret-number {
+    min-width: 25px;
+    max-width: 45px;
+  }
+
+  .first-fret {
+    max-width: 24px; /* Match with fret-number-nut on smallest screens */
+    min-width: 24px;
+    width: 24px;
+  }
+
+  .fret-number-nut {
+    max-width: 24px; /* Even narrower for very small screens */
+    min-width: 24px;
+    width: 24px;
+  }
+
+  .note-marker {
+    width: 22px;
+    height: 22px;
+    font-size: 0.7rem;
   }
 }

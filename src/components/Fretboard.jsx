@@ -272,7 +272,7 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
 
                   return (
                     <div 
-                      className={`fret ${fret === 0 ? "nut" : ""}`}
+                      className={`fret ${fret === 0 ? 'first-fret' : ''}`}
                       key={`fret-${stringIndex}-${fret}`}
                     >
                       {isFretMarker && (
@@ -298,7 +298,10 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
             
             <div className="fret-numbers">
               {[...Array(fretCount + 1)].map((_, fret) => (
-                <div key={fret} className="fret-number">
+                <div 
+                  key={fret} 
+                  className={`fret-number ${fret === 0 ? "fret-number-nut" : ""}`}
+                >
                   {fret}
                 </div>
               ))}
