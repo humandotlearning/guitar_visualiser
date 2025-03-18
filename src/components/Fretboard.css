@@ -141,6 +141,31 @@
   z-index: 1;
 }
 
+/* Half-circle fret markers */
+.fret-marker-top {
+  position: absolute;
+  width: 10px;
+  height: 5px;
+  border-radius: 10px 10px 0 0;
+  background-color: #999;
+  left: 50%;
+  bottom: -1px; /* Position it to connect with the bottom half */
+  transform: translate(-50%, 0);
+  z-index: 1;
+}
+
+.fret-marker-bottom {
+  position: absolute;
+  width: 10px;
+  height: 5px;
+  border-radius: 0 0 10px 10px;
+  background-color: #999;
+  left: 50%;
+  top: -1px; /* Position it to connect with the top half */
+  transform: translate(-50%, 0);
+  z-index: 1;
+}
+
 /* Target the markers on the D string (4th string) to position between D and G */
 .string:nth-child(4) .fret-marker {
   /* Position halfway between the D and G strings */

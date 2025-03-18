@@ -281,13 +281,38 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
                     (stringIndex === 4 && fret === 12)
                   );
 
+                  // Check if this is a position for a half-circle marker (top half)
+                  const isHalfCircleTop = (
+                    stringIndex === 2 && (fret === 3 || fret === 5 || 
+                                        fret === 7 || fret === 9 || 
+                                        fret === 15 || fret === 17 || 
+                                        fret === 19 || fret === 21)
+                  );
+
+                  // Check if this is a position for a half-circle marker (bottom half)
+                  const isHalfCircleBottom = (
+                    stringIndex === 3 && (fret === 3 || fret === 5 || 
+                                        fret === 7 || fret === 9 || 
+                                        fret === 15 || fret === 17 || 
+                                        fret === 19 || fret === 21)
+                  );
+
                   return (
                     <div 
                       className={`fret ${fret === 0 ? 'first-fret' : ''}`}
                       key={`fret-${stringIndex}-${fret}`}
                     >
-                      {isFretMarker && (
+                      {/* Replace full circle markers with half circles for specified frets */}
+                      {isFretMarker && fret !== 3 && fret !== 5 && 
+                       fret !== 7 && fret !== 9 && fret !== 15 && 
+                       fret !== 17 && fret !== 19 && fret !== 21 && (
                         <div className="fret-marker"></div>
+                      )}
+                      {isHalfCircleTop && (
+                        <div className="fret-marker-top"></div>
+                      )}
+                      {isHalfCircleBottom && (
+                        <div className="fret-marker-bottom"></div>
                       )}
                       <FretboardNote
                         key={fret}
