@@ -117,6 +117,7 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
         try {
           await SoundfontAudio.initializeAudio();
           await SoundfontAudio.loadInstrument(selectedInstrument || 'acoustic_guitar_steel');
+          SoundfontAudio.setVolumeBoost(1.5); // Set default volume boost
           setAudioInitialized(true);
         } catch (error) {
           console.error('Error initializing audio:', error);
@@ -199,22 +200,22 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
             />
             <span>Show Scale Degrees</span>
           </label>
-          <label className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              checked={showLegend}
-              onChange={(e) => setShowLegend(e.target.checked)}
-              className="form-checkbox h-4 w-4"
-            />
-            <span>Show Legend</span>
-          </label>
-          <button 
-            onClick={() => setShowHints(!showHints)}
-            className="text-xs py-1 px-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+          
+          <button
+            onClick={() => setShowLegend(!showLegend)}
+            className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
           >
-            {showHints ? 'Hide Tips' : 'Show Tips'}
+            {showLegend ? 'Hide Legend' : 'Show Legend'}
+          </button>
+          
+          <button
+            onClick={() => setShowHints(!showHints)}
+            className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            {showHints ? 'Hide Hints' : 'Show Hints'}
           </button>
         </div>
+
         <div className="scroll-buttons flex space-x-2">
           <button 
             onClick={() => scrollFretboard('left')} 

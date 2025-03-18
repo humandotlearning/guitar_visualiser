@@ -333,23 +333,27 @@
 /* Tooltip for note hover */
 .note-tooltip {
   position: absolute;
-  top: -30px;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: rgba(30, 30, 30, 0.8);
+  background-color: rgba(0, 0, 0, 0.8);
   color: white;
   padding: 4px 8px;
   border-radius: 4px;
-  font-size: 0.75rem;
-  white-space: nowrap;
+  font-size: 12px;
   z-index: 10;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
   pointer-events: none;
 }
 
 /* Responsive styles */
 @media (max-width: 768px) {
   .fretboard-container {
-    max-width: 100%;
+    overflow-x: auto;
+  }
+  
+  .fretboard {
+    min-width: 800px;
   }
   
   .fret {
