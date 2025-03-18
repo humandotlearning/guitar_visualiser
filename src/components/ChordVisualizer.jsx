@@ -8,7 +8,6 @@ import './ChordVisualizer.css';
 // Dynamically import the Chord component to avoid SSR issues
 const ChordComponent = ({ variation, instrument, onPlayChord }) => {
   const [Chord, setChord] = useState(null);
-  const [lastTapTime, setLastTapTime] = useState(0);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -19,20 +18,12 @@ const ChordComponent = ({ variation, instrument, onPlayChord }) => {
   }, []);
 
   const handleClick = () => {
-    const now = Date.now();
-    const doubleTapThreshold = 300; // ms
-    
-    if (now - lastTapTime < doubleTapThreshold) {
-      // Double tap detected, play the chord
-      onPlayChord(variation);
-    }
-    
-    setLastTapTime(now);
+    onPlayChord(variation);
   };
 
   if (!Chord) return <div className="h-24 w-full bg-gray-100 animate-pulse rounded"></div>;
   return (
-    <div onClick={handleClick} style={{ cursor: 'pointer' }} title="Double-tap to play chord">
+    <div onClick={handleClick} style={{ cursor: 'pointer' }} title="Click to play chord">
       <Chord chord={variation} instrument={instrument} lite={false} />
     </div>
   );
@@ -83,27 +74,13 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, selectedInstr
   // Initialize audio when component mounts
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const initAudio = async () => {
-        try {
-          await SoundfontAudio.initializeAudio();
-          await SoundfontAudio.loadInstrument(selectedInstrument || 'acoustic_guitar_steel');
-          setAudioInitialized(true);
-        } catch (error) {
-          console.error('Error initializing audio:', error);
-        }
-      };
-
-      // Initialize on first interaction to avoid autoplay issues
-      const handleFirstInteraction = () => {
-        initAudio();
-        document.removeEventListener('click', handleFirstInteraction);
-      };
-
-      document.addEventListener('click', handleFirstInteraction, { once: true });
-
-      return () => {
-        document.removeEventListener('click', handleFirstInteraction);
-      };
+      try {
+        SoundfontAudio.initializeAudio();
+        SoundfontAudio.loadInstrument(selectedInstrument || 'acoustic_guitar_steel');
+        setAudioInitialized(true);
+      } catch (error) {
+        console.error('Error initializing audio:', error);
+      }
     }
   }, [selectedInstrument]);
 
@@ -309,7 +286,7 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, selectedInstr
         {selectedChord && chordVariations.length > 0 ? (
           <>
             <h3 className="text-lg font-semibold mt-4 mb-2">Chord Variations of {selectedChordName}{chordTypes[Object.keys(chords).indexOf(selectedChordName)]}</h3>
-            <p className="text-sm mb-2">Double-tap on a chord diagram to hear how it sounds</p>
+            <p className="text-sm mb-2">Click on a chord diagram to hear how it sounds</p>
             <div className="chord-grid">
               {chordVariations.map((variation, index) => (
                 <div key={index} className="chord-variation">

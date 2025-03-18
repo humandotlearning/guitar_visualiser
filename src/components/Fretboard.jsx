@@ -100,8 +100,6 @@ StringLabel.propTypes = {
 const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegrees, tuning, fretCount, selectedInstrument }) => {
   const [audioInitialized, setAudioInitialized] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [lastTapTime, setLastTapTime] = useState(0);
-  const [lastTapNote, setLastTapNote] = useState('');
 
   // Initialize audio on component mount
   useEffect(() => {
@@ -117,17 +115,8 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
       }
     };
 
-    // Initialize on first user interaction
-    const handleFirstInteraction = () => {
-      initAudio();
-      document.removeEventListener('click', handleFirstInteraction);
-    };
+    initAudio();
 
-    document.addEventListener('click', handleFirstInteraction, { once: true });
-
-    return () => {
-      document.removeEventListener('click', handleFirstInteraction);
-    };
   }, [selectedInstrument]);
 
   // Handle instrument changes
@@ -171,25 +160,15 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
 
   // Handle note tap with double-tap detection to play a note
   const handleNoteTap = (note, octave) => {
-    const now = Date.now();
-    const doubleTapThreshold = 300; // ms
-    
-    // Check if it's a double tap on the same note
-    if (now - lastTapTime < doubleTapThreshold && lastTapNote === note) {
-      // It's a double tap, so play the note
-      if (audioInitialized && !isPlaying) {
-        setIsPlaying(true);
-        SoundfontAudio.playNote(note, null, octave)
-          .then(() => setTimeout(() => setIsPlaying(false), 300))
-          .catch(error => {
-            console.error('Error playing note:', error);
-            setIsPlaying(false);
-          });
-      }
+    if (audioInitialized && !isPlaying) {
+      setIsPlaying(true);
+      SoundfontAudio.playNote(note, null, octave)
+        .then(() => setTimeout(() => setIsPlaying(false), 300))
+        .catch(error => {
+          console.error('Error playing note:', error);
+          setIsPlaying(false);
+        });
     }
-    
-    setLastTapTime(now);
-    setLastTapNote(note);
   };
 
   return (
@@ -203,7 +182,7 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
         />
         <span>Show Scale Degrees</span>
       </label>
-      <p className="text-sm text-gray-500 mt-2">Double-tap on notes to hear them</p>
+      <p className="text-sm text-gray-500 mt-2">Tap on notes to hear them</p>
       <br />
       <div className="fretboard-container">
         <div className="string-labels">
