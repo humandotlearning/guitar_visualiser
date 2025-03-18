@@ -1,0 +1,165 @@
+/* PrintStyles.css - Specific styles for printing */
+
+@media print {
+  /* General print styles */
+  @page {
+    margin: 0.5cm;
+    size: landscape;
+  }
+
+  /* Hide elements not needed for printing */
+  .scroll-buttons,
+  button,
+  .note-tooltip {
+    display: none !important;
+  }
+
+  /* Ensure sections don't break across pages */
+  .fretboard-section {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Make sure the fretboard container expands properly */
+  .fretboard-container {
+    overflow-x: visible !important;
+    border: 1px solid #000;
+    box-shadow: none;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Ensure fretboard is fully visible */
+  .fretboard-scroll {
+    overflow-x: visible !important;
+  }
+
+  .fretboard {
+    min-width: auto !important;
+    width: 100% !important;
+  }
+
+  /* String visibility for print - using the original approach but with black color */
+  .string::after {
+    content: "" !important;
+    position: absolute !important;
+    width: 100% !important;
+    height: 1px !important;
+    background-color: #000000 !important;
+    z-index: 2 !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    opacity: 1 !important;
+  }
+  
+  /* String thickness adjustments */
+  .string:nth-child(1)::after {
+    height: 1.5px !important;
+  }
+
+  .string:nth-child(2)::after {
+    height: 2px !important;
+  }
+
+  .string:nth-child(3)::after {
+    height: 2.5px !important;
+  }
+
+  .string:nth-child(4)::after {
+    height: 3px !important;
+  }
+
+  .string:nth-child(5)::after {
+    height: 3.5px !important;
+  }
+
+  .string:nth-child(6)::after {
+    height: 4px !important;
+  }
+
+  /* Black and white note markers with root note darker */
+  .note-marker {
+    box-shadow: none !important;
+    border: 1px solid #000 !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+
+  /* Root note in darker shade */
+  .note-marker.root {
+    background-color: #333333 !important;
+    color: #ffffff !important;
+  }
+
+  /* Other note types in grayscale */
+  .note-marker.third,
+  .note-marker.fifth,
+  .note-marker.seventh,
+  .note-marker.scale-note {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  /* Ensure fret markers are visible */
+  .fret-marker {
+    background-color: #333 !important;
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+
+  /* Scale legend adjustments */
+  .scale-legend {
+    border: 1px solid #ddd !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    margin-top: 0.5cm !important;
+  }
+
+  /* Legend colors in black and white */
+  .legend-color {
+    border: 1px solid #000 !important;
+  }
+
+  .legend-root {
+    background-color: #333333 !important;
+  }
+
+  .legend-third,
+  .legend-fifth,
+  .legend-seventh,
+  .legend-scale {
+    background-color: #ffffff !important;
+  }
+
+  /* Hints section */
+  .fretboard-hints {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    margin-top: 0.5cm !important;
+    border: 1px solid #ddd !important;
+  }
+
+  /* String labels */
+  .string-labels {
+    background-color: #333 !important;
+    color: #000000 !important;
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+
+  /* Fret numbers */
+  .fret-numbers {
+    border-top: 1px solid #000 !important;
+  }
+  
+  /* Ensure frets are visible */
+  .fret {
+    border-right: 1px solid #999 !important;
+  }
+  
+  .first-fret {
+    border-right: 3px solid #000 !important;
+  }
+}

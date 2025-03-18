@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { NOTES, getScaleNotes, SCALE_LIBRARY, getScaleDegree } from '../utils/musicTheory';
 import './Fretboard.css';
 import './FretboardSection.css';
+import './PrintStyles.css'; // Import print styles
 import PropTypes from 'prop-types';
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
 
@@ -188,7 +189,7 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
   };
 
   return (
-    <div className="fretboard-section">
+    <div className="fretboard-section print-section">
       <div className="fretboard-controls flex items-center justify-between mb-3">
         <div className="flex space-x-4">
           <label className="flex items-center space-x-2">
@@ -236,7 +237,7 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
       
       <p className="text-sm text-gray-500 mb-3">Tap on notes to hear them</p>
       
-      <div className="fretboard-container relative">
+      <div className="fretboard-container relative print-fretboard-container">
         <div className="string-labels">
           {tuning.map((string, index) => (
             <StringLabel 
@@ -247,10 +248,10 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
             />
           ))}
         </div>
-        <div className="fretboard-scroll" ref={fretboardRef}>
-          <div className="fretboard">
+        <div className="fretboard-scroll print-fretboard-scroll" ref={fretboardRef}>
+          <div className="fretboard print-fretboard">
             {tuning.map((string, stringIndex) => (
-              <div key={stringIndex} className="string">
+              <div key={stringIndex} className="string print-string">
                 {[...Array(fretCount + 1)].map((_, fret) => {
                   const noteIndex = (NOTES.indexOf(string) + fret) % 12;
                   const note = NOTES[noteIndex];
