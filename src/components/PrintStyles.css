@@ -10,7 +10,9 @@
   /* Hide elements not needed for printing */
   .scroll-buttons,
   button,
-  .note-tooltip {
+  .note-tooltip,
+  .note-marker.non-scale-note,
+  .note-marker.hidden-note {
     display: none !important;
   }
 

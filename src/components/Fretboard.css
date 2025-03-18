@@ -231,6 +231,33 @@
   background-color: var(--color-perfect);
 }
 
+/* Non-scale note styling - invisible but interactive */
+.note-marker.non-scale-note {
+  background-color: transparent;
+  color: transparent;
+  box-shadow: none;
+  /* Even though it's invisible, it's still present and clickable */
+}
+
+/* Show hover effect for non-scale notes when hovered */
+.note-marker.non-scale-note:hover {
+  background-color: rgba(255, 255, 255, 0.6);
+  color: rgba(0, 0, 0, 0.7);
+}
+
+/* Additional class to completely hide non-scale notes when toggle is off */
+.note-marker.hidden-note {
+  opacity: 0;
+  pointer-events: none; /* Disables interactions when hidden */
+}
+
+/* When non-scale notes are shown, they should be visible on hover */
+.note-marker.non-scale-note:not(.hidden-note):hover {
+  background-color: rgba(255, 255, 255, 0.8);
+  color: rgba(0, 0, 0, 0.9);
+  opacity: 0.8;
+}
+
 /* String Labels */
 .string-labels {
   display: flex;

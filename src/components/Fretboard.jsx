@@ -6,7 +6,7 @@ import './PrintStyles.css'; // Import print styles
 import PropTypes from 'prop-types';
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
 
-const FretboardNote = ({ note, fret, isRoot, selectedScale, showScaleDegrees, rootNote, stringNote, onNoteTap, stringIndex }) => {
+const FretboardNote = ({ note, fret, isRoot, selectedScale, showScaleDegrees, rootNote, stringNote, onNoteTap, stringIndex, showNonScaleNotes }) => {
   const [isHovered, setIsHovered] = useState(false);
   const scaleNotes = selectedScale ? getScaleNotes(rootNote, SCALE_LIBRARY[selectedScale.category][selectedScale.name]) : [];
   const isInScale = scaleNotes.includes(note);
@@ -15,7 +15,7 @@ const FretboardNote = ({ note, fret, isRoot, selectedScale, showScaleDegrees, ro
 
   // Determine note type for coloring
   const getNoteType = () => {
-    if (!isInScale) return '';
+    if (!isInScale) return 'non-scale-note';
     if (isRoot) return 'root';
     const interval = scaleNotes.indexOf(note);
     switch(interval) {
@@ -48,24 +48,25 @@ const FretboardNote = ({ note, fret, isRoot, selectedScale, showScaleDegrees, ro
     setTimeout(() => setIsPlaying(false), 300);
   };
 
+  // Get the note with octave for display
+  const noteWithOctave = `${note}${getOctave()}`;
+
   return (
     <div
       className={`fret ${fret === 0 ? 'first-fret' : ''}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {isInScale && (
-        <div 
-          className={`note-marker ${getNoteType()} ${isPlaying ? 'playing' : ''}`}
-          onClick={handleClick}
-          title={`${note}${scaleDegree ? ` (${scaleDegree})` : ''}`}
-        >
-          {showScaleDegrees ? scaleDegree : note}
-        </div>
-      )}
-      {isHovered && isInScale && (
+      <div 
+        className={`note-marker ${getNoteType()} ${isPlaying ? 'playing' : ''} ${!isInScale && !showNonScaleNotes ? 'hidden-note' : ''}`}
+        onClick={handleClick}
+        title={`${noteWithOctave}${scaleDegree ? ` (${scaleDegree})` : ''}`}
+      >
+        {isInScale ? (showScaleDegrees ? scaleDegree : note) : note}
+      </div>
+      {isHovered && (
         <div className="note-tooltip">
-          {note} {scaleDegree && `(${scaleDegree})`}
+          {noteWithOctave} {scaleDegree && `(${scaleDegree})`}
         </div>
       )}
     </div>
@@ -84,7 +85,8 @@ FretboardNote.propTypes = {
   rootNote: PropTypes.string.isRequired,
   stringNote: PropTypes.string.isRequired,
   onNoteTap: PropTypes.func.isRequired,
-  stringIndex: PropTypes.number.isRequired
+  stringIndex: PropTypes.number.isRequired,
+  showNonScaleNotes: PropTypes.bool.isRequired
 };
 
 const StringLabel = ({ note, index, onClick }) => (
@@ -110,6 +112,7 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
   const fretboardRef = useRef(null);
   const [showLegend, setShowLegend] = useState(true);
   const [showHints, setShowHints] = useState(false);
+  const [showNonScaleNotes, setShowNonScaleNotes] = useState(false);
 
   // Initialize audio on component mount
   useEffect(() => {
@@ -215,6 +218,13 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
           >
             {showHints ? 'Hide Hints' : 'Show Hints'}
           </button>
+
+          <button
+            onClick={() => setShowNonScaleNotes(!showNonScaleNotes)}
+            className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            {showNonScaleNotes ? 'Hide Non-Scale Notes' : 'Show Non-Scale Notes'}
+          </button>
         </div>
 
         <div className="scroll-buttons flex space-x-2">
@@ -290,6 +300,7 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
                         stringNote={string}
                         stringIndex={stringIndex}
                         onNoteTap={handleNoteTap}
+                        showNonScaleNotes={showNonScaleNotes}
                       />
                     </div>
                   );
@@ -345,6 +356,7 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
             <li>Use the scroll buttons to navigate along the fretboard</li>
             <li>Enable &quot;Show Scale Degrees&quot; to see the position in the scale (I, II, III, etc.)</li>
             <li>Use the legend to understand the color coding of different scale positions</li>
+            <li>Toggle &quot;Show Non-Scale Notes&quot; to reveal notes that are not in the current scale</li>
           </ul>
         </div>
       )}
