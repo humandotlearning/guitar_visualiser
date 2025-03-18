@@ -1,12 +1,12 @@
-# Guitar Scale Visualizer
+# Guitar Scale and Chord Visualizer
 
 An interactive web application for guitarists to visualize scales, chords, and explore music theory concepts on a customizable fretboard.
 
 ## 🎸 Live Demo
 
-**[Try the Guitar Scale Visualizer](https://humandotlearning.github.io/guitar_visualiser)**
+**[Try the Guitar Scale and Chord Visualizer](https://humandotlearning.github.io/guitar_visualiser)**
 
-![Guitar Scale Visualizer](public/guitar-visualizer-screenshot.png)
+![Guitar Scale and Chord Visualizer](public/guitar-visualizer-screenshot.png)
 
 ## ✨ Features
 

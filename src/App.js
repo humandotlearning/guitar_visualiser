@@ -35,7 +35,13 @@ function App() {
       {/* Orientation prompt will only show on mobile devices in portrait mode */}
       <OrientationPrompt />
       
-      <h1 className="text-3xl font-bold mb-4">Guitar Scale Visualizer</h1>
+      <div className="header-container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <h1 className="text-3xl font-bold">Guitar Scale and Chord Visualizer</h1>
+        <a href="https://www.buymeacoffee.com/nithinvargw" target="_blank" rel="noopener noreferrer">
+          <img src="https://cdn.buymeacoffee.com/buttons/v2/arial-yellow.png" alt="Buy Me A Coffee" style={{height: '50px', width: '180px'}} />
+        </a>
+      </div>
+      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="card">
           <h2 className="text-xl font-semibold mb-2">Select Scale</h2>
@@ -100,7 +106,7 @@ function App() {
         </div>
       </Suspense>
       <footer className="text-center text-gray-500 text-sm mt-8 mb-4">
-        &copy; {new Date().getFullYear()} Guitar Scale Visualizer
+        &copy; {new Date().getFullYear()} Guitar Scale and Chord Visualizer
       </footer>
     </div>
   );
