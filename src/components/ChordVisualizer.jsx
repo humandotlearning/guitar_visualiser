@@ -70,6 +70,8 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, selectedInstr
   const [isPlaying, setIsPlaying] = useState(false);
   const [lastTapTime, setLastTapTime] = useState(0);
   const [lastTapChord, setLastTapChord] = useState(null);
+  const [playingAllChords, setPlayingAllChords] = useState(false);
+  const [currentChordIndex, setCurrentChordIndex] = useState(null);
 
   // Initialize audio when component mounts
   useEffect(() => {
@@ -215,6 +217,39 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, selectedInstr
     }
   };
 
+  // Play all chords in the scale sequentially
+  const playAllChords = async () => {
+    if (!audioInitialized || playingAllChords || Object.keys(chords).length === 0) return;
+    
+    setPlayingAllChords(true);
+    try {
+      // Play chords sequentially with a delay between them
+      const chordKeys = Object.keys(chords);
+      for (let i = 0; i < chordKeys.length; i++) {
+        const chordKey = chordKeys[i];
+        setCurrentChordIndex(i);
+        onChordSelect(chords[chordKey]);
+        setSelectedChord(chords[chordKey]);
+        
+        // Play the chord
+        await SoundfontAudio.playChord(chords[chordKey]);
+        
+        // Wait before playing the next chord
+        if (i < chordKeys.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+      }
+    } catch (err) {
+      console.error('Error playing chords:', err);
+    } finally {
+      // Reset after playing is complete
+      setTimeout(() => {
+        setPlayingAllChords(false);
+        setCurrentChordIndex(null);
+      }, 500);
+    }
+  };
+
   if (!rootNote || !selectedScale) {
     return <div className="chord-visualizer"><p>Please select a scale.</p></div>;
   }
@@ -237,15 +272,20 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, selectedInstr
   return (
     <ClientOnly fallback={<div className="chord-visualizer p-4">Loading chord visualizer...</div>}>
       <div className="chord-visualizer">
-        {/* <h2 className="text-xl font-semibold mb-2">Chords in the Scale</h2> */}
-        
-        {/* {selectedChordName && (
-          // <div className="selected-chord-indicator mb-3">
-          //   <p>Selected: <strong>{selectedChordName}{chordTypes[Object.keys(chords).indexOf(selectedChordName)]}</strong></p>
-          // </div>
-        )} */}
-        
-        <p className="double-tap-instruction">Double-tap on any chord to play it</p>
+        <div className="flex items-center justify-between mb-4">
+          <p className="double-tap-instruction">Double-tap on any chord to play it</p>
+          <button 
+            onClick={playAllChords}
+            disabled={playingAllChords || !audioInitialized}
+            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:opacity-50 flex items-center"
+          >
+            {playingAllChords ? (
+              <span>Playing Chords...</span>
+            ) : (
+              <span>Play All Chords</span>
+            )}
+          </button>
+        </div>
         
         <div className="overflow-x-auto">
           <table className="chord-table">
@@ -260,11 +300,12 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, selectedInstr
               <tr>
                 {Object.keys(chords).map((chordRoot, index) => {
                   const isSelected = selectedChord === chords[chordRoot];
+                  const isPlaying = currentChordIndex === index && playingAllChords;
                   return (
                     <td key={index}>
                       <button
                         onClick={() => handleChordTap(chordRoot, chords[chordRoot])}
-                        className={`chord-button ${isSelected ? 'selected-chord' : ''}`}
+                        className={`chord-button ${isSelected ? 'selected-chord' : ''} ${isPlaying ? 'playing-chord' : ''}`}
                         title="Double-tap to play"
                       >
                         {chordRoot}{chordTypes[index]}
