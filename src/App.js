@@ -73,7 +73,7 @@ function App() {
       </Suspense>
       <Suspense fallback={<div className="card mt-4 p-4">Loading Chord Visualizer...</div>}>
         <div className="card mt-4">
-          <h2 className="text-xl font-semibold mb-2">Chords in the Scale of {rootNote} {selectedScale.name}</h2>
+          <h2 className="text-xl font-semibold mb-2">Chords in the Scale of {rootNote} {selectedScale?.name || 'No Scale Selected'}</h2>
           <ChordVisualizer
             rootNote={rootNote}
             selectedScale={selectedScale}

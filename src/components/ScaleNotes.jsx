@@ -10,11 +10,6 @@ const ScaleNotes = ({ rootNote, selectedScale }) => {
   const [currentNoteIndex, setCurrentNoteIndex] = useState(null);
   const [audioInitialized, setAudioInitialized] = useState(false);
 
-  if (!rootNote || !selectedScale) return null;
-
-  const scaleNotes = getScaleNotes(rootNote, SCALE_LIBRARY[selectedScale.category][selectedScale.name]);
-  const scalePattern = getScalePattern(SCALE_LIBRARY[selectedScale.category][selectedScale.name]);
-
   // Initialize audio on mount
   useEffect(() => {
     const initAudio = async () => {
@@ -34,6 +29,11 @@ const ScaleNotes = ({ rootNote, selectedScale }) => {
       // Cleanup if needed
     };
   }, []);
+
+  if (!rootNote || !selectedScale) return null;
+
+  const scaleNotes = getScaleNotes(rootNote, SCALE_LIBRARY[selectedScale.category][selectedScale.name]);
+  const scalePattern = getScalePattern(SCALE_LIBRARY[selectedScale.category][selectedScale.name]);
 
   // Helper function to get color based on scale degree
   const getScaleDegreeColor = (index) => {

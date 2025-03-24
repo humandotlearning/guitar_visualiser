@@ -128,7 +128,7 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, selectedInstr
   }, [selectedInstrument, audioInitialized]);
 
   useEffect(() => {
-    if (selectedChord && guitarChordsData) {
+    if (selectedChord && guitarChordsData && selectedScale) {
       const chordName = Object.keys(chords).find(key => chords[key] === selectedChord);
       setSelectedChordName(chordName || '');
       const chordTypeIndex = Object.keys(chords).indexOf(chordName);
