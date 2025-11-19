@@ -39,7 +39,7 @@ function App() {
       <OrientationPrompt />
 
       <div className="header-container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <h1 className="text-3xl font-bold">Guitar Scale and Chord Visualizer</h1>
+        <h1 className="text-3xl font-bold">{instrumentConfig.label} Scale and Chord Visualizer</h1>
         <a href="https://www.buymeacoffee.com/nithinvargw" target="_blank" rel="noopener noreferrer">
           <img src="https://cdn.buymeacoffee.com/buttons/v2/arial-yellow.png" alt="Buy Me A Coffee" style={{ height: '50px', width: '180px' }} />
         </a>
@@ -143,7 +143,7 @@ function App() {
         </div>
       </Suspense>
       <footer className="text-center text-gray-500 text-sm mt-8 mb-4">
-        &copy; {new Date().getFullYear()} Guitar Scale and Chord Visualizer
+        &copy; {new Date().getFullYear()} {instrumentConfig.label} Scale and Chord Visualizer
       </footer>
     </div>
   );
