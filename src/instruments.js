@@ -21,6 +21,14 @@ const INSTRUMENTS = {
     fretMarkers: [5, 7, 10, 12, 15],
     doubleFretMarkers: [12],
   },
+  piano: {
+    label: 'Piano',
+    type: 'keyboard', // Distinguish from string instruments
+    startOctave: 2,
+    endOctave: 6,
+    soundfontName: 'acoustic_grand_piano',
+    chordDataKey: 'piano', // We might need to generate this or handle it differently
+  },
   // Add more instruments here
 };
 

@@ -99,6 +99,11 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
           let data;
           if (instrumentConfig.chordDataKey === 'ukulele') {
             data = await import('../db/ukulele.json');
+          } else if (instrumentConfig.chordDataKey === 'piano') {
+            // For now, we might not have a piano JSON, or we can use a generic one.
+            // If no JSON exists, we might need to generate chords algorithmically or just skip loading.
+            // Let's assume we don't have a piano.json yet and handle it gracefully.
+            data = { default: { chords: {} } };
           } else {
             data = await import('../db/guitar.json');
           }
@@ -189,6 +194,13 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
       // So we need to map correctly.
 
       // Process each string in the chord
+      if (instrumentConfig.type === 'keyboard') {
+        // For piano, we need to handle chord playback differently if we had chord data.
+        // But since we don't have piano chord data yet, this part might not be reached for variations.
+        // If we want to play the 'selectedChord' (which is just notes), we use playSelectedChord.
+        return;
+      }
+
       variation.frets.forEach((fret, stringIndex) => {
         if (fret !== -1) { // -1 means string is not played
           // stringIndex 0 in variation.frets corresponds to the LAST element in our tuning array (Low string)
@@ -296,7 +308,7 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
     name: instrumentConfig ? instrumentConfig.label : 'Guitar',
     keys: [],
     tunings: {
-      standard: instrumentConfig ? [...instrumentConfig.tuning].reverse() : ['E', 'A', 'D', 'G', 'B', 'E']
+      standard: instrumentConfig && instrumentConfig.tuning ? [...instrumentConfig.tuning].reverse() : ['E', 'A', 'D', 'G', 'B', 'E']
     }
   };
 
@@ -363,11 +375,17 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
               {chordVariations.map((variation, index) => (
                 <div key={index} className="chord-variation">
                   <h3 className="variation-title">Variation {index + 1}</h3>
-                  <ChordComponent
-                    variation={variation}
-                    instrument={instrument}
-                    onPlayChord={playChordVariation}
-                  />
+                  {instrumentConfig.type === 'keyboard' ? (
+                    <div className="p-4 bg-gray-100 rounded text-center">
+                      Piano chord visualization coming soon
+                    </div>
+                  ) : (
+                    <ChordComponent
+                      variation={variation}
+                      instrument={instrument}
+                      onPlayChord={playChordVariation}
+                    />
+                  )}
                 </div>
               ))}
             </div>

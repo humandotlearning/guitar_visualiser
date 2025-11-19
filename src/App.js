@@ -2,6 +2,7 @@ import React, { useState, lazy, Suspense } from 'react';
 import INSTRUMENTS from './instruments';
 // Lazy load the larger components
 const Fretboard = lazy(() => import('./components/Fretboard'));
+const PianoKeyboard = lazy(() => import('./components/PianoKeyboard'));
 const ChordVisualizer = lazy(() => import('./components/ChordVisualizer'));
 const AudioPlayback = lazy(() => import('./components/AudioPlayback'));
 const FretboardCustomization = lazy(() => import('./components/FretboardCustomization'));
@@ -78,14 +79,23 @@ function App() {
 
       <Suspense fallback={<div className="card mt-4 p-4">Loading Fretboard...</div>}>
         <div className="card mt-4">
-          <Fretboard
-            rootNote={rootNote}
-            selectedScale={selectedScale}
-            showScaleDegrees={showScaleDegrees}
-            setShowScaleDegrees={setShowScaleDegrees}
-            instrumentConfig={instrumentConfig}
-            selectedInstrument={selectedInstrument}
-          />
+          {instrumentConfig.type === 'keyboard' ? (
+            <PianoKeyboard
+              rootNote={rootNote}
+              selectedScale={selectedScale}
+              showScaleDegrees={showScaleDegrees}
+              instrumentConfig={instrumentConfig}
+            />
+          ) : (
+            <Fretboard
+              rootNote={rootNote}
+              selectedScale={selectedScale}
+              showScaleDegrees={showScaleDegrees}
+              setShowScaleDegrees={setShowScaleDegrees}
+              instrumentConfig={instrumentConfig}
+              selectedInstrument={selectedInstrument}
+            />
+          )}
 
         </div>
       </Suspense>
@@ -115,12 +125,14 @@ function App() {
       <Suspense fallback={<div className="card p-4">Loading Customization...</div>}>
         <div className="card mt-4">
           <h2 className="text-xl font-semibold mb-2">Fretboard Customization</h2>
-          <FretboardCustomization
-            tuning={instrumentConfig.tuning}
-            setTuning={() => { }}
-            fretCount={instrumentConfig.fretCount}
-            setFretCount={() => { }}
-          />
+          {instrumentConfig.type !== 'keyboard' && (
+            <FretboardCustomization
+              tuning={instrumentConfig.tuning}
+              setTuning={() => { }}
+              fretCount={instrumentConfig.fretCount}
+              setFretCount={() => { }}
+            />
+          )}
         </div>
       </Suspense>
       <footer className="text-center text-gray-500 text-sm mt-8 mb-4">

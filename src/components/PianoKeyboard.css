@@ -1,0 +1,82 @@
+.piano-container {
+  overflow-x: auto;
+  padding: 1rem;
+  background-color: #f3f4f6;
+  border-radius: 0.5rem;
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+}
+
+.piano-keys {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  height: 200px;
+  min-width: fit-content;
+}
+
+.piano-key {
+  position: relative;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  border-radius: 0 0 4px 4px;
+  transition: background-color 0.1s;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 8px;
+  user-select: none;
+}
+
+.white-key {
+  width: 40px;
+  height: 100%;
+  background-color: white;
+  z-index: 1;
+}
+
+.white-key:active {
+  background-color: #eee;
+}
+
+.black-key {
+  width: 24px;
+  height: 60%;
+  background-color: black;
+  color: white;
+  z-index: 2;
+  margin-left: -12px;
+  margin-right: -12px;
+  border-radius: 0 0 2px 2px;
+}
+
+.black-key:active {
+  background-color: #333;
+}
+
+.in-scale.white-key {
+  background-color: #e0f7fa;
+}
+
+.in-scale.black-key {
+  background-color: #006064;
+}
+
+.root-note.white-key {
+  background-color: #81d4fa;
+  font-weight: bold;
+}
+
+.root-note.black-key {
+  background-color: #01579b;
+  border: 1px solid #81d4fa;
+}
+
+.note-label {
+  font-size: 10px;
+  pointer-events: none;
+}
+
+.black-key .note-label {
+  color: white;
+  margin-bottom: 4px;
+}
