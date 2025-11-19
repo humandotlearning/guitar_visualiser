@@ -86,7 +86,8 @@ FretboardNote.propTypes = {
   stringNote: PropTypes.string.isRequired,
   onNoteTap: PropTypes.func.isRequired,
   stringIndex: PropTypes.number.isRequired,
-  showNonScaleNotes: PropTypes.bool.isRequired
+  showNonScaleNotes: PropTypes.bool.isRequired,
+  octaves: PropTypes.arrayOf(PropTypes.number)
 };
 
 const StringLabel = ({ note, index, onClick }) => (
@@ -286,41 +287,6 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
                   // And we use CSS to shift it up to be between strings.
                   const markerStringIndex = middleStringIndex;
 
-                  const isFretMarker = (
-                    stringIndex === markerStringIndex && isSingleDot
-                  );
-
-                  // Double dots
-                  // Usually on the strings above and below the center line?
-                  // Or just two dots on the center line?
-                  // Original code: 
-                  // (stringIndex === 1 && fret === 12) || (stringIndex === 4 && fret === 12) for guitar (indices 1 and 4 are B and A)
-                  // For Ukulele (4 strings), double dots usually on G and A? Or C and E?
-                  // Let's just place them on the strings around the middle.
-
-                  const isDoubleDotTop = isDoubleMarkerFret && stringIndex === (middleStringIndex - 1); // e.g. 2 for guitar
-                  const isDoubleDotBottom = isDoubleMarkerFret && stringIndex === (middleStringIndex + 1); // e.g. 4 for guitar (Wait, original was 1 and 4. 1 is B, 4 is A. Middle is between 2(G) and 3(D). So 1 and 4 are outer.)
-
-                  // Let's stick to a simple logic:
-                  // Single markers: on middleStringIndex
-                  // Double markers: on middleStringIndex - 1 and middleStringIndex + 1? 
-                  // Or just hardcode for now based on string count if we want exact replica, but we want dynamic.
-                  // Let's use:
-                  // Single: middleStringIndex
-                  // Double: middleStringIndex - 1 and middleStringIndex + 1 (if available)
-
-                  // For Guitar (6 strings): Middle is 3. Single on 3. Double on 2 and 4?
-                  // Original was: Single on 3. Double on 1 and 4.
-
-                  // For Ukulele (4 strings): Middle is 2. Single on 2. Double on 1 and 3?
-                  // Let's try this.
-
-                  const isDoubleDot = isDoubleMarkerFret && (stringIndex === (middleStringIndex - 2) || stringIndex === (middleStringIndex + 1));
-                  // Wait, for guitar (6): middle=3. 3-2=1. 3+1=4. This matches original (1 and 4).
-                  // For ukulele (4): middle=2. 2-2=0. 2+1=3. So strings 0 and 3. (Top and Bottom strings).
-                  // That seems reasonable for double dots on uke? Or maybe 1 and 2?
-                  // Let's use a safer logic.
-
                   const isFretMarkerRender = (stringIndex === markerStringIndex && isSingleDot);
 
                   // Custom logic for double dots to look good
@@ -433,6 +399,7 @@ Fretboard.propTypes = {
   setShowScaleDegrees: PropTypes.func.isRequired,
   instrumentConfig: PropTypes.object.isRequired,
   selectedInstrument: PropTypes.string,
+  octaves: PropTypes.arrayOf(PropTypes.number), // Added prop validation
 };
 
 export default Fretboard;
