@@ -6,7 +6,7 @@ import './PrintStyles.css'; // Import print styles
 import PropTypes from 'prop-types';
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
 
-const FretboardNote = ({ note, fret, isRoot, selectedScale, showScaleDegrees, rootNote, stringNote, onNoteTap, stringIndex, showNonScaleNotes }) => {
+const FretboardNote = ({ note, fret, isRoot, selectedScale, showScaleDegrees, rootNote, stringNote, onNoteTap, stringIndex, showNonScaleNotes, octaves }) => {
   const [isHovered, setIsHovered] = useState(false);
   const scaleNotes = selectedScale ? getScaleNotes(rootNote, SCALE_LIBRARY[selectedScale.category][selectedScale.name]) : [];
   const isInScale = scaleNotes.includes(note);
@@ -18,7 +18,7 @@ const FretboardNote = ({ note, fret, isRoot, selectedScale, showScaleDegrees, ro
     if (!isInScale) return 'non-scale-note';
     if (isRoot) return 'root';
     const interval = scaleNotes.indexOf(note);
-    switch(interval) {
+    switch (interval) {
       case 2: return 'third';
       case 4: return 'fifth';
       case 6: return 'seventh';
@@ -28,15 +28,15 @@ const FretboardNote = ({ note, fret, isRoot, selectedScale, showScaleDegrees, ro
 
   // Calculate appropriate octave based on string and fret
   const getOctave = () => {
-    // Standard tuning octave mapping
-    const baseOctaves = [2, 2, 3, 3, 3, 4]; // Low E to high E
-    
+    // Use provided octaves or fallback to standard guitar tuning
+    const baseOctaves = octaves || [2, 2, 3, 3, 3, 4]; // Low E to high E (fallback)
+
     // Start with the base octave for this string
     let octave = baseOctaves[stringIndex];
-    
+
     // Calculate note index changes
     const startNoteIndex = NOTES.indexOf(stringNote);
-    
+
     // Calculate octave shifts based on fret position
     const octaveShift = Math.floor((startNoteIndex + fret) / 12);
     return octave + octaveShift;
@@ -57,7 +57,7 @@ const FretboardNote = ({ note, fret, isRoot, selectedScale, showScaleDegrees, ro
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div 
+      <div
         className={`note-marker ${getNoteType()} ${isPlaying ? 'playing' : ''} ${!isInScale && !showNonScaleNotes ? 'hidden-note' : ''}`}
         onClick={handleClick}
         title={`${noteWithOctave}${scaleDegree ? ` (${scaleDegree})` : ''}`}
@@ -90,8 +90,8 @@ FretboardNote.propTypes = {
 };
 
 const StringLabel = ({ note, index, onClick }) => (
-  <div 
-    className="string-label" 
+  <div
+    className="string-label"
     onClick={() => onClick(note, index)}
     title={`${note} String`}
   >
@@ -105,7 +105,7 @@ StringLabel.propTypes = {
   onClick: PropTypes.func.isRequired
 };
 
-const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegrees, tuning, fretCount, selectedInstrument }) => {
+const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegrees, instrumentConfig, selectedInstrument }) => {
   const [audioInitialized, setAudioInitialized] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [scrollPosition, setScrollPosition] = useState(0);
@@ -114,13 +114,15 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
   const [showHints, setShowHints] = useState(false);
   const [showNonScaleNotes, setShowNonScaleNotes] = useState(false);
 
+  const { tuning, fretCount, fretMarkers, doubleFretMarkers, octaves } = instrumentConfig;
+
   // Initialize audio on component mount
   useEffect(() => {
     const initAudio = async () => {
       if (typeof window !== 'undefined') {
         try {
           await SoundfontAudio.initializeAudio();
-          await SoundfontAudio.loadInstrument(selectedInstrument || 'acoustic_guitar_steel');
+          await SoundfontAudio.loadInstrument(instrumentConfig.soundfontName || 'acoustic_guitar_steel');
           SoundfontAudio.setVolumeBoost(1.5); // Set default volume boost
           setAudioInitialized(true);
         } catch (error) {
@@ -130,21 +132,21 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
     };
 
     initAudio();
-  }, [selectedInstrument]);
+  }, [selectedInstrument, instrumentConfig.soundfontName]);
 
   // Handle instrument changes
   useEffect(() => {
-    if (audioInitialized && selectedInstrument) {
+    if (audioInitialized && instrumentConfig.soundfontName) {
       const loadNewInstrument = async () => {
         try {
-          await SoundfontAudio.loadInstrument(selectedInstrument);
+          await SoundfontAudio.loadInstrument(instrumentConfig.soundfontName);
         } catch (error) {
           console.error('Error loading instrument:', error);
         }
       };
       loadNewInstrument();
     }
-  }, [selectedInstrument, audioInitialized]);
+  }, [instrumentConfig.soundfontName, audioInitialized]);
 
   // Scroll to show the first few frets initially
   useEffect(() => {
@@ -156,12 +158,10 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
   // Play open string
   const playOpenString = async (stringNote, index) => {
     if (!audioInitialized) return;
-    
+
     try {
-      // Standard tuning octave mapping
-      const baseOctaves = [2, 2, 3, 3, 3, 4]; // Low E to high E
-      const octave = baseOctaves[index];
-      
+      const octave = octaves ? octaves[index] : 3; // Fallback if octaves not defined
+
       // Play the string
       await SoundfontAudio.playNote(stringNote, null, octave);
     } catch (error) {
@@ -204,14 +204,14 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
             />
             <span>Show Scale Degrees</span>
           </label>
-          
+
           <button
             onClick={() => setShowLegend(!showLegend)}
             className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
           >
             {showLegend ? 'Hide Legend' : 'Show Legend'}
           </button>
-          
+
           <button
             onClick={() => setShowHints(!showHints)}
             className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
@@ -228,15 +228,15 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
         </div>
 
         <div className="scroll-buttons flex space-x-2">
-          <button 
-            onClick={() => scrollFretboard('left')} 
+          <button
+            onClick={() => scrollFretboard('left')}
             className="px-3 py-1 text-sm bg-gray-200 hover:bg-gray-300 rounded-md"
             aria-label="Scroll left"
           >
             &lt;
           </button>
-          <button 
-            onClick={() => scrollFretboard('right')} 
+          <button
+            onClick={() => scrollFretboard('right')}
             className="px-3 py-1 text-sm bg-gray-200 hover:bg-gray-300 rounded-md"
             aria-label="Scroll right"
           >
@@ -244,17 +244,17 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
           </button>
         </div>
       </div>
-      
+
       <p className="text-sm text-gray-500 mb-3">Tap on notes to hear them</p>
-      
+
       <div className="fretboard-container relative print-fretboard-container">
         <div className="string-labels">
           {tuning.map((string, index) => (
-            <StringLabel 
-              key={index} 
-              note={string} 
-              index={index} 
-              onClick={playOpenString} 
+            <StringLabel
+              key={index}
+              note={string}
+              index={index}
+              onClick={playOpenString}
             />
           ))}
         </div>
@@ -266,54 +266,87 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
                   const noteIndex = (NOTES.indexOf(string) + fret) % 12;
                   const note = NOTES[noteIndex];
                   const isRoot = note === rootNote;
-                  
-                  // Draw fret markers only at specific frets, positioned between D and G strings
+
+                  // Dynamic fret marker logic
+                  const isMarkerFret = fretMarkers && fretMarkers.includes(fret);
+                  const isDoubleMarkerFret = doubleFretMarkers && doubleFretMarkers.includes(fret);
+
+                  // Calculate middle string index for marker placement
+                  // For even number of strings (e.g. 4 or 6), we want to place it between the middle two strings
+                  // For 6 strings (0-5), middle is between 2 and 3. We place on 3 (bottom half) or 2 (top half) or just on one string with offset
+                  // The original code placed markers on specific strings.
+                  // Let's try to replicate the original look but dynamically.
+
+                  const middleStringIndex = Math.floor(tuning.length / 2);
+
+                  // Single dots
+                  const isSingleDot = isMarkerFret && !isDoubleMarkerFret;
+
+                  // We place single dots on the string just below the middle (e.g. index 3 for guitar, index 2 for ukulele)
+                  // And we use CSS to shift it up to be between strings.
+                  const markerStringIndex = middleStringIndex;
+
                   const isFretMarker = (
-                    // Single dots at frets 3, 5, 7, 9, 15, 17, 19, 21
-                    // Place them at D string (index 3) to position between D and G
-                    (stringIndex === 3 && (fret === 3 || fret === 5 || 
-                                          fret === 7 || fret === 9 || 
-                                          fret === 15 || fret === 17 || 
-                                          fret === 19 || fret === 21)) ||
-                    // Double dot on 12th fret - one on B string (higher)
-                    (stringIndex === 1 && fret === 12) ||
-                    // Double dot on 12th fret - one on A string (lower)
-                    (stringIndex === 4 && fret === 12)
+                    stringIndex === markerStringIndex && isSingleDot
                   );
 
-                  // Check if this is a position for a half-circle marker (top half)
-                  const isHalfCircleTop = (
-                    stringIndex === 2 && (fret === 3 || fret === 5 || 
-                                        fret === 7 || fret === 9 || 
-                                        fret === 15 || fret === 17 || 
-                                        fret === 19 || fret === 21)
-                  );
+                  // Double dots
+                  // Usually on the strings above and below the center line?
+                  // Or just two dots on the center line?
+                  // Original code: 
+                  // (stringIndex === 1 && fret === 12) || (stringIndex === 4 && fret === 12) for guitar (indices 1 and 4 are B and A)
+                  // For Ukulele (4 strings), double dots usually on G and A? Or C and E?
+                  // Let's just place them on the strings around the middle.
 
-                  // Check if this is a position for a half-circle marker (bottom half)
-                  const isHalfCircleBottom = (
-                    stringIndex === 3 && (fret === 3 || fret === 5 || 
-                                        fret === 7 || fret === 9 || 
-                                        fret === 15 || fret === 17 || 
-                                        fret === 19 || fret === 21)
-                  );
+                  const isDoubleDotTop = isDoubleMarkerFret && stringIndex === (middleStringIndex - 1); // e.g. 2 for guitar
+                  const isDoubleDotBottom = isDoubleMarkerFret && stringIndex === (middleStringIndex + 1); // e.g. 4 for guitar (Wait, original was 1 and 4. 1 is B, 4 is A. Middle is between 2(G) and 3(D). So 1 and 4 are outer.)
+
+                  // Let's stick to a simple logic:
+                  // Single markers: on middleStringIndex
+                  // Double markers: on middleStringIndex - 1 and middleStringIndex + 1? 
+                  // Or just hardcode for now based on string count if we want exact replica, but we want dynamic.
+                  // Let's use:
+                  // Single: middleStringIndex
+                  // Double: middleStringIndex - 1 and middleStringIndex + 1 (if available)
+
+                  // For Guitar (6 strings): Middle is 3. Single on 3. Double on 2 and 4?
+                  // Original was: Single on 3. Double on 1 and 4.
+
+                  // For Ukulele (4 strings): Middle is 2. Single on 2. Double on 1 and 3?
+                  // Let's try this.
+
+                  const isDoubleDot = isDoubleMarkerFret && (stringIndex === (middleStringIndex - 2) || stringIndex === (middleStringIndex + 1));
+                  // Wait, for guitar (6): middle=3. 3-2=1. 3+1=4. This matches original (1 and 4).
+                  // For ukulele (4): middle=2. 2-2=0. 2+1=3. So strings 0 and 3. (Top and Bottom strings).
+                  // That seems reasonable for double dots on uke? Or maybe 1 and 2?
+                  // Let's use a safer logic.
+
+                  const isFretMarkerRender = (stringIndex === markerStringIndex && isSingleDot);
+
+                  // Custom logic for double dots to look good
+                  let isDoubleDotRender = false;
+                  if (isDoubleMarkerFret) {
+                    if (tuning.length === 6) {
+                      isDoubleDotRender = (stringIndex === 1 || stringIndex === 4);
+                    } else if (tuning.length === 4) {
+                      isDoubleDotRender = (stringIndex === 0 || stringIndex === 3); // Outer strings
+                    } else {
+                      isDoubleDotRender = (stringIndex === 0 || stringIndex === tuning.length - 1);
+                    }
+                  }
 
                   return (
-                    <div 
+                    <div
                       className={`fret ${fret === 0 ? 'first-fret' : ''}`}
                       key={`fret-${stringIndex}-${fret}`}
                     >
-                      {/* Replace full circle markers with half circles for specified frets */}
-                      {isFretMarker && fret !== 3 && fret !== 5 && 
-                       fret !== 7 && fret !== 9 && fret !== 15 && 
-                       fret !== 17 && fret !== 19 && fret !== 21 && (
+                      {isFretMarkerRender && (
                         <div className="fret-marker"></div>
                       )}
-                      {isHalfCircleTop && (
-                        <div className="fret-marker-top"></div>
+                      {isDoubleDotRender && (
+                        <div className="fret-marker"></div>
                       )}
-                      {isHalfCircleBottom && (
-                        <div className="fret-marker-bottom"></div>
-                      )}
+
                       <FretboardNote
                         key={fret}
                         note={note}
@@ -326,17 +359,18 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
                         stringIndex={stringIndex}
                         onNoteTap={handleNoteTap}
                         showNonScaleNotes={showNonScaleNotes}
+                        octaves={octaves}
                       />
                     </div>
                   );
                 })}
               </div>
             ))}
-            
+
             <div className="fret-numbers">
               {[...Array(fretCount + 1)].map((_, fret) => (
-                <div 
-                  key={fret} 
+                <div
+                  key={fret}
                   className={`fret-number ${fret === 0 ? "fret-number-nut" : ""}`}
                 >
                   {fret}
@@ -371,10 +405,10 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
           </div>
         </div>
       )}
-      
+
       {showHints && (
         <div className="fretboard-hints">
-          <h4>Guitar Fretboard Tips</h4>
+          <h4>Fretboard Tips</h4>
           <ul className="hint-list">
             <li>Click on any note to hear how it sounds</li>
             <li>Click on string labels on the left to play open strings</li>
@@ -397,8 +431,7 @@ Fretboard.propTypes = {
   }).isRequired,
   showScaleDegrees: PropTypes.bool.isRequired,
   setShowScaleDegrees: PropTypes.func.isRequired,
-  tuning: PropTypes.arrayOf(PropTypes.string).isRequired,
-  fretCount: PropTypes.number.isRequired,
+  instrumentConfig: PropTypes.object.isRequired,
   selectedInstrument: PropTypes.string,
 };
 

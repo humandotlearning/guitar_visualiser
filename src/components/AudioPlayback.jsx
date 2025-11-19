@@ -12,7 +12,7 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
   const [volume, setVolume] = useState(0.8);
   const [sustain, setSustain] = useState(1.5);
   const [localInstrument, setLocalInstrument] = useState(selectedInstrument || 'acoustic_guitar_steel');
-  
+
   // Reference to detect clicks outside the settings panel
   const settingsRef = useRef(null);
 
@@ -25,11 +25,12 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
     'electric_guitar_muted': 'Electric Guitar (muted)',
     'overdriven_guitar': 'Overdriven Guitar',
     'distortion_guitar': 'Distortion Guitar',
-    'guitar_harmonics': 'Guitar Harmonics'
+    'guitar_harmonics': 'Guitar Harmonics',
+    'ukulele': 'Ukulele'
   };
 
   // Get scale notes if rootNote and selectedScale are provided
-  const scaleNotes = selectedScale && rootNote ? 
+  const scaleNotes = selectedScale && rootNote ?
     getScaleNotes(rootNote, SCALE_LIBRARY[selectedScale.category][selectedScale.name]) : [];
 
   // Close settings when clicking outside
@@ -113,7 +114,7 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
   // Play the entire scale sequentially
   const playScale = async () => {
     if (!audioInitialized || isPlaying || scaleNotes.length === 0) return;
-    
+
     setActiveElement('scale');
     setIsPlaying(true);
     try {
@@ -136,7 +137,7 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
   // Play chord (all notes together)
   const playChord = async () => {
     if (!audioInitialized || isPlaying || !selectedChord || selectedChord.length === 0) return;
-    
+
     setActiveElement('chord');
     setIsPlaying(true);
     try {
@@ -151,7 +152,7 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
   // Play an arpeggio of the selected chord
   const playArpeggio = async () => {
     if (!audioInitialized || isPlaying || !selectedChord || selectedChord.length === 0) return;
-    
+
     setActiveElement('arpeggio');
     setIsPlaying(true);
     try {
@@ -195,15 +196,15 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
     <div className="audio-playback relative">
       {/* Overlay for when settings are open */}
       {isSettingsOpen && <div className="overlay" onClick={closeSettings}></div>}
-      
+
       <div className="flex justify-between items-center mb-2">
         <div>
           <h2 className="text-xl font-semibold">Audio Playback</h2>
           <p className="text-sm text-gray-600">Using: {instruments[localInstrument]}</p>
         </div>
-        
+
         {/* Settings button */}
-        <button 
+        <button
           className={`settings-toggle settings-toggle-small ${isSettingsOpen ? 'active' : ''}`}
           onClick={() => setIsSettingsOpen(!isSettingsOpen)}
           aria-label="Sound Settings"
@@ -214,7 +215,7 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
           </svg>
         </button>
       </div>
-        
+
       {/* Settings panel (modal style) */}
       {isSettingsOpen && (
         <div className="settings-panel settings-panel-audio" ref={settingsRef}>
@@ -246,7 +247,7 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
                   </option>
                 ))}
               </select>
-              <button 
+              <button
                 className="test-sound-button"
                 onClick={playTestNote}
               >
@@ -254,7 +255,7 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
               </button>
             </div>
           </div>
-          
+
           <div className="setting-group">
             <div className="slider-container">
               <label htmlFor="volume-control-audio">Volume: {Math.round(volume * 100)}%</label>
@@ -272,7 +273,7 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
               </div>
             </div>
           </div>
-          
+
           <div className="setting-group">
             <div className="slider-container">
               <label htmlFor="sustain-control-audio">Sustain: {sustain.toFixed(1)}s</label>
@@ -292,7 +293,7 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
           </div>
         </div>
       )}
-        
+
       <div className="grid grid-cols-3 gap-2">
         <button
           onClick={playScale}

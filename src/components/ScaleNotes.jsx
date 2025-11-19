@@ -5,30 +5,29 @@ import { getScaleNotes, getScalePattern, SCALE_LIBRARY } from '../utils/musicThe
 import PropTypes from 'prop-types';
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
 
-const ScaleNotes = ({ rootNote, selectedScale }) => {
+const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentNoteIndex, setCurrentNoteIndex] = useState(null);
   const [audioInitialized, setAudioInitialized] = useState(false);
 
-  // Initialize audio on mount
+  // Initialize audio on mount and when instrument changes
   useEffect(() => {
     const initAudio = async () => {
       try {
         await SoundfontAudio.initializeAudio();
-        await SoundfontAudio.loadInstrument('acoustic_guitar_steel');
+        await SoundfontAudio.loadInstrument(selectedInstrument || 'acoustic_guitar_steel');
         setAudioInitialized(true);
       } catch (error) {
         console.error('Error initializing audio:', error);
       }
     };
 
-    // Initialize audio immediately without waiting for user interaction
     initAudio();
 
     return () => {
       // Cleanup if needed
     };
-  }, []);
+  }, [selectedInstrument]);
 
   if (!rootNote || !selectedScale) return null;
 
@@ -60,9 +59,14 @@ const ScaleNotes = ({ rootNote, selectedScale }) => {
         // Set current note index immediately before playing
         setCurrentNoteIndex(i);
         
-        // Play the note immediately for the first note
-        SoundfontAudio.playNote(scaleNotes[i]);
-        
+        // Play the note and await, catch errors
+        try {
+          await SoundfontAudio.playNote(scaleNotes[i]);
+        } catch (noteError) {
+          console.error('Error playing note:', noteError);
+          // Optionally, set an error state here to display in the UI
+          break;
+        }
         // Wait before playing the next note
         if (i < scaleNotes.length - 1) {
           await new Promise(resolve => setTimeout(resolve, 500));
@@ -142,6 +146,7 @@ ScaleNotes.propTypes = {
     category: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
   }).isRequired,
+  selectedInstrument: PropTypes.string,
 };
 
 export default ScaleNotes;

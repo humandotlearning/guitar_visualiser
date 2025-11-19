@@ -7,8 +7,8 @@ let isLoading = false;
 let loadPromise = null;
 
 // Sound settings
-let globalVolume = 1.0; 
-let volumeBoost = 2.5; 
+let globalVolume = 1.0;
+let volumeBoost = 2.5;
 let globalSustain = 1.5;
 let currentInstrumentName = '';
 
@@ -20,7 +20,8 @@ export const INSTRUMENTS = {
   'electric_guitar_muted': 'Electric Guitar (muted)',
   'overdriven_guitar': 'Overdriven Guitar',
   'distortion_guitar': 'Distortion Guitar',
-  'guitar_harmonics': 'Guitar Harmonics'
+  'guitar_harmonics': 'Guitar Harmonics',
+  'ukulele': 'Ukulele'
 };
 
 // Default instrument
@@ -77,35 +78,58 @@ export const getCurrentInstrumentName = () => currentInstrumentName;
 
 // Load instrument with caching
 export const loadInstrument = async (instrumentName = DEFAULT_INSTRUMENT) => {
-  // Store the instrument name for reference
   currentInstrumentName = instrumentName;
-  
-  // Return existing promise if already loading the same instrument
+
   if (isLoading && loadPromise) {
     return loadPromise;
   }
-  
-  // Initialize audio context if needed
+
   if (!audioContext) {
     await initializeAudio();
   }
-  
+
+  // Map instrument names to soundfont names if needed
+  let soundfontName = instrumentName;
+  if (instrumentName === 'ukulele') {
+    soundfontName = 'acoustic_guitar_nylon';
+  }
+
   isLoading = true;
-  loadPromise = Soundfont.instrument(audioContext, instrumentName, {
+  loadPromise = Soundfont.instrument(audioContext, soundfontName, {
     format: 'mp3',
     soundfont: 'MusyngKite',
-    gain: globalVolume * volumeBoost, 
+    gain: globalVolume * volumeBoost,
   }).then(loadedInstrument => {
     instrument = loadedInstrument;
-    console.log(`Loaded instrument: ${instrumentName} with volume: ${globalVolume * volumeBoost}`);
+    console.log(`Loaded instrument: ${instrumentName} (soundfont: ${soundfontName}) with volume: ${globalVolume * volumeBoost}`);
     isLoading = false;
     return instrument;
-  }).catch(err => {
+  }).catch(async err => {
     console.error(`Failed to load instrument ${instrumentName}:`, err);
-    isLoading = false;
-    throw err;
+    // Fallback: try to load the default instrument if not already tried
+    if (instrumentName !== DEFAULT_INSTRUMENT) {
+      try {
+        console.warn('Attempting to load default instrument as fallback...');
+        instrument = await Soundfont.instrument(audioContext, DEFAULT_INSTRUMENT, {
+          format: 'mp3',
+          soundfont: 'MusyngKite',
+          gain: globalVolume * volumeBoost,
+        });
+        currentInstrumentName = DEFAULT_INSTRUMENT;
+        console.log('Fallback to default instrument succeeded.');
+        isLoading = false;
+        return instrument;
+      } catch (fallbackErr) {
+        console.error('Failed to load fallback default instrument:', fallbackErr);
+        isLoading = false;
+        throw new Error('Failed to load both the selected and default instruments. Please check your network connection or try a different instrument.');
+      }
+    } else {
+      isLoading = false;
+      throw new Error('Failed to load instrument. Please check your network connection or try a different instrument.');
+    }
   });
-  
+
   return loadPromise;
 };
 
@@ -128,14 +152,14 @@ export const playNote = async (note, duration = null, octave = 4) => {
       return;
     }
   }
-  
+
   // Use global sustain if duration is not provided
   const actualDuration = duration || globalSustain;
-  
+
   const midiNote = noteToMidi(note, octave);
   return instrument.play(midiNote, audioContext.currentTime, {
     duration: actualDuration,
-    gain: globalVolume * volumeBoost 
+    gain: globalVolume * volumeBoost
   });
 };
 
@@ -149,10 +173,10 @@ export const playChord = async (notes, duration = null, octave = 4) => {
       return;
     }
   }
-  
+
   // Use global sustain if duration is not provided
   const actualDuration = duration || globalSustain;
-  
+
   // Play each note of the chord with slight timing variance for realism
   return Promise.all(notes.map((note, index) => {
     const midiNote = noteToMidi(note, octave);
@@ -160,7 +184,7 @@ export const playChord = async (notes, duration = null, octave = 4) => {
     const delay = index * 0.02;
     return instrument.play(midiNote, audioContext.currentTime + delay, {
       duration: actualDuration,
-      gain: globalVolume * volumeBoost 
+      gain: globalVolume * volumeBoost
     });
   }));
 };
@@ -176,7 +200,7 @@ export const playString = async (stringNote, duration = null) => {
     'B': 3, // B (2nd string)
     'E_high': 4  // High E (1st string)
   };
-  
+
   // Determine octave based on string note
   let octave;
   if (stringNote === 'E') {
@@ -185,10 +209,10 @@ export const playString = async (stringNote, duration = null) => {
   } else {
     octave = stringOctaves[stringNote] || 3;
   }
-  
+
   // Use global sustain if duration is not provided
   const actualDuration = duration || globalSustain;
-  
+
   return playNote(stringNote, actualDuration, octave);
 };
 
@@ -202,7 +226,7 @@ export const playFrettedNote = async (stringNote, fret, duration = null) => {
       return;
     }
   }
-  
+
   // Base octaves for standard guitar tuning
   const stringOctaves = {
     'E_low': 2, // Low E (6th string)
@@ -212,7 +236,7 @@ export const playFrettedNote = async (stringNote, fret, duration = null) => {
     'B': 3, // B (2nd string)
     'E_high': 4  // High E (1st string)
   };
-  
+
   // Determine octave based on string note
   let octave;
   if (stringNote === 'E') {
@@ -221,19 +245,19 @@ export const playFrettedNote = async (stringNote, fret, duration = null) => {
   } else {
     octave = stringOctaves[stringNote] || 3;
   }
-  
+
   // Calculate the resulting note
   const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
   const startNoteIndex = NOTES.indexOf(stringNote);
   const resultNoteIndex = (startNoteIndex + fret) % 12;
   const resultNote = NOTES[resultNoteIndex];
-  
+
   // Calculate octave shift
   octave += Math.floor((startNoteIndex + fret) / 12);
-  
+
   // Use global sustain if duration is not provided
   const actualDuration = duration || globalSustain;
-  
+
   // Play the note directly with volume boost instead of using playNote
   const midiNote = noteToMidi(resultNote, octave);
   return instrument.play(midiNote, audioContext.currentTime, {

@@ -54,6 +54,7 @@ ScaleSelector.propTypes = {
     name: PropTypes.string.isRequired,
   }).isRequired,
   setSelectedScale: PropTypes.func.isRequired,
+
 };
 
 export default ScaleSelector;

@@ -65,12 +65,12 @@ const getRomanNumeral = (num) => {
   return romanNumerals[num - 1];
 };
 
-const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, selectedInstrument }) => {
+const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentConfig }) => {
   const [chords, setChords] = useState({});
   const [selectedChord, setSelectedChord] = useState(null);
   const [selectedChordName, setSelectedChordName] = useState('');
   const [chordVariations, setChordVariations] = useState([]);
-  const [guitarChordsData, setGuitarChordsData] = useState(null);
+  const [chordData, setChordData] = useState(null);
   const [audioInitialized, setAudioInitialized] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [lastTapTime, setLastTapTime] = useState(0);
@@ -83,24 +83,33 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, selectedInstr
     if (typeof window !== 'undefined') {
       try {
         SoundfontAudio.initializeAudio();
-        SoundfontAudio.loadInstrument(selectedInstrument || 'acoustic_guitar_steel');
+        SoundfontAudio.loadInstrument((instrumentConfig && instrumentConfig.soundfontName) || 'acoustic_guitar_steel');
         setAudioInitialized(true);
       } catch (error) {
         console.error('Error initializing audio:', error);
       }
     }
-  }, [selectedInstrument]);
+  }, [instrumentConfig]);
 
-  // Load the guitar.json data on client-side only
+  // Load the appropriate chord data based on instrument config
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      import('../db/guitar.json').then((data) => {
-        setGuitarChordsData(data.default);
-      }).catch(err => {
-        console.error('Failed to load guitar chord data:', err);
-      });
+    if (typeof window !== 'undefined' && instrumentConfig) {
+      const loadChordData = async () => {
+        try {
+          let data;
+          if (instrumentConfig.chordDataKey === 'ukulele') {
+            data = await import('../db/ukulele.json');
+          } else {
+            data = await import('../db/guitar.json');
+          }
+          setChordData(data.default);
+        } catch (err) {
+          console.error(`Failed to load chord data for ${instrumentConfig.chordDataKey}:`, err);
+        }
+      };
+      loadChordData();
     }
-  }, []);
+  }, [instrumentConfig]);
 
   useEffect(() => {
     if (rootNote && selectedScale) {
@@ -115,20 +124,20 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, selectedInstr
 
   // Handle instrument changes
   useEffect(() => {
-    if (audioInitialized && selectedInstrument) {
+    if (audioInitialized && instrumentConfig && instrumentConfig.soundfontName) {
       const loadNewInstrument = async () => {
         try {
-          await SoundfontAudio.loadInstrument(selectedInstrument);
+          await SoundfontAudio.loadInstrument(instrumentConfig.soundfontName);
         } catch (error) {
           console.error('Error loading instrument:', error);
         }
       };
       loadNewInstrument();
     }
-  }, [selectedInstrument, audioInitialized]);
+  }, [instrumentConfig, audioInitialized]);
 
   useEffect(() => {
-    if (selectedChord && guitarChordsData && selectedScale) {
+    if (selectedChord && chordData && selectedScale) {
       const chordName = Object.keys(chords).find(key => chords[key] === selectedChord);
       setSelectedChordName(chordName || '');
       const chordTypeIndex = Object.keys(chords).indexOf(chordName);
@@ -137,66 +146,70 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, selectedInstr
 
       // Map chord name to JSON key
       const jsonKey = mapChordNameToJsonKey(chordName);
-      const chordData = guitarChordsData.chords[jsonKey]?.find(chord => chord.suffix === chordSuffix);
-      if (!chordData) {
+      const chordInfo = chordData.chords[jsonKey]?.find(chord => chord.suffix === chordSuffix);
+      if (!chordInfo) {
         console.warn(`No chord data found for ${chordName} with type ${chordSuffix}`);
       }
 
-      const variations = chordData ? chordData.positions : [];
+      const variations = chordInfo ? chordInfo.positions : [];
       setChordVariations(variations);
     }
-  }, [selectedChord, chords, selectedScale, guitarChordsData]);
+  }, [selectedChord, chords, selectedScale, chordData]);
 
   // Handle double tap to select and play chord
   const handleChordTap = (chordRoot, chordNotes) => {
     const now = Date.now();
     const doubleTapThreshold = 300; // ms
-    
+
     // Update the selected chord regardless
     onChordSelect(chordNotes);
     setSelectedChord(chordNotes);
-    
+
     // Check if it's a double tap on the same chord
     if (now - lastTapTime < doubleTapThreshold && lastTapChord === chordRoot) {
       // It's a double tap, so play the chord
       playSelectedChord();
     }
-    
+
     setLastTapTime(now);
     setLastTapChord(chordRoot);
   };
 
   // Play a chord based on variation
   const playChordVariation = async (variation) => {
-    if (!audioInitialized || isPlaying) return;
+    if (!audioInitialized || isPlaying || !instrumentConfig) return;
 
     setIsPlaying(true);
     try {
       // Extract the notes from the chord variation
       const notes = [];
-      const tuning = ['E', 'A', 'D', 'G', 'B', 'E']; // Standard guitar tuning
-      const baseFrets = [2, 2, 3, 3, 3, 4]; // Base octaves for each string
+      const { tuning, octaves } = instrumentConfig;
+      // tuning is High to Low (e.g. E, B, G, D, A, E)
+      // variation.frets is usually Low to High (e.g. E, A, D, G, B, E)
+      // So we need to map correctly.
 
       // Process each string in the chord
       variation.frets.forEach((fret, stringIndex) => {
         if (fret !== -1) { // -1 means string is not played
-          const stringNote = tuning[tuning.length - 1 - stringIndex]; // Reverse index since chord diagrams go from high to low
-          const baseOctave = baseFrets[stringIndex];
-          
+          // stringIndex 0 in variation.frets corresponds to the LAST element in our tuning array (Low string)
+          const tuningIndex = tuning.length - 1 - stringIndex;
+          const stringNote = tuning[tuningIndex];
+          const baseOctave = octaves ? octaves[tuningIndex] : 3;
+
           const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
           const noteIndex = (NOTES.indexOf(stringNote) + fret) % 12;
           const note = NOTES[noteIndex];
-          
+
           // Calculate octave shift
           const octaveShift = Math.floor((NOTES.indexOf(stringNote) + fret) / 12);
           const octave = baseOctave + octaveShift;
-          
+
           notes.push({ note, octave });
         }
       });
 
       // Play each note in the chord
-      await Promise.all(notes.map(({ note, octave }) => 
+      await Promise.all(notes.map(({ note, octave }) =>
         SoundfontAudio.playNote(note, null, octave)
       ));
 
@@ -225,11 +238,11 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, selectedInstr
   // Play all chords in the scale sequentially
   const playAllChords = async () => {
     if (!audioInitialized || playingAllChords || Object.keys(chords).length === 0) return;
-    
+
     // Store the currently selected chord before playing all chords
     const previouslySelectedChord = selectedChord;
     const previouslySelectedChordName = selectedChordName;
-    
+
     setPlayingAllChords(true);
     try {
       // Play chords sequentially with a delay between them
@@ -239,10 +252,10 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, selectedInstr
         setCurrentChordIndex(i);
         onChordSelect(chords[chordKey]);
         setSelectedChord(chords[chordKey]);
-        
+
         // Play the chord
         await SoundfontAudio.playChord(chords[chordKey]);
-        
+
         // Wait before playing the next chord
         if (i < chordKeys.length - 1) {
           await new Promise(resolve => setTimeout(resolve, 1000));
@@ -255,7 +268,7 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, selectedInstr
       setTimeout(() => {
         setPlayingAllChords(false);
         setCurrentChordIndex(null);
-        
+
         // Restore the previously selected chord
         if (previouslySelectedChord) {
           setSelectedChord(previouslySelectedChord);
@@ -275,13 +288,15 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, selectedInstr
   const chordTypes = CHORD_TYPES[category];
   const scaleNotes = getScaleNotes(rootNote, scaleChords);
 
+  // Prepare instrument object for react-chords
+  // tuning is High to Low, react-chords expects Low to High
   const instrument = {
-    strings: 6,
+    strings: instrumentConfig ? instrumentConfig.strings : 6,
     fretsOnChord: 4,
-    name: 'Guitar',
+    name: instrumentConfig ? instrumentConfig.label : 'Guitar',
     keys: [],
     tunings: {
-      standard: ['E', 'A', 'D', 'G', 'B', 'E']
+      standard: instrumentConfig ? [...instrumentConfig.tuning].reverse() : ['E', 'A', 'D', 'G', 'B', 'E']
     }
   };
 
@@ -290,7 +305,7 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, selectedInstr
       <div className="chord-visualizer">
         <div className="flex items-center justify-between mb-4">
           <p className="double-tap-instruction">Double-tap on any chord to play it</p>
-          <button 
+          <button
             onClick={playAllChords}
             disabled={playingAllChords || !audioInitialized}
             className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:opacity-50 flex items-center"
@@ -302,7 +317,7 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, selectedInstr
             )}
           </button>
         </div>
-        
+
         <div className="overflow-x-auto">
           <table className="chord-table">
             <thead>
@@ -339,7 +354,7 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, selectedInstr
             </tbody>
           </table>
         </div>
-        
+
         {selectedChord && chordVariations.length > 0 ? (
           <>
             <h3 className="text-lg font-semibold mt-4 mb-2">Chord Variations of {selectedChordName}{chordTypes[Object.keys(chords).indexOf(selectedChordName)]}</h3>
@@ -348,9 +363,9 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, selectedInstr
               {chordVariations.map((variation, index) => (
                 <div key={index} className="chord-variation">
                   <h3 className="variation-title">Variation {index + 1}</h3>
-                  <ChordComponent 
-                    variation={variation} 
-                    instrument={instrument} 
+                  <ChordComponent
+                    variation={variation}
+                    instrument={instrument}
                     onPlayChord={playChordVariation}
                   />
                 </div>
@@ -372,7 +387,7 @@ ChordVisualizer.propTypes = {
     name: PropTypes.string.isRequired,
   }).isRequired,
   onChordSelect: PropTypes.func.isRequired,
-  selectedInstrument: PropTypes.string
+  instrumentConfig: PropTypes.object
 };
 
 export default ChordVisualizer;

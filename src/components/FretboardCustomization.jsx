@@ -27,6 +27,7 @@ const FretboardCustomization = ({ tuning, setTuning, fretCount, setFretCount }) 
           value={currentTuning}
           onChange={handleTuningChange}
           className="w-full p-2 border rounded"
+          disabled={typeof setTuning !== 'function' || setTuning.toString().includes('noop')}
         >
           {Object.keys(TUNINGS).map((key) => (
             <option key={key} value={key}>{key}</option>
@@ -44,6 +45,7 @@ const FretboardCustomization = ({ tuning, setTuning, fretCount, setFretCount }) 
           value={fretCount}
           onChange={(e) => setFretCount(Number(e.target.value))}
           className="w-full"
+          disabled={typeof setFretCount !== 'function' || setFretCount.toString().includes('noop')}
         />
       </div>
     </div>
@@ -55,6 +57,7 @@ FretboardCustomization.propTypes = {
   setTuning: PropTypes.func.isRequired,
   fretCount: PropTypes.number.isRequired,
   setFretCount: PropTypes.func.isRequired,
+
 };
 
 export default FretboardCustomization;
