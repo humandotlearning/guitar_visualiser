@@ -2,6 +2,7 @@ import React, { useState, lazy, Suspense } from 'react';
 import INSTRUMENTS from './instruments';
 // Lazy load the larger components
 const Fretboard = lazy(() => import('./components/Fretboard'));
+const PianoKeyboard = lazy(() => import('./components/PianoKeyboard'));
 const ChordVisualizer = lazy(() => import('./components/ChordVisualizer'));
 const AudioPlayback = lazy(() => import('./components/AudioPlayback'));
 const FretboardCustomization = lazy(() => import('./components/FretboardCustomization'));
@@ -76,19 +77,33 @@ function App() {
         </div>
       </div>
 
-      <Suspense fallback={<div className="card mt-4 p-4">Loading Fretboard...</div>}>
-        <div className="card mt-4">
-          <Fretboard
-            rootNote={rootNote}
-            selectedScale={selectedScale}
-            showScaleDegrees={showScaleDegrees}
-            setShowScaleDegrees={setShowScaleDegrees}
-            instrumentConfig={instrumentConfig}
-            selectedInstrument={selectedInstrument}
-          />
-
-        </div>
-      </Suspense>
+      {/* Conditionally render Fretboard or PianoKeyboard based on instrument type */}
+      {instrumentConfig.type === 'keyboard' ? (
+        <Suspense fallback={<div className="card mt-4 p-4">Loading Piano Keyboard...</div>}>
+          <div className="card mt-4">
+            <PianoKeyboard
+              rootNote={rootNote}
+              selectedScale={selectedScale}
+              showScaleDegrees={showScaleDegrees}
+              setShowScaleDegrees={setShowScaleDegrees}
+              instrumentConfig={instrumentConfig}
+            />
+          </div>
+        </Suspense>
+      ) : (
+        <Suspense fallback={<div className="card mt-4 p-4">Loading Fretboard...</div>}>
+          <div className="card mt-4">
+            <Fretboard
+              rootNote={rootNote}
+              selectedScale={selectedScale}
+              showScaleDegrees={showScaleDegrees}
+              setShowScaleDegrees={setShowScaleDegrees}
+              instrumentConfig={instrumentConfig}
+              selectedInstrument={selectedInstrument}
+            />
+          </div>
+        </Suspense>
+      )}
       <Suspense fallback={<div className="card mt-4 p-4">Loading Chord Visualizer...</div>}>
         <div className="card mt-4">
           <h2 className="text-xl font-semibold mb-2">Chords in the Scale of {rootNote} {selectedScale?.name || 'No Scale Selected'}</h2>
@@ -112,17 +127,20 @@ function App() {
         </div>
       </Suspense>
 
-      <Suspense fallback={<div className="card p-4">Loading Customization...</div>}>
-        <div className="card mt-4">
-          <h2 className="text-xl font-semibold mb-2">Fretboard Customization</h2>
-          <FretboardCustomization
-            tuning={instrumentConfig.tuning}
-            setTuning={() => { }}
-            fretCount={instrumentConfig.fretCount}
-            setFretCount={() => { }}
-          />
-        </div>
-      </Suspense>
+      {/* Only show FretboardCustomization for stringed instruments */}
+      {instrumentConfig.type !== 'keyboard' && (
+        <Suspense fallback={<div className="card p-4">Loading Customization...</div>}>
+          <div className="card mt-4">
+            <h2 className="text-xl font-semibold mb-2">Fretboard Customization</h2>
+            <FretboardCustomization
+              tuning={instrumentConfig.tuning}
+              setTuning={() => { }}
+              fretCount={instrumentConfig.fretCount}
+              setFretCount={() => { }}
+            />
+          </div>
+        </Suspense>
+      )}
       <footer className="text-center text-gray-500 text-sm mt-8 mb-4">
         &copy; {new Date().getFullYear()} Guitar Scale and Chord Visualizer
       </footer>

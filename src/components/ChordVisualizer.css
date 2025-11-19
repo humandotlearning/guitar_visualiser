@@ -209,3 +209,112 @@
     font-size: 0.7rem;
   }
 }
+
+/* Mini Piano Chord Display Styles */
+.mini-piano-chord {
+  cursor: pointer;
+  display: inline-block;
+  padding: 10px;
+  background: linear-gradient(to bottom, #2c3e50, #1a252f);
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mini-piano-chord:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.mini-piano-keyboard {
+  position: relative;
+  display: inline-block;
+}
+
+.mini-white-keys {
+  display: flex;
+}
+
+.mini-black-keys {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 55px;
+  pointer-events: none;
+}
+
+.mini-key {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 4px;
+}
+
+.mini-white-key {
+  width: 24px;
+  height: 85px;
+  background: linear-gradient(to bottom, #f8f8f8, #ffffff);
+  border: 1px solid #ccc;
+  border-radius: 0 0 3px 3px;
+  margin-right: 1px;
+}
+
+.mini-black-key {
+  position: absolute;
+  width: 16px;
+  height: 55px;
+  background: linear-gradient(to bottom, #333, #111);
+  border-radius: 0 0 2px 2px;
+  z-index: 10;
+  pointer-events: auto;
+}
+
+.mini-key-label {
+  font-size: 8px;
+  font-weight: bold;
+  pointer-events: none;
+}
+
+.mini-white-key .mini-key-label {
+  color: #333;
+}
+
+.mini-black-key .mini-key-label {
+  color: #fff;
+}
+
+/* Highlighted keys for chord notes */
+.mini-white-key.highlighted {
+  background: linear-gradient(to bottom, var(--color-perfect), #9dc2ee);
+}
+
+.mini-black-key.highlighted {
+  background: linear-gradient(to bottom, var(--color-perfect), #8db2de);
+}
+
+.piano-chord-display {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.chord-notes-display {
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+/* Responsive styles for mini piano */
+@media screen and (max-width: 768px) {
+  .mini-white-key {
+    width: 20px;
+    height: 70px;
+  }
+
+  .mini-black-key {
+    width: 14px;
+    height: 45px;
+  }
+
+  .mini-key-label {
+    font-size: 7px;
+  }
+}

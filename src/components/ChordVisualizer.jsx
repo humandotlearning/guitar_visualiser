@@ -1,9 +1,53 @@
 import React, { useEffect, useState } from 'react';
-import { getChordNotes, CHORD_TYPES, SCALE_LIBRARY, getScaleNotes } from '../utils/musicTheory';
+import { getChordNotes, CHORD_TYPES, SCALE_LIBRARY, getScaleNotes, NOTES } from '../utils/musicTheory';
 import PropTypes from 'prop-types';
 import ClientOnly from '../utils/clientOnly';
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
 import './ChordVisualizer.css';
+
+// Mini Piano Chord Display for keyboard instruments
+const MiniPianoChord = ({ chordNotes, onPlayChord }) => {
+  const handleClick = () => {
+    onPlayChord(chordNotes);
+  };
+
+  return (
+    <div className="mini-piano-chord" onClick={handleClick} title="Click to play chord">
+      <div className="mini-piano-keyboard">
+        <div className="mini-white-keys">
+          {NOTES.filter(n => !n.includes('#')).map((note) => (
+            <div
+              key={note}
+              className={`mini-key mini-white-key ${chordNotes.includes(note) ? 'highlighted' : ''}`}
+            >
+              {chordNotes.includes(note) && <span className="mini-key-label">{note}</span>}
+            </div>
+          ))}
+        </div>
+        <div className="mini-black-keys">
+          {NOTES.filter(n => n.includes('#')).map((note) => {
+            const blackKeyPositions = { 'C#': 0, 'D#': 1, 'F#': 3, 'G#': 4, 'A#': 5 };
+            const position = blackKeyPositions[note];
+            return (
+              <div
+                key={note}
+                className={`mini-key mini-black-key ${chordNotes.includes(note) ? 'highlighted' : ''}`}
+                style={{ left: `${position * 24 + 16}px` }}
+              >
+                {chordNotes.includes(note) && <span className="mini-key-label">{note}</span>}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+MiniPianoChord.propTypes = {
+  chordNotes: PropTypes.arrayOf(PropTypes.string).isRequired,
+  onPlayChord: PropTypes.func.isRequired
+};
 
 // Dynamically import the Chord component to avoid SSR issues
 const ChordComponent = ({ variation, instrument, onPlayChord }) => {
@@ -91,9 +135,9 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
     }
   }, [instrumentConfig]);
 
-  // Load the appropriate chord data based on instrument config
+  // Load the appropriate chord data based on instrument config (skip for keyboard instruments)
   useEffect(() => {
-    if (typeof window !== 'undefined' && instrumentConfig) {
+    if (typeof window !== 'undefined' && instrumentConfig && instrumentConfig.type !== 'keyboard') {
       const loadChordData = async () => {
         try {
           let data;
@@ -108,6 +152,10 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
         }
       };
       loadChordData();
+    } else if (instrumentConfig && instrumentConfig.type === 'keyboard') {
+      // Clear chord data for keyboard instruments
+      setChordData(null);
+      setChordVariations([]);
     }
   }, [instrumentConfig]);
 
@@ -137,6 +185,12 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
   }, [instrumentConfig, audioInitialized]);
 
   useEffect(() => {
+    // Skip chord variations for keyboard instruments
+    if (instrumentConfig && instrumentConfig.type === 'keyboard') {
+      setChordVariations([]);
+      return;
+    }
+
     if (selectedChord && chordData && selectedScale) {
       const chordName = Object.keys(chords).find(key => chords[key] === selectedChord);
       setSelectedChordName(chordName || '');
@@ -154,7 +208,7 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
       const variations = chordInfo ? chordInfo.positions : [];
       setChordVariations(variations);
     }
-  }, [selectedChord, chords, selectedScale, chordData]);
+  }, [selectedChord, chords, selectedScale, chordData, instrumentConfig]);
 
   // Handle double tap to select and play chord
   const handleChordTap = (chordRoot, chordNotes) => {
@@ -231,6 +285,21 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
       setTimeout(() => setIsPlaying(false), 1500);
     } catch (error) {
       console.error('Error playing chord:', error);
+      setIsPlaying(false);
+    }
+  };
+
+  // Play piano chord (for keyboard instruments)
+  const playPianoChord = async (chordNotes) => {
+    if (!audioInitialized || isPlaying) return;
+
+    setIsPlaying(true);
+    try {
+      // Play chord at octave 4 (middle octave)
+      await SoundfontAudio.playChord(chordNotes, null, 4);
+      setTimeout(() => setIsPlaying(false), 1500);
+    } catch (error) {
+      console.error('Error playing piano chord:', error);
       setIsPlaying(false);
     }
   };
@@ -355,25 +424,48 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
           </table>
         </div>
 
-        {selectedChord && chordVariations.length > 0 ? (
-          <>
-            <h3 className="text-lg font-semibold mt-4 mb-2">Chord Variations of {selectedChordName}{chordTypes[Object.keys(chords).indexOf(selectedChordName)]}</h3>
-            <p className="text-sm mb-2">Click on a chord diagram to hear how it sounds</p>
-            <div className="chord-grid">
-              {chordVariations.map((variation, index) => (
-                <div key={index} className="chord-variation">
-                  <h3 className="variation-title">Variation {index + 1}</h3>
-                  <ChordComponent
-                    variation={variation}
-                    instrument={instrument}
-                    onPlayChord={playChordVariation}
-                  />
+        {/* Display chord visualizations based on instrument type */}
+        {instrumentConfig && instrumentConfig.type === 'keyboard' ? (
+          // Piano chord display
+          selectedChord && (
+            <>
+              <h3 className="text-lg font-semibold mt-4 mb-2">
+                {selectedChordName}{chordTypes[Object.keys(chords).indexOf(selectedChordName)]} Chord
+              </h3>
+              <p className="text-sm mb-2">Click on the keyboard to hear the chord</p>
+              <div className="piano-chord-display">
+                <MiniPianoChord
+                  chordNotes={selectedChord}
+                  onPlayChord={playPianoChord}
+                />
+                <div className="chord-notes-display mt-2">
+                  <strong>Notes:</strong> {selectedChord.join(' - ')}
                 </div>
-              ))}
-            </div>
-          </>
+              </div>
+            </>
+          )
         ) : (
-          <p>No variations available for this chord.</p>
+          // Stringed instrument chord variations
+          selectedChord && chordVariations.length > 0 ? (
+            <>
+              <h3 className="text-lg font-semibold mt-4 mb-2">Chord Variations of {selectedChordName}{chordTypes[Object.keys(chords).indexOf(selectedChordName)]}</h3>
+              <p className="text-sm mb-2">Click on a chord diagram to hear how it sounds</p>
+              <div className="chord-grid">
+                {chordVariations.map((variation, index) => (
+                  <div key={index} className="chord-variation">
+                    <h3 className="variation-title">Variation {index + 1}</h3>
+                    <ChordComponent
+                      variation={variation}
+                      instrument={instrument}
+                      onPlayChord={playChordVariation}
+                    />
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <p>No variations available for this chord.</p>
+          )
         )}
       </div>
     </ClientOnly>

@@ -1,0 +1,337 @@
+/* Piano Keyboard Styles */
+/* Uses the same color variables from Fretboard.css */
+
+.piano-section {
+  width: 100%;
+}
+
+.piano-controls {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.piano-container {
+  position: relative;
+  width: 100%;
+  overflow-x: auto;
+  padding-bottom: 10px;
+}
+
+.piano-keyboard {
+  position: relative;
+  display: inline-block;
+  min-width: max-content;
+  background: linear-gradient(to bottom, #2c3e50, #1a252f);
+  padding: 15px 10px 10px 10px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.white-keys-container {
+  display: flex;
+  position: relative;
+}
+
+.black-keys-container {
+  position: absolute;
+  top: 15px;
+  left: 10px;
+  right: 10px;
+  height: 100px;
+  pointer-events: none;
+}
+
+/* White Keys */
+.piano-key.white-key {
+  width: 40px;
+  height: 160px;
+  background: linear-gradient(to bottom, #f8f8f8, #ffffff);
+  border: 1px solid #ccc;
+  border-radius: 0 0 4px 4px;
+  margin-right: 2px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  padding-bottom: 10px;
+  transition: all 0.1s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  position: relative;
+}
+
+.piano-key.white-key:hover {
+  background: linear-gradient(to bottom, #e8e8e8, #f0f0f0);
+  transform: translateY(1px);
+}
+
+.piano-key.white-key:active,
+.piano-key.white-key.playing {
+  background: linear-gradient(to bottom, #ddd, #e5e5e5);
+  transform: translateY(2px);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Black Keys */
+.piano-key.black-key {
+  position: absolute;
+  width: 26px;
+  height: 100px;
+  background: linear-gradient(to bottom, #333, #111);
+  border-radius: 0 0 3px 3px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  padding-bottom: 8px;
+  z-index: 10;
+  pointer-events: auto;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+  transition: all 0.1s ease;
+}
+
+.piano-key.black-key:hover {
+  background: linear-gradient(to bottom, #444, #222);
+  transform: translateY(1px);
+}
+
+.piano-key.black-key:active,
+.piano-key.black-key.playing {
+  background: linear-gradient(to bottom, #555, #333);
+  transform: translateY(2px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Key Labels */
+.key-label {
+  font-size: 10px;
+  font-weight: bold;
+  text-align: center;
+  pointer-events: none;
+}
+
+.white-key .key-label {
+  color: #333;
+}
+
+.black-key .key-label {
+  color: #fff;
+}
+
+/* Scale Note Highlighting - White Keys */
+.piano-key.white-key.root {
+  background: linear-gradient(to bottom, var(--color-root), #d06060);
+}
+
+.piano-key.white-key.root .key-label {
+  color: white;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+.piano-key.white-key.third {
+  background: linear-gradient(to bottom, var(--color-third), #7aad73);
+}
+
+.piano-key.white-key.third .key-label {
+  color: white;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+.piano-key.white-key.fifth {
+  background: linear-gradient(to bottom, var(--color-fifth), #4cc8bb);
+}
+
+.piano-key.white-key.fifth .key-label {
+  color: white;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+.piano-key.white-key.seventh {
+  background: linear-gradient(to bottom, var(--color-seventh), #e6a676);
+}
+
+.piano-key.white-key.seventh .key-label {
+  color: white;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+.piano-key.white-key.scale-note {
+  background: linear-gradient(to bottom, var(--color-perfect), #9dc2ee);
+}
+
+.piano-key.white-key.scale-note .key-label {
+  color: #333;
+}
+
+/* Scale Note Highlighting - Black Keys */
+.piano-key.black-key.root {
+  background: linear-gradient(to bottom, var(--color-root), #c05050);
+}
+
+.piano-key.black-key.third {
+  background: linear-gradient(to bottom, var(--color-third), #6a9d63);
+}
+
+.piano-key.black-key.fifth {
+  background: linear-gradient(to bottom, var(--color-fifth), #3cb8ab);
+}
+
+.piano-key.black-key.seventh {
+  background: linear-gradient(to bottom, var(--color-seventh), #d69666);
+}
+
+.piano-key.black-key.scale-note {
+  background: linear-gradient(to bottom, var(--color-perfect), #8db2de);
+}
+
+/* Non-scale notes */
+.piano-key.non-scale-key {
+  opacity: 0.7;
+}
+
+.piano-key.white-key.non-scale-note {
+  background: linear-gradient(to bottom, #f0f0f0, #e8e8e8);
+}
+
+.piano-key.black-key.non-scale-note {
+  background: linear-gradient(to bottom, #2a2a2a, #111);
+}
+
+/* Octave Labels */
+.octave-labels {
+  display: flex;
+  margin-top: 5px;
+  padding-left: 10px;
+}
+
+.octave-label {
+  width: 280px; /* 7 white keys * 40px + margins */
+  text-align: left;
+  font-size: 11px;
+  color: #666;
+  padding-left: 5px;
+}
+
+/* Legend styling (reuse from Fretboard) */
+.scale-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.legend-color {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.legend-root {
+  background-color: var(--color-root);
+}
+
+.legend-third {
+  background-color: var(--color-third);
+}
+
+.legend-fifth {
+  background-color: var(--color-fifth);
+}
+
+.legend-seventh {
+  background-color: var(--color-seventh);
+}
+
+.legend-scale {
+  background-color: var(--color-perfect);
+}
+
+/* Hints section */
+.piano-hints {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  border-left: 4px solid #3498db;
+}
+
+.piano-hints h4 {
+  margin: 0 0 0.5rem 0;
+  font-weight: 600;
+  color: #333;
+}
+
+.hint-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  font-size: 0.875rem;
+  color: #555;
+}
+
+.hint-list li {
+  margin-bottom: 0.25rem;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .piano-key.white-key {
+    width: 32px;
+    height: 130px;
+  }
+
+  .piano-key.black-key {
+    width: 22px;
+    height: 80px;
+  }
+
+  .key-label {
+    font-size: 9px;
+  }
+
+  .octave-label {
+    width: 224px; /* 7 * 32px */
+    font-size: 10px;
+  }
+
+  .piano-controls {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .piano-controls > div {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .piano-key.white-key {
+    width: 28px;
+    height: 110px;
+  }
+
+  .piano-key.black-key {
+    width: 18px;
+    height: 65px;
+  }
+
+  .key-label {
+    font-size: 8px;
+  }
+
+  .octave-label {
+    width: 196px; /* 7 * 28px */
+    font-size: 9px;
+  }
+}
