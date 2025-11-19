@@ -85,6 +85,7 @@ function App() {
               selectedScale={selectedScale}
               showScaleDegrees={showScaleDegrees}
               instrumentConfig={instrumentConfig}
+              selectedChord={selectedChord}
             />
           ) : (
             <Fretboard

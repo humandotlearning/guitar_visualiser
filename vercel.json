@@ -1,6 +1,7 @@
 {
     "version": 2,
     "framework": "create-react-app",
+    "installCommand": "npm cache clean --force && npm install",
     "builds": [
         {
             "src": "package.json",

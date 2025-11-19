@@ -19,12 +19,16 @@
   cursor: pointer;
   border: 1px solid #ccc;
   border-radius: 0 0 4px 4px;
-  transition: background-color 0.1s;
+  transition: all 0.2s ease;
   display: flex;
   align-items: flex-end;
   justify-content: center;
   padding-bottom: 8px;
   user-select: none;
+}
+
+.piano-key:hover {
+  transform: translateY(-2px);
 }
 
 .white-key {
@@ -36,6 +40,7 @@
 
 .white-key:active {
   background-color: #eee;
+  transform: translateY(1px);
 }
 
 .black-key {
@@ -51,32 +56,38 @@
 
 .black-key:active {
   background-color: #333;
+  transform: translateY(1px);
 }
 
-.in-scale.white-key {
-  background-color: #e0f7fa;
+/* Chord highlighting with pulsing animation */
+.piano-key.in-chord {
+  animation: chordPulse 1.5s ease-in-out infinite;
 }
 
-.in-scale.black-key {
-  background-color: #006064;
-}
+@keyframes chordPulse {
 
-.root-note.white-key {
-  background-color: #81d4fa;
-  font-weight: bold;
-}
+  0%,
+  100% {
+    box-shadow: 0 0 10px 2px rgba(59, 130, 246, 0.6);
+  }
 
-.root-note.black-key {
-  background-color: #01579b;
-  border: 1px solid #81d4fa;
+  50% {
+    box-shadow: 0 0 15px 4px rgba(59, 130, 246, 1);
+  }
 }
 
 .note-label {
   font-size: 10px;
   pointer-events: none;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .black-key .note-label {
   color: white;
   margin-bottom: 4px;
+}
+
+.white-key .note-label {
+  color: #333;
 }
