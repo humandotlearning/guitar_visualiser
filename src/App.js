@@ -23,6 +23,8 @@ function App() {
   const [showScaleDegrees, setShowScaleDegrees] = useState(false);
   const [selectedChord, setSelectedChord] = useState([]);
   const [selectedInstrument, setSelectedInstrument] = useState(defaultSelectedInstrument);
+  const [showScaleOnPiano, setShowScaleOnPiano] = useState(true);
+  const [showChordOnPiano, setShowChordOnPiano] = useState(true);
 
   // Derived instrument data (fallback to guitar if unknown)
   const instrumentConfig = INSTRUMENTS[selectedInstrument] || INSTRUMENTS['acoustic_guitar_steel'];
@@ -86,6 +88,10 @@ function App() {
               showScaleDegrees={showScaleDegrees}
               instrumentConfig={instrumentConfig}
               selectedChord={selectedChord}
+              showScaleVisualization={showScaleOnPiano}
+              showChordVisualization={showChordOnPiano}
+              onToggleScale={() => setShowScaleOnPiano(!showScaleOnPiano)}
+              onToggleChord={() => setShowChordOnPiano(!showChordOnPiano)}
             />
           ) : (
             <Fretboard

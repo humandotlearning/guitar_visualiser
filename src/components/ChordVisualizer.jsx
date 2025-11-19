@@ -143,21 +143,30 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
 
   useEffect(() => {
     if (selectedChord && chordData && selectedScale) {
-      const chordName = Object.keys(chords).find(key => chords[key] === selectedChord);
+      const chordName = Object.keys(chords).find(key => JSON.stringify(chords[key]) === JSON.stringify(selectedChord));
       setSelectedChordName(chordName || '');
-      const chordTypeIndex = Object.keys(chords).indexOf(chordName);
-      const chordType = CHORD_TYPES[selectedScale.category][chordTypeIndex] || 'major';
-      const chordSuffix = CHORD_TYPE_MAP[chordType] || chordType; // Use the mapping
 
-      // Map chord name to JSON key
-      const jsonKey = mapChordNameToJsonKey(chordName);
-      const chordInfo = chordData.chords[jsonKey]?.find(chord => chord.suffix === chordSuffix);
-      if (!chordInfo) {
-        console.warn(`No chord data found for ${chordName} with type ${chordSuffix}`);
+      if (chordName) {
+        const chordTypeIndex = Object.keys(chords).indexOf(chordName);
+        const chordType = CHORD_TYPES[selectedScale.category][chordTypeIndex] || 'major';
+        const chordSuffix = CHORD_TYPE_MAP[chordType] || chordType; // Use the mapping
+
+        // Map chord name to JSON key
+        const jsonKey = mapChordNameToJsonKey(chordName);
+        const chordInfo = chordData.chords[jsonKey]?.find(chord => chord.suffix === chordSuffix);
+        if (!chordInfo) {
+          console.warn(`No chord data found for ${chordName} with type ${chordSuffix}`);
+        }
+
+        const variations = chordInfo ? chordInfo.positions : [];
+        setChordVariations(variations);
+      } else {
+        // No chord selected, clear variations
+        setChordVariations([]);
       }
-
-      const variations = chordInfo ? chordInfo.positions : [];
-      setChordVariations(variations);
+    } else {
+      // Clear variations if no chord is selected
+      setChordVariations([]);
     }
   }, [selectedChord, chords, selectedScale, chordData]);
 
@@ -166,7 +175,19 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
     const now = Date.now();
     const doubleTapThreshold = 300; // ms
 
-    // Update the selected chord regardless
+    // Check if clicking the same chord that's already selected
+    const isSameChord = JSON.stringify(selectedChord) === JSON.stringify(chordNotes);
+
+    if (isSameChord) {
+      // Deselect the chord
+      onChordSelect([]);
+      setSelectedChord([]);
+      setLastTapTime(0);
+      setLastTapChord(null);
+      return;
+    }
+
+    // Update the selected chord
     onChordSelect(chordNotes);
     setSelectedChord(chordNotes);
 

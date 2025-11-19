@@ -1,12 +1,22 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { getScaleNotes } from '../utils/musicTheory';
+import { getScaleNotes, SCALE_LIBRARY } from '../utils/musicTheory';
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
 import './PianoKeyboard.css';
 
-const PianoKeyboard = ({ rootNote, selectedScale, showScaleDegrees, instrumentConfig, selectedChord = [] }) => {
+const PianoKeyboard = ({
+  rootNote,
+  selectedScale,
+  showScaleDegrees,
+  instrumentConfig,
+  selectedChord = [],
+  showScaleVisualization = true,
+  showChordVisualization = true,
+  onToggleScale,
+  onToggleChord
+}) => {
   const { startOctave, endOctave } = instrumentConfig;
-  const scaleNotes = getScaleNotes(rootNote, selectedScale);
+  const scaleNotes = getScaleNotes(rootNote, SCALE_LIBRARY[selectedScale.category][selectedScale.name]);
 
   // Helper function to get color based on scale degree (matching ScaleNotes.jsx)
   const getScaleDegreeColor = (index) => {
@@ -59,45 +69,72 @@ const PianoKeyboard = ({ rootNote, selectedScale, showScaleDegrees, instrumentCo
   };
 
   return (
-    <div className="piano-container">
-      <div className="piano-keys">
-        {keys.map((key) => {
-          // Determine the style for this key
-          const keyStyle = {};
+    <div className="piano-wrapper">
+      {/* Toggle Controls */}
+      <div className="piano-controls">
+        <button
+          onClick={onToggleScale}
+          className={`toggle-button ${showScaleVisualization ? 'active' : ''}`}
+          title="Toggle scale note visualization"
+        >
+          {showScaleVisualization ? '✓' : ''} Show Scale Notes
+        </button>
+        <button
+          onClick={onToggleChord}
+          className={`toggle-button ${showChordVisualization ? 'active' : ''}`}
+          title="Toggle chord note highlighting"
+        >
+          {showChordVisualization ? '✓' : ''} Show Chord Highlighting
+        </button>
+      </div>
 
-          if (key.isInChord) {
-            // Chord notes get a pulsing border effect
-            keyStyle.boxShadow = '0 0 10px 2px rgba(59, 130, 246, 0.8)';
-            keyStyle.border = '2px solid #3b82f6';
-          }
+      {/* Piano Keyboard */}
+      <div className="piano-container">
+        <div className="piano-keys">
+          {keys.map((key) => {
+            // Determine the style for this key
+            const keyStyle = {};
 
-          if (key.isInScale && key.color) {
-            // Use the scale degree color
-            if (key.isBlack) {
-              keyStyle.backgroundColor = key.color;
-              keyStyle.opacity = key.isInChord ? 1 : 0.8;
-            } else {
-              keyStyle.backgroundColor = key.color;
-              keyStyle.opacity = key.isInChord ? 0.9 : 0.6;
+            // Apply chord highlighting only if enabled and chord is selected
+            if (showChordVisualization && key.isInChord && selectedChord.length > 0) {
+              keyStyle.boxShadow = '0 0 10px 2px rgba(59, 130, 246, 0.8)';
+              keyStyle.border = '2px solid #3b82f6';
             }
-          }
 
-          return (
-            <div
-              key={key.fullNoteName}
-              className={`piano-key ${key.isBlack ? 'black-key' : 'white-key'} 
-                ${key.isInScale ? 'in-scale' : ''} 
-                ${key.isInChord ? 'in-chord' : ''}`}
-              style={keyStyle}
-              onClick={() => playNote(key.note, key.octave)}
-              title={`${key.note}${key.octave}${key.isInScale ? ` - Degree ${key.degree}` : ''}${key.isInChord ? ' (in chord)' : ''}`}
-            >
-              <div className="note-label">
-                {showScaleDegrees && key.isInScale ? key.degree : (key.isInScale || key.isRoot ? key.note : '')}
+            // Apply scale coloring only if enabled
+            if (showScaleVisualization && key.isInScale && key.color) {
+              if (key.isBlack) {
+                keyStyle.backgroundColor = key.color;
+                keyStyle.opacity = key.isInChord && showChordVisualization ? 1 : 0.8;
+              } else {
+                keyStyle.backgroundColor = key.color;
+                keyStyle.opacity = key.isInChord && showChordVisualization ? 0.9 : 0.6;
+              }
+            }
+
+            // Determine CSS classes
+            const classes = [
+              'piano-key',
+              key.isBlack ? 'black-key' : 'white-key',
+              showScaleVisualization && key.isInScale ? 'in-scale' : '',
+              showChordVisualization && key.isInChord ? 'in-chord' : ''
+            ].filter(Boolean).join(' ');
+
+            return (
+              <div
+                key={key.fullNoteName}
+                className={classes}
+                style={keyStyle}
+                onClick={() => playNote(key.note, key.octave)}
+                title={`${key.note}${key.octave}${key.isInScale ? ` - Degree ${key.degree}` : ''}${key.isInChord ? ' (in chord)' : ''}`}
+              >
+                <div className="note-label">
+                  {showScaleDegrees && key.isInScale ? key.degree : (showScaleVisualization && (key.isInScale || key.isRoot) ? key.note : '')}
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );
@@ -109,6 +146,10 @@ PianoKeyboard.propTypes = {
   showScaleDegrees: PropTypes.bool,
   instrumentConfig: PropTypes.object.isRequired,
   selectedChord: PropTypes.array,
+  showScaleVisualization: PropTypes.bool,
+  showChordVisualization: PropTypes.bool,
+  onToggleScale: PropTypes.func,
+  onToggleChord: PropTypes.func,
 };
 
 export default PianoKeyboard;
