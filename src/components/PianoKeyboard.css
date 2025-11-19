@@ -84,15 +84,21 @@
   transform: translateY(1px);
 }
 
+/* Ensure white keys with chord highlighting stay behind black keys */
+.white-key.in-chord {
+  z-index: 1;
+}
+
 .black-key {
   width: 24px;
   height: 60%;
   background-color: black;
   color: white;
-  z-index: 2;
+  z-index: 10;
   margin-left: -12px;
   margin-right: -12px;
   border-radius: 0 0 2px 2px;
+  position: relative;
 }
 
 .black-key:active {
@@ -100,21 +106,10 @@
   transform: translateY(1px);
 }
 
-/* Chord highlighting with pulsing animation */
+/* Chord highlighting with static border (no pulsing) */
 .piano-key.in-chord {
-  animation: chordPulse 1.5s ease-in-out infinite;
-}
-
-@keyframes chordPulse {
-
-  0%,
-  100% {
-    box-shadow: 0 0 10px 2px rgba(59, 130, 246, 0.6);
-  }
-
-  50% {
-    box-shadow: 0 0 15px 4px rgba(59, 130, 246, 1);
-  }
+  box-shadow: 0 0 12px 3px rgba(59, 130, 246, 0.8) !important;
+  border: 2px solid #3b82f6 !important;
 }
 
 .note-label {
