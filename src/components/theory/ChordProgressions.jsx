@@ -106,7 +106,7 @@ export default function ChordProgressions({
         highlight them on your instrument, or play the entire progression.
       </p>
 
-      <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {Object.entries(progressions).map(([name, { degrees, notation, description }]) => {
           // Filter out progressions that are too long for pentatonic or blues scales
           if (degrees.some((deg) => deg >= scaleNotes.length)) {
@@ -116,28 +116,31 @@ export default function ChordProgressions({
           return (
             <div
               key={name}
-              className="progression-item border-l-4 border-indigo-500 pl-4 p-3 bg-gray-50 rounded-r-lg hover:bg-gray-100 transition-colors"
+              className="progression-item bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full"
             >
-              <div className="flex justify-between items-start mb-2">
+              <div className="flex justify-between items-start mb-3">
                 <div>
-                  <h4 className="font-semibold text-lg">{name}</h4>
-                  <p className="text-sm text-gray-600">{description}</p>
-                  <p className="text-xs text-gray-500 mt-1">Roman Numerals: {notation}</p>
+                  <h4 className="font-semibold text-base text-gray-800">{name}</h4>
+                  <p className="text-xs text-gray-500 mt-0.5 font-mono">{notation}</p>
                 </div>
                 <button
                   onClick={() => playProgression(degrees)}
                   disabled={isPlaying}
-                  className={`px-4 py-2 rounded-md font-medium transition-colors ${
-                    isPlaying
-                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      : 'bg-indigo-600 text-white hover:bg-indigo-700'
-                  }`}
+                  className={`p-1.5 rounded-full transition-colors ${isPlaying
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100'
+                    }`}
+                  title={isPlaying ? 'Playing...' : 'Play Progression'}
                 >
-                  {isPlaying ? '▶ Playing...' : '▶ Play'}
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                  </svg>
                 </button>
               </div>
 
-              <div className="chord-buttons flex flex-wrap gap-2 mt-3">
+              <p className="text-xs text-gray-600 mb-3 flex-grow">{description}</p>
+
+              <div className="chord-buttons flex flex-row flex-wrap gap-2 mt-auto w-full">
                 {degrees.map((deg, i) => {
                   const chord = diatonicChords[deg];
                   if (!chord) return null;
@@ -148,10 +151,10 @@ export default function ChordProgressions({
                     <button
                       key={i}
                       onClick={() => playChord(chord.triad)}
-                      className="chord-button px-4 py-2 bg-white border-2 border-indigo-300 rounded-md hover:bg-indigo-50 hover:border-indigo-500 transition-colors"
+                      className="progression-chord-btn px-3 py-2 bg-gray-50 border border-gray-200 rounded hover:bg-indigo-50 hover:border-indigo-300 transition-colors flex flex-col items-center justify-center min-w-[3.5rem]"
                     >
-                      <div className="text-sm font-bold text-indigo-700">{romanNumeral}</div>
-                      <div className="text-xs text-gray-600">{chord.root}</div>
+                      <span className="text-sm font-bold text-indigo-700">{romanNumeral}</span>
+                      <span className="text-xs text-gray-500">{chord.root}</span>
                     </button>
                   );
                 })}
