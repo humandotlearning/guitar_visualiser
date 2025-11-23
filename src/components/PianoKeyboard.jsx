@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { getScaleNotes, SCALE_LIBRARY } from '../utils/musicTheory';
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
-import './PianoKeyboard.css';
+import './PianoKeyboardStyles.css';
 
 const PianoKeyboard = ({
   rootNote,
@@ -95,21 +95,22 @@ const PianoKeyboard = ({
             // Determine the style for this key
             const keyStyle = {};
 
-            // Apply chord highlighting only if enabled and chord is selected
-            if (showChordVisualization && key.isInChord && selectedChord.length > 0) {
-              keyStyle.boxShadow = '0 0 10px 2px rgba(59, 130, 246, 0.8)';
-              keyStyle.border = '2px solid #3b82f6';
+            // Set CSS variable for scale color if applicable
+            if (showScaleVisualization && key.isInScale && key.color) {
+              keyStyle['--key-color'] = key.color;
             }
 
-            // Apply scale coloring only if enabled
-            if (showScaleVisualization && key.isInScale && key.color) {
+            // Apply chord highlighting
+            if (showChordVisualization && key.isInChord && selectedChord.length > 0) {
+              keyStyle.backgroundColor = '#eff6ff'; // Light blue tint for white keys
+              keyStyle.borderColor = '#3b82f6';
               if (key.isBlack) {
-                keyStyle.backgroundColor = key.color;
-                keyStyle.opacity = key.isInChord && showChordVisualization ? 1 : 0.8;
-              } else {
-                keyStyle.backgroundColor = key.color;
-                keyStyle.opacity = key.isInChord && showChordVisualization ? 0.9 : 0.6;
+                keyStyle.backgroundColor = '#1e3a8a'; // Dark blue for black keys
+                keyStyle.borderColor = '#60a5fa';
               }
+            } else if (showScaleVisualization && key.isInScale && key.color) {
+              // Optional: Tint the key slightly with the scale color
+              // keyStyle.backgroundColor = `${key.color}20`; // 20 hex = ~12% opacity
             }
 
             // Determine CSS classes
@@ -117,7 +118,8 @@ const PianoKeyboard = ({
               'piano-key',
               key.isBlack ? 'black-key' : 'white-key',
               showScaleVisualization && key.isInScale ? 'in-scale' : '',
-              showChordVisualization && key.isInChord ? 'in-chord' : ''
+              showChordVisualization && key.isInChord ? 'in-chord' : '',
+              key.isRoot ? 'is-root' : ''
             ].filter(Boolean).join(' ');
 
             return (
