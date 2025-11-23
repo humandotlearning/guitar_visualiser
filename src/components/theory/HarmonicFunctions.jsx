@@ -76,7 +76,7 @@ export default function HarmonicFunctions({
 
   return (
     <div className="harmonic-functions-container">
-      <h3 className="text-xl font-semibold mb-4">
+      <h3 className="text-xl font-semibold mb-2">
         Harmonic Functions in {rootNote} {selectedScale.name}
       </h3>
 
@@ -85,125 +85,129 @@ export default function HarmonicFunctions({
         resolution. Click any chord to hear it and see it highlighted on your instrument.
       </p>
 
-      <div className="space-y-6">
+      {/* Main Grid Layout for Function Groups */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {Object.entries(functionGroups).map(([funcName, { degrees }]) => {
           const colors = getChordFunctionColor(funcName);
 
           return (
             <div
               key={funcName}
-              className={`function-group border-l-4 ${colors.border} pl-4 p-4 ${colors.bg} rounded-r-lg`}
+              className={`function-group flex flex-col h-full bg-white border-t-4 ${colors.border} rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden`}
             >
-              <h4 className={`text-lg font-bold ${colors.text} mb-2`}>{funcName}</h4>
-              <p className="text-sm text-gray-700 mb-3">{getFunctionDescription(funcName)}</p>
-
-              {/* Triads */}
-              <div className="mb-4">
-                <h5 className="text-sm font-semibold text-gray-700 mb-2">Triads:</h5>
-                <div className="flex flex-wrap gap-2">
-                  {degrees.map((deg) => {
-                    const chord = chords[deg];
-                    if (!chord) return null;
-
-                    const romanNumeral = formatRomanNumeral(deg, selectedScale.category);
-
-                    return (
-                      <button
-                        key={`triad-${deg}`}
-                        onClick={() => playChord(chord.triad)}
-                        className={`chord-button px-4 py-3 bg-white border-2 ${colors.border} rounded-md ${colors.hover} transition-all shadow-sm hover:shadow-md`}
-                      >
-                        <div className={`text-base font-bold ${colors.text}`}>
-                          {romanNumeral}
-                        </div>
-                        <div className="text-xs text-gray-600">{chord.root}</div>
-                        <div className="text-xs text-gray-500 mt-1">
-                          {chord.triad.join(' - ')}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
+              {/* Card Header */}
+              <div className={`p-4 ${colors.bg} border-b border-gray-100`}>
+                <h4 className={`text-lg font-bold ${colors.text} flex items-center justify-between`}>
+                  {funcName}
+                </h4>
+                <p className="text-xs text-gray-600 mt-1 leading-relaxed">
+                  {getFunctionDescription(funcName)}
+                </p>
               </div>
 
-              {/* Seventh Chords */}
-              {chords[0]?.seventh && (
+              {/* Card Body */}
+              <div className="p-4 flex-grow flex flex-col gap-6">
+                {/* Triads */}
                 <div>
-                  <h5 className="text-sm font-semibold text-gray-700 mb-2">Seventh Chords:</h5>
-                  <div className="flex flex-wrap gap-2">
+                  <h5 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Triads</h5>
+                  <div className="grid grid-cols-2 gap-3">
                     {degrees.map((deg) => {
                       const chord = chords[deg];
-                      if (!chord?.seventh) return null;
+                      if (!chord) return null;
 
                       const romanNumeral = formatRomanNumeral(deg, selectedScale.category);
 
                       return (
                         <button
-                          key={`seventh-${deg}`}
-                          onClick={() => playChord(chord.seventh)}
-                          className={`chord-button px-4 py-3 bg-white border-2 ${colors.border} rounded-md ${colors.hover} transition-all shadow-sm hover:shadow-md`}
+                          key={`triad-${deg}`}
+                          onClick={() => playChord(chord.triad)}
+                          className={`text-center px-2 py-3 bg-white rounded border border-gray-200 hover:border-${colors.border.replace('border-', '')} hover:bg-gray-50 transition-all group flex flex-col items-center justify-center gap-1 shadow-sm`}
                         >
-                          <div className={`text-base font-bold ${colors.text}`}>
+                          <span className={`font-bold text-xl ${colors.text}`}>
                             {romanNumeral}
-                            <sup>7</sup>
-                          </div>
-                          <div className="text-xs text-gray-600">{chord.root}7</div>
-                          <div className="text-xs text-gray-500 mt-1">
-                            {chord.seventh.join(' - ')}
-                          </div>
+                          </span>
+                          <span className="text-sm font-bold text-gray-900">
+                            {chord.root}
+                          </span>
+                          <span className="text-xs text-gray-500 font-mono mt-1">
+                            {chord.triad.join('-')}
+                          </span>
                         </button>
                       );
                     })}
                   </div>
                 </div>
-              )}
+
+                {/* Seventh Chords */}
+                {chords[0]?.seventh && (
+                  <div>
+                    <h5 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Seventh Chords</h5>
+                    <div className="grid grid-cols-2 gap-3">
+                      {degrees.map((deg) => {
+                        const chord = chords[deg];
+                        if (!chord?.seventh) return null;
+
+                        const romanNumeral = formatRomanNumeral(deg, selectedScale.category);
+
+                        return (
+                          <button
+                            key={`seventh-${deg}`}
+                            onClick={() => playChord(chord.seventh)}
+                            className={`text-center px-2 py-3 bg-white rounded border border-gray-200 hover:border-${colors.border.replace('border-', '')} hover:bg-gray-50 transition-all group flex flex-col items-center justify-center gap-1 shadow-sm`}
+                          >
+                            <span className={`font-bold text-xl ${colors.text}`}>
+                              {romanNumeral}<sup>7</sup>
+                            </span>
+                            <span className="text-sm font-bold text-gray-900">
+                              {chord.root}7
+                            </span>
+                            <span className="text-xs text-gray-500 font-mono mt-1">
+                              {chord.seventh.join('-')}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           );
         })}
       </div>
 
-      {/* Educational content */}
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
-          <h5 className="font-semibold text-blue-900 mb-2">🏠 Tonic (I, iii, vi)</h5>
-          <p className="text-sm text-blue-800">
-            Provides <strong>stability</strong> and feels like home. Songs often start and end on
-            tonic chords. The I chord is the strongest tonic.
-          </p>
+      {/* Educational content - Simplified */}
+      <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="p-3 bg-blue-50 rounded border border-blue-100 text-sm text-blue-800">
+          <strong>🏠 Tonic:</strong> Stability, home, resolution.
         </div>
-
-        <div className="p-4 bg-green-50 border-l-4 border-green-500 rounded-r-lg">
-          <h5 className="font-semibold text-green-900 mb-2">📤 Subdominant (ii, IV)</h5>
-          <p className="text-sm text-green-800">
-            Creates <strong>movement away</strong> from tonic. Prepares for the dominant or leads
-            back to tonic. The IV chord is the strongest subdominant.
-          </p>
+        <div className="p-3 bg-green-50 rounded border border-green-100 text-sm text-green-800">
+          <strong>📤 Subdominant:</strong> Movement away, preparation.
         </div>
-
-        <div className="p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
-          <h5 className="font-semibold text-red-900 mb-2">⚡ Dominant (V, vii°)</h5>
-          <p className="text-sm text-red-800">
-            Creates <strong>tension</strong> that wants to resolve to tonic. The V chord has the
-            strongest pull toward I. Essential for creating musical movement.
-          </p>
+        <div className="p-3 bg-red-50 rounded border border-red-100 text-sm text-red-800">
+          <strong>⚡ Dominant:</strong> Tension, pull towards Tonic.
         </div>
       </div>
 
       {/* Common progressions using functions */}
-      <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-        <h4 className="font-semibold mb-3">💡 Common Functional Progressions:</h4>
-        <div className="space-y-2 text-sm">
-          <div>
-            <strong>T → D → T:</strong> <span className="text-gray-600">I → V → I (Basic cadence)</span>
+      <div className="mt-6 p-5 bg-gray-50 rounded-xl border border-gray-100">
+        <h4 className="font-semibold mb-3 text-gray-800">💡 Common Functional Progressions</h4>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-white p-3 rounded shadow-sm border border-gray-100">
+            <div className="text-xs text-gray-500 uppercase font-bold mb-1">Basic Cadence</div>
+            <div className="font-mono text-indigo-600 font-medium">I → V → I</div>
           </div>
-          <div>
-            <strong>T → SD → D → T:</strong> <span className="text-gray-600">I → IV → V → I (Full cadence)</span>
+          <div className="bg-white p-3 rounded shadow-sm border border-gray-100">
+            <div className="text-xs text-gray-500 uppercase font-bold mb-1">Full Cadence</div>
+            <div className="font-mono text-indigo-600 font-medium">I → IV → V → I</div>
           </div>
-          <div>
-            <strong>T → SD → T:</strong> <span className="text-gray-600">I → IV → I (Plagal cadence, &ldquo;Amen&rdquo;)</span>
+          <div className="bg-white p-3 rounded shadow-sm border border-gray-100">
+            <div className="text-xs text-gray-500 uppercase font-bold mb-1">Plagal Cadence</div>
+            <div className="font-mono text-indigo-600 font-medium">I → IV → I</div>
           </div>
-          <div>
-            <strong>SD → D → T:</strong> <span className="text-gray-600">ii → V → I (Jazz turnaround)</span>
+          <div className="bg-white p-3 rounded shadow-sm border border-gray-100">
+            <div className="text-xs text-gray-500 uppercase font-bold mb-1">Jazz Turnaround</div>
+            <div className="font-mono text-indigo-600 font-medium">ii → V → I</div>
           </div>
         </div>
       </div>
