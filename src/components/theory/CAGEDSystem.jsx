@@ -1,10 +1,11 @@
-// File: components/theory/CAGEDSystem.jsx
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { getCAGEDPositions, NOTES } from '../../utils/musicTheory';
+import { getCAGEDPositions } from '../../utils/musicTheory';
+import { ChevronDown, Info } from 'lucide-react';
 
 export default function CAGEDSystem({ rootNote, instrumentConfig }) {
   const [selectedShape, setSelectedShape] = useState(null);
+  const [showInfo, setShowInfo] = useState(false);
 
   // CAGED system is only for string instruments (not keyboards)
   if (instrumentConfig?.type === 'keyboard') {
@@ -27,188 +28,148 @@ export default function CAGEDSystem({ rootNote, instrumentConfig }) {
       description: 'Based on the open C major chord shape. Common in lower positions.',
       image: 'C major shape - barre with 3rd finger across strings',
       color: 'bg-red-100 border-red-500 text-red-700',
+      ringColor: 'ring-red-400',
     },
     'A Shape': {
       description: 'Based on the open A major chord shape. Very common for barre chords.',
       image: 'A major shape - barre with 1st finger',
       color: 'bg-orange-100 border-orange-500 text-orange-700',
+      ringColor: 'ring-orange-400',
     },
     'G Shape': {
       description: 'Based on the open G major chord shape. Challenging but useful.',
       image: 'G major shape - requires stretching',
       color: 'bg-yellow-100 border-yellow-500 text-yellow-700',
+      ringColor: 'ring-yellow-400',
     },
     'E Shape': {
       description: 'Based on the open E major chord shape. Most common barre chord.',
       image: 'E major shape - barre with 1st finger',
       color: 'bg-green-100 border-green-500 text-green-700',
+      ringColor: 'ring-green-400',
     },
     'D Shape': {
       description: 'Based on the open D major chord shape. Higher on the neck.',
       image: 'D major shape - triangular fingering',
       color: 'bg-blue-100 border-blue-500 text-blue-700',
+      ringColor: 'ring-blue-400',
     },
   };
 
+  const selectedShapeInfo = selectedShape ? shapeDescriptions[selectedShape] : null;
+  const selectedPosition = selectedShape ? positions[selectedShape] : null;
+
   return (
-    <div className="caged-system-container">
-      <h3 className="text-xl font-semibold mb-4">
-        CAGED System for {rootNote} Major on {instrumentConfig.label}
-      </h3>
-
-      <p className="text-sm text-gray-600 mb-6">
-        The CAGED system shows five movable chord shapes that cover the entire fretboard. Each
-        shape connects to the next, allowing you to play the same chord in different positions.
-        Click a shape to learn more.
-      </p>
-
-      {/* Visual representation of the CAGED sequence */}
-      <div className="mb-6 p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg">
-        <h4 className="font-semibold mb-3 text-center">CAGED Sequence (Repeating Pattern):</h4>
-        <div className="flex justify-center items-center gap-2 text-lg font-bold flex-wrap">
-          {['C', 'A', 'G', 'E', 'D', 'C', 'A', 'G', 'E', 'D'].map((shape, i) => (
-            <React.Fragment key={i}>
-              <span
-                className={`px-3 py-2 rounded ${
-                  selectedShape === `${shape} Shape`
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-white text-gray-700'
-                }`}
-              >
-                {shape}
-              </span>
-              {i < 9 && <span className="text-gray-400">→</span>}
-            </React.Fragment>
-          ))}
-        </div>
+    <div className="caged-system-container bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h3 className="text-xl font-bold text-gray-800">
+          CAGED System: {rootNote} Major
+        </h3>
+        <button
+          onClick={() => setShowInfo(!showInfo)}
+          className="text-sm text-indigo-600 hover:text-indigo-800 flex items-center gap-1 font-medium transition-colors"
+        >
+          <Info size={16} />
+          {showInfo ? 'Hide Guide' : 'How it Works'}
+        </button>
       </div>
 
-      {/* CAGED shapes grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+      {showInfo && (
+        <div className="mb-8 bg-indigo-50 rounded-lg p-5 text-sm text-gray-700 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="grid md:grid-cols-3 gap-6">
+            <div>
+              <h4 className="font-bold text-indigo-900 mb-2">The Concept</h4>
+              <p>
+                Five movable chord shapes (C-A-G-E-D) cover the entire fretboard. They connect in sequence like puzzle pieces.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-bold text-indigo-900 mb-2">The Pattern</h4>
+              <div className="flex items-center gap-1 font-mono text-xs bg-white/50 p-2 rounded w-fit">
+                <span>C</span>→<span>A</span>→<span>G</span>→<span>E</span>→<span>D</span>→<span>C</span>...
+              </div>
+              <p className="mt-1">
+                When you reach the 12th fret, the pattern repeats one octave higher.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-bold text-indigo-900 mb-2">Practice Tip</h4>
+              <p>
+                Learn each shape individually, then practice transitioning between them to play the same chord all over the neck.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CAGED shapes grid - Compact Row */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
         {Object.entries(positions).map(([shapeName, { fret, form }]) => {
           const shapeInfo = shapeDescriptions[shapeName];
           const isSelected = selectedShape === shapeName;
 
           return (
-            <div
+            <button
               key={shapeName}
               onClick={() => setSelectedShape(isSelected ? null : shapeName)}
-              className={`shape-card border-l-4 ${shapeInfo.color.split(' ')[1]} p-4 rounded-r-lg cursor-pointer transition-all ${
-                isSelected ? 'bg-indigo-50 shadow-lg scale-105' : 'bg-white hover:shadow-md'
-              }`}
+              className={`
+                relative p-3 rounded-lg border-2 text-left transition-all duration-200
+                flex flex-col justify-between h-24
+                ${isSelected
+                  ? `${shapeInfo.color} ${shapeInfo.ringColor} ring-2 ring-offset-1 border-transparent`
+                  : 'bg-white border-gray-100 hover:border-gray-300 hover:bg-gray-50 text-gray-600'
+                }
+              `}
             >
-              <div className="flex items-start justify-between mb-2">
-                <h4 className="text-lg font-bold">{form} Shape</h4>
-                <div className="text-2xl font-bold text-indigo-600">
-                  Fret {fret === 0 ? 'Open' : fret}
-                </div>
+              <div className="flex justify-between items-start w-full">
+                <span className="font-bold text-lg">{form}</span>
+                {isSelected && <ChevronDown size={16} className="opacity-50" />}
               </div>
-
-              <p className="text-sm text-gray-700 mb-2">{shapeInfo.description}</p>
-
-              {isSelected && (
-                <div className="mt-3 pt-3 border-t border-gray-200">
-                  <p className="text-xs text-gray-600 italic">{shapeInfo.image}</p>
-                  <div className="mt-2 p-2 bg-blue-50 rounded text-xs">
-                    <strong>Practice tip:</strong> Find the open {form} chord shape and move it to
-                    fret {fret} to play {rootNote} major.
-                  </div>
-                </div>
-              )}
-            </div>
+              <div className="text-xs font-medium uppercase tracking-wider opacity-80">
+                Fret {fret === 0 ? 'Open' : fret}
+              </div>
+            </button>
           );
         })}
       </div>
 
-      {/* Educational content */}
-      <div className="space-y-4">
-        <div className="p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
-          <h4 className="font-semibold text-blue-900 mb-2">🎸 How the CAGED System Works:</h4>
-          <ul className="list-disc list-inside space-y-1 text-sm text-blue-800">
-            <li>
-              Each letter (C-A-G-E-D) represents a basic open chord shape that can be moved up the
-              fretboard
-            </li>
-            <li>
-              These five shapes connect in sequence, covering the entire neck with overlapping
-              patterns
-            </li>
-            <li>When you reach the 12th fret, the pattern repeats one octave higher</li>
-            <li>The same system works for major scales, arpeggios, and chord variations</li>
-          </ul>
-        </div>
+      {/* Selected Shape Details Panel */}
+      {selectedShape && selectedShapeInfo && selectedPosition && (
+        <div className="bg-gray-50 rounded-lg border border-gray-200 p-5 animate-in fade-in zoom-in-95 duration-200">
+          <div className="flex flex-col md:flex-row gap-6">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-2">
+                <h4 className="text-lg font-bold text-gray-900">{selectedShape}</h4>
+                <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide ${selectedShapeInfo.color}`}>
+                  Fret {selectedPosition.fret === 0 ? 'Open' : selectedPosition.fret}
+                </span>
+              </div>
+              <p className="text-gray-700 mb-4">{selectedShapeInfo.description}</p>
 
-        <div className="p-4 bg-green-50 border-l-4 border-green-500 rounded-r-lg">
-          <h4 className="font-semibold text-green-900 mb-2">💡 Practice Strategies:</h4>
-          <ol className="list-decimal list-inside space-y-1 text-sm text-green-800">
-            <li>
-              <strong>Learn each shape:</strong> Practice the open C, A, G, E, and D chord shapes
-            </li>
-            <li>
-              <strong>Move them up:</strong> Take each shape and slide it up the neck to form
-              different chords
-            </li>
-            <li>
-              <strong>Connect shapes:</strong> Practice transitioning from one CAGED shape to the
-              next for the same chord
-            </li>
-            <li>
-              <strong>Find the root:</strong> Identify where the root note ({rootNote}) appears in
-              each shape
-            </li>
-            <li>
-              <strong>Apply to scales:</strong> Use CAGED shapes as a framework for learning scale
-              positions
-            </li>
-          </ol>
-        </div>
+              <div className="bg-white p-3 rounded border border-gray-200 text-sm">
+                <strong className="text-gray-900 block mb-1">Finger Placement:</strong>
+                <span className="text-gray-600 italic">{selectedShapeInfo.image}</span>
+              </div>
+            </div>
 
-        <div className="p-4 bg-purple-50 border-l-4 border-purple-500 rounded-r-lg">
-          <h4 className="font-semibold text-purple-900 mb-2">🎯 Quick Reference:</h4>
-          <div className="text-sm text-purple-800">
-            <p className="mb-2">
-              To play <strong>{rootNote} major</strong> anywhere on the neck, use these shapes at
-              these frets:
-            </p>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
-              {Object.entries(positions).map(([shapeName, { fret, form }]) => (
-                <div key={shapeName} className="bg-white p-2 rounded text-center">
-                  <div className="font-bold text-purple-900">{form}</div>
-                  <div className="text-xs text-gray-600">
-                    Fret {fret === 0 ? 'Open' : fret}
-                  </div>
-                </div>
-              ))}
+            <div className="md:w-1/3 bg-blue-50/50 p-4 rounded border border-blue-100 text-sm">
+              <h5 className="font-bold text-blue-900 mb-2 flex items-center gap-2">
+                💡 Quick Tip
+              </h5>
+              <p className="text-blue-800">
+                Find the open <strong>{selectedPosition.form}</strong> chord shape and move it up to
+                fret <strong>{selectedPosition.fret}</strong> to play a <strong>{rootNote} Major</strong> chord.
+              </p>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Interactive root note selector */}
-      <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-        <h4 className="font-semibold mb-3">Try a different root note:</h4>
-        <div className="flex flex-wrap gap-2">
-          {NOTES.map((note) => (
-            <button
-              key={note}
-              onClick={() => {
-                // This would need to be connected to the parent component's setRootNote
-                // For now, it just shows the UI
-              }}
-              className={`px-4 py-2 rounded-md font-medium transition-colors ${
-                note === rootNote
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-white border border-gray-300 hover:bg-gray-100'
-              }`}
-            >
-              {note}
-            </button>
-          ))}
+      {!selectedShape && (
+        <div className="text-center py-8 text-gray-400 text-sm bg-gray-50/50 rounded-lg border border-dashed border-gray-200">
+          Select a shape above to see details and fingering
         </div>
-        <p className="text-xs text-gray-600 mt-2">
-          Note: To change the root note, use the main scale selector at the top of the page.
-        </p>
-      </div>
+      )}
     </div>
   );
 }
