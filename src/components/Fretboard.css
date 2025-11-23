@@ -1,18 +1,28 @@
 /* Color Scheme from stylescheme.md */
 :root {
   /* Chord Tones */
-  --color-root: #e97777;      /* Root Note (Muted Red) */
-  --color-third: #8cc084;     /* Third (Muted Blue) */
-  --color-fifth: #5fd9cd;     /* Fifth (Muted Green) */
-  --color-seventh: #f7b787;   /* Seventh (Muted Purple) */
-  --color-extension: #ffb74d; /* Extensions (Muted Orange) */
+  --color-root: #e97777;
+  /* Root Note (Muted Red) */
+  --color-third: #8cc084;
+  /* Third (Muted Blue) */
+  --color-fifth: #5fd9cd;
+  /* Fifth (Muted Green) */
+  --color-seventh: #f7b787;
+  /* Seventh (Muted Purple) */
+  --color-extension: #ffb74d;
+  /* Extensions (Muted Orange) */
 
   /* Scale Degrees */
-  --color-tonic: #e97777;     /* Tonic (I) - Same as root */
-  --color-major: #8cc084;     /* Major Steps (II, VI) - Same as third */
-  --color-minor: #ff9800;     /* Minor Steps (III, VI, VII) - Orange */
-  --color-perfect: #aed2ff;   /* Perfect Intervals (IV, V) - Teal */
-  --fretboard-bg: #f5f2dd; /* Updated to match image */
+  --color-tonic: #e97777;
+  /* Tonic (I) - Same as root */
+  --color-major: #8cc084;
+  /* Major Steps (II, VI) - Same as third */
+  --color-minor: #ff9800;
+  /* Minor Steps (III, VI, VII) - Orange */
+  --color-perfect: #aed2ff;
+  /* Perfect Intervals (IV, V) - Teal */
+  --fretboard-bg: #f5f2dd;
+  /* Updated to match image */
   --fretboard-border: #33291c;
   --string-color: #777770;
   --fret-color: #bbbbbb;
@@ -29,31 +39,36 @@
   max-width: 1200px;
   overflow-x: hidden;
   margin: 0 auto;
-  border: 1px solid var(--fretboard-border);
-  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
   background: var(--fretboard-bg);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 .fretboard-scroll {
   flex-grow: 1;
   overflow-x: auto;
   scrollbar-width: thin;
-  scrollbar-color: #888 #f1f1f1;
+  scrollbar-color: #cbd5e1 #f8fafc;
 }
 
 .fretboard-scroll::-webkit-scrollbar {
-  height: 8px;
+  height: 10px;
 }
 
 .fretboard-scroll::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 4px;
+  background: #f8fafc;
+  border-radius: 0 0 12px 12px;
 }
 
 .fretboard-scroll::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
+  background: #cbd5e1;
+  border-radius: 10px;
+  border: 2px solid #f8fafc;
+}
+
+.fretboard-scroll::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 /* Fretboard */
@@ -93,13 +108,15 @@
 
 .first-fret {
   border-right: 6px solid var(--nut-color);
-  max-width: 34px; /* Match with the fret-number-nut width */
+  max-width: 34px;
+  /* Match with the fret-number-nut width */
   min-width: 34px;
   width: 34px;
 }
 
 /* Reset all fret marker styles */
-.fret::before, .fret::after {
+.fret::before,
+.fret::after {
   display: none;
 }
 
@@ -149,7 +166,8 @@
   border-radius: 10px 10px 0 0;
   background-color: #999;
   left: 50%;
-  bottom: -1px; /* Position it to connect with the bottom half */
+  bottom: -1px;
+  /* Position it to connect with the bottom half */
   transform: translate(-50%, 0);
   z-index: 1;
 }
@@ -161,7 +179,8 @@
   border-radius: 0 0 10px 10px;
   background-color: #999;
   left: 50%;
-  top: -1px; /* Position it to connect with the top half */
+  top: -1px;
+  /* Position it to connect with the top half */
   transform: translate(-50%, 0);
   z-index: 1;
 }
@@ -210,9 +229,17 @@
 }
 
 @keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.2); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.2);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 .note-marker.root {
@@ -273,7 +300,8 @@
 /* Additional class to completely hide non-scale notes when toggle is off */
 .note-marker.hidden-note {
   opacity: 0;
-  pointer-events: none; /* Disables interactions when hidden */
+  pointer-events: none;
+  /* Disables interactions when hidden */
 }
 
 /* When non-scale notes are shown, they should be visible on hover */
@@ -352,7 +380,8 @@
   height: 20px;
   align-items: center;
   border-top: 1px solid var(--fret-color);
-  background-color: #f0eee0; /* Light background for the fret numbers */
+  background-color: #f0eee0;
+  /* Light background for the fret numbers */
 }
 
 .fret-number {
@@ -370,31 +399,48 @@
 
 /* Special styling for the 0 fret number to match the nut width */
 .fret-number-nut {
-  border-right: 6px solid transparent; /* This compensates for the nut border width */
+  border-right: 6px solid transparent;
+  /* This compensates for the nut border width */
   background-color: #e0ddc5;
   color: #222;
   font-weight: 800;
-  max-width: 34px; /* Making the 0 fret number narrower */
-  min-width: 34px; /* Ensuring fixed width */
-  width: 34px; /* Force exact width */
+  max-width: 34px;
+  /* Making the 0 fret number narrower */
+  min-width: 34px;
+  /* Ensuring fixed width */
+  width: 34px;
+  /* Force exact width */
 }
 
 /* Highlight important fret numbers */
-.fret-number:nth-child(4),  /* 3rd fret */
-.fret-number:nth-child(6),  /* 5th fret */
-.fret-number:nth-child(8),  /* 7th fret */
-.fret-number:nth-child(10), /* 9th fret */
-.fret-number:nth-child(15), /* 14th fret */
-.fret-number:nth-child(17), /* 16th fret */
-.fret-number:nth-child(19), /* 18th fret */
-.fret-number:nth-child(21)  /* 20th fret */ {
+.fret-number:nth-child(4),
+/* 3rd fret */
+.fret-number:nth-child(6),
+/* 5th fret */
+.fret-number:nth-child(8),
+/* 7th fret */
+.fret-number:nth-child(10),
+/* 9th fret */
+.fret-number:nth-child(15),
+/* 14th fret */
+.fret-number:nth-child(17),
+/* 16th fret */
+.fret-number:nth-child(19),
+/* 18th fret */
+.fret-number:nth-child(21)
+
+/* 20th fret */
+  {
   color: #444;
   font-weight: 700;
   background-color: #e9e7d9;
 }
 
 /* Higher shade for 12th fret */
-.fret-number:nth-child(13) /* 12th fret */ {
+.fret-number:nth-child(13)
+
+/* 12th fret */
+  {
   color: #222;
   font-weight: 800;
   background-color: #e0ddc5;
@@ -421,22 +467,24 @@
   .fretboard-container {
     overflow-x: auto;
   }
-  
+
   .fretboard {
     min-width: 800px;
   }
-  
-  .fret, .fret-number {
+
+  .fret,
+  .fret-number {
     min-width: 30px;
     max-width: 55px;
   }
-  
+
   .first-fret {
-    max-width: 28px; /* Match with fret-number-nut on smaller screens */
+    max-width: 28px;
+    /* Match with fret-number-nut on smaller screens */
     min-width: 28px;
     width: 28px;
   }
-  
+
   .note-marker {
     width: 25px;
     height: 25px;
@@ -446,7 +494,8 @@
   /* Ensure fretboard number alignment maintains on small screens */
   .fret-number-nut {
     border-right: 6px solid transparent;
-    max-width: 28px; /* Adjust for smaller screens */
+    max-width: 28px;
+    /* Adjust for smaller screens */
     min-width: 28px;
     width: 28px;
   }
@@ -454,19 +503,23 @@
 
 /* Smallest screens */
 @media (max-width: 480px) {
-  .fret, .fret-number {
+
+  .fret,
+  .fret-number {
     min-width: 25px;
     max-width: 45px;
   }
 
   .first-fret {
-    max-width: 24px; /* Match with fret-number-nut on smallest screens */
+    max-width: 24px;
+    /* Match with fret-number-nut on smallest screens */
     min-width: 24px;
     width: 24px;
   }
 
   .fret-number-nut {
-    max-width: 24px; /* Even narrower for very small screens */
+    max-width: 24px;
+    /* Even narrower for very small screens */
     min-width: 24px;
     width: 24px;
   }
