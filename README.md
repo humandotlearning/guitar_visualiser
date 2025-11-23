@@ -1,52 +1,87 @@
-# Guitar Scale and Chord Visualizer
+# 🎸 Multi-Instrument Scale and Chord Visualizer
 
-An interactive web application for guitarists to visualize scales, chords, and explore music theory concepts on a customizable fretboard.
+An interactive web application for musicians to visualize scales, chords, and explore music theory concepts across multiple instruments including guitar, ukulele, and piano.
 
 ## 🎸 Live Demo
 
-**[Try the Guitar Scale and Chord Visualizer](https://humandotlearning.github.io/guitar_visualiser)**
+**[Try the Multi-Instrument Visualizer](https://humandotlearning.github.io/guitar_visualiser)**
 
 ![Guitar Scale and Chord Visualizer](public/guitar-visualizer-screenshot.png)
 
 ## ✨ Features
 
-- **Instrument Selector**: Choose between guitar, ukulele, and more at the top of the app. The entire UI updates to match your selected instrument.
-- **Interactive Scale Selection**: Choose from a variety of scale types (Pentatonic, Major, Minor, etc.)
-- **Customizable Fretboard**: Adjust tuning and number of frets (per instrument, where supported)
-- **Scale Visualization**: See scale patterns highlighted on the fretboard
-- **Chord Discovery**: View chords that belong to your selected scale
-- **Audio Playback**: Listen to scales and chords with built-in audio playback
-- **Scale Notes Display**: View the notes that make up your selected scale
-- **Responsive Design**: Works on desktop and mobile devices
+### Core Features
+- **Multi-Instrument Support**: Seamlessly switch between Guitar, Ukulele, and Piano with instrument-specific visualizations
+- **Interactive Scale Selection**: Choose from a comprehensive library of scale types (Pentatonic, Major, Minor, Modes, and more)
+- **Smart Visualization**:
+  - Fretboard visualization for string instruments (Guitar, Ukulele)
+  - Piano keyboard visualization for keyboard instruments
+- **Chord Discovery**: View and explore chords that belong to your selected scale with proper chord diagrams
+- **High-Quality Audio Playback**: Listen to scales and chords with professional soundfont-based audio
+- **Scale Notes & Theory**: View the notes and intervals that make up your selected scale
+- **Scale Degrees Display**: Toggle between note names and scale degrees for music theory learning
+
+### Technical Features
+- **Lazy Loading**: Optimized performance with code-splitting for faster initial load
+- **Responsive Design**: Fully functional on desktop, tablet, and mobile devices
+- **Orientation Detection**: Smart prompts for optimal mobile viewing experience
+- **Customizable Fretboard**: Adjust tuning and number of frets (where supported)
+- **Professional UI**: Built with Radix UI components for accessibility and polish
 
 ## 🚀 Technologies Used
 
-- React
-- Tailwind CSS
-- JavaScript (ES6+)
-- HTML5 Audio API
-- React Chords library
+- **Frontend Framework**: React 18 with Hooks
+- **Styling**: Tailwind CSS with custom components
+- **UI Components**: Radix UI (Select, Switch, Checkbox, Collapsible)
+- **Audio Engine**: soundfont-player for realistic instrument sounds
+- **Music Visualization**: @tombatossals/react-chords for chord diagrams
+- **Music Theory**: @tombatossals/chords-db for comprehensive chord data
+- **Build Tools**: React Scripts (Create React App)
+- **Performance**: React.lazy() and Suspense for code-splitting
 
-## 🎹 Multi-Instrument Support
+## 🎹 Multi-Instrument Architecture
 
-The app now supports multiple stringed instruments (e.g., guitar, ukulele) and is designed for easy extensibility. All instrument-specific data is managed in a single configuration file.
+The app supports multiple instrument types through a flexible configuration system:
 
-### Adding a New Instrument
+### Supported Instruments
+- **Guitar**: 6-string with standard tuning, 24 frets
+- **Ukulele**: 4-string with GCEA tuning, 15 frets
+- **Piano**: 5-octave keyboard (C2-C6)
 
-1. Open `src/instruments.js`.
-2. Add a new entry to the `INSTRUMENTS` object, e.g.:
+### Adding a New String Instrument
+
+1. Open `src/instruments.js`
+2. Add a new entry to the `INSTRUMENTS` object:
    ```js
    bass: {
-     label: 'Bass',
+     label: 'Bass Guitar',
      strings: 4,
-     tuning: ['G', 'D', 'A', 'E'],
+     tuning: ['G', 'D', 'A', 'E'], // high to low
+     octaves: [3, 2, 2, 1],
      fretCount: 20,
-     // Add more instrument-specific config as needed
+     soundfontName: 'electric_bass_finger',
+     chordDataKey: 'bass',
+     fretMarkers: [3, 5, 7, 9, 12, 15, 17, 19],
+     doubleFretMarkers: [12],
    }
    ```
-3. Save and restart the app. Your new instrument will appear in the selector and update all relevant UI and logic automatically.
+3. The instrument will automatically appear in the selector with full visualization and audio support
 
-No additional code changes are required for basic support—just update the config!
+### Adding a New Keyboard Instrument
+
+For keyboard instruments, use the `type: 'keyboard'` configuration:
+```js
+organ: {
+  label: 'Organ',
+  type: 'keyboard',
+  startOctave: 2,
+  endOctave: 6,
+  soundfontName: 'church_organ',
+  chordDataKey: 'piano',
+}
+```
+
+No additional code changes required—the app automatically detects the instrument type and renders the appropriate visualization!
 
 ## 🛠️ Installation & Setup
 
@@ -76,12 +111,42 @@ No additional code changes are required for basic support—just update the conf
 
 ## 📝 Usage Guide
 
-1. **Select an Instrument**: Use the instrument selector at the top of the page to choose your instrument (e.g., Guitar, Ukulele). The app will update all visualizations and controls to match your selection.
-2. **Select a Root Note and Scale Type**: Use the dropdown menus to choose your desired scale.
-3. **Customize the Fretboard**: Adjust the tuning and number of frets to match your instrument (where supported).
-4. **Explore the Scale Pattern**: The notes of the selected scale will be highlighted on the fretboard.
-5. **Discover Chords**: View and select chords that fit within your chosen scale.
-6. **Listen to Audio**: Play the scale or selected chord to hear how it sounds.
+### Getting Started
+1. **Select an Instrument**: Use the instrument dropdown at the top to choose Guitar, Ukulele, or Piano
+   - The entire interface adapts to your selected instrument
+   - String instruments show fretboard visualization
+   - Keyboard instruments show piano keyboard visualization
+
+2. **Choose Your Scale**:
+   - Pick a root note (A, B, C, etc.)
+   - Select a scale type from categories like Pentatonic, Major, Minor, Modes, etc.
+   - View the scale notes and intervals in the dedicated panel
+
+3. **Visualize on Your Instrument**:
+   - **For Fretboard**: Notes are highlighted across all strings
+   - **For Piano**: Keys are highlighted across the keyboard
+   - Toggle scale degrees to see intervals (1, 2, 3, etc.) instead of note names
+
+4. **Explore Chords**:
+   - Browse chords that fit within your selected scale
+   - Click any chord to see its diagram and hear how it sounds
+   - Chord visualization adapts to your selected instrument
+
+5. **Audio Playback**:
+   - Play the entire scale ascending/descending
+   - Play individual chords with realistic instrument sounds
+   - Switch instruments to hear the same scale/chord on different instruments
+
+6. **Customize** (String Instruments):
+   - View fretboard customization options
+   - See instrument-specific tuning and fret count
+   - (Future: adjust tuning and fret count per session)
+
+### Pro Tips
+- 📱 On mobile, rotate to landscape for the best fretboard viewing experience
+- 🎵 Use scale degrees to better understand music theory and intervals
+- 🎸 Compare the same scale across different instruments to understand their ranges
+- 🎹 Piano visualization helps visualize music theory concepts clearly
 
 ## 🔧 Building for Production
 
@@ -109,15 +174,70 @@ The project uses GitHub Actions for automatic deployment to GitHub Pages when ch
 
 ## 📱 Compatibility
 
-- Chrome (recommended)
-- Firefox
-- Safari
-- Edge
-- Mobile browsers
+### Desktop Browsers
+- ✅ Chrome (recommended)
+- ✅ Firefox
+- ✅ Safari
+- ✅ Edge
+
+### Mobile Browsers
+- ✅ Chrome Mobile
+- ✅ Safari iOS
+- ✅ Firefox Mobile
+- ⚠️ Best experience in landscape orientation for fretboard view
+
+### Requirements
+- Modern browser with ES6+ support
+- JavaScript enabled
+- Web Audio API support (for audio playback)
+
+## 🗂️ Project Structure
+
+```
+guitar_visualiser/
+├── public/                 # Static assets
+├── src/
+│   ├── components/        # React components
+│   │   ├── AudioPlayback.jsx       # Audio playback controls
+│   │   ├── ChordVisualizer.jsx     # Chord display and selection
+│   │   ├── Fretboard.jsx           # String instrument visualization
+│   │   ├── PianoKeyboard.jsx       # Piano keyboard visualization
+│   │   ├── ScaleSelector.jsx       # Scale and root note selection
+│   │   ├── ScaleNotes.jsx          # Scale notes display
+│   │   ├── FretboardCustomization.jsx
+│   │   └── ui/                     # Reusable UI components
+│   ├── utils/             # Utility functions
+│   │   ├── musicTheory.js         # Music theory calculations
+│   │   ├── audioUtils.js          # Audio playback utilities
+│   │   └── soundfontAudioUtils.js # Soundfont player integration
+│   ├── db/               # Instrument data (JSON)
+│   ├── instruments.js    # Instrument configuration
+│   └── App.js           # Main application component
+└── package.json
+```
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Here's how you can help:
+
+### Ideas for Contributions
+- Add new instruments (mandolin, banjo, bass, etc.)
+- Add more scale types and modes
+- Improve mobile UX
+- Add interval ear training features
+- Implement custom tuning editor
+- Add chord progression suggestions
+- Improve accessibility features
+- Add dark mode theme
+
+### How to Contribute
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+Please ensure your code follows the existing style and includes appropriate comments.
 
 ## 📄 License
 
