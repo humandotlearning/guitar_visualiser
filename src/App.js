@@ -6,10 +6,16 @@ const PianoKeyboard = lazy(() => import('./components/PianoKeyboard'));
 const ChordVisualizer = lazy(() => import('./components/ChordVisualizer'));
 const AudioPlayback = lazy(() => import('./components/AudioPlayback'));
 const FretboardCustomization = lazy(() => import('./components/FretboardCustomization'));
+// Lazy load theory components
+const CircleOfFifths = lazy(() => import('./components/theory/CircleOfFifths'));
+const ChordProgressions = lazy(() => import('./components/theory/ChordProgressions'));
+const HarmonicFunctions = lazy(() => import('./components/theory/HarmonicFunctions'));
+const CAGEDSystem = lazy(() => import('./components/theory/CAGEDSystem'));
 // Keep smaller components eagerly loaded
 import ScaleSelector from './components/ScaleSelector';
 import ScaleNotes from './components/ScaleNotes';
 import OrientationPrompt from './components/OrientationPrompt';
+import TheoryModeSelector from './components/theory/TheoryModeSelector';
 import './App.css';
 
 function App() {
@@ -25,6 +31,8 @@ function App() {
   const [selectedInstrument, setSelectedInstrument] = useState(defaultSelectedInstrument);
   const [showScaleOnPiano, setShowScaleOnPiano] = useState(true);
   const [showChordOnPiano, setShowChordOnPiano] = useState(true);
+  // Theory mode state
+  const [theoryMode, setTheoryMode] = useState('Scales & Chords');
 
   // Derived instrument data (fallback to guitar if unknown)
   const instrumentConfig = INSTRUMENTS[selectedInstrument] || INSTRUMENTS['acoustic_guitar_steel'];
@@ -60,6 +68,15 @@ function App() {
         </select>
       </div>
 
+      {/* Theory Mode Selector */}
+      <div className="card mb-4">
+        <TheoryModeSelector
+          selectedMode={theoryMode}
+          setSelectedMode={setTheoryMode}
+          instrumentConfig={instrumentConfig}
+        />
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="card">
           <h2 className="text-xl font-semibold mb-2">Select Scale</h2>
@@ -79,7 +96,58 @@ function App() {
         </div>
       </div>
 
-      <Suspense fallback={<div className="card mt-4 p-4">Loading Fretboard...</div>}>
+      {/* Theory Visualizations */}
+      {theoryMode === 'Circle of Fifths' && (
+        <Suspense fallback={<div className="card mt-4 p-4">Loading Circle of Fifths...</div>}>
+          <div className="card mt-4">
+            <CircleOfFifths
+              rootNote={rootNote}
+              setRootNote={setRootNote}
+              selectedScale={selectedScale}
+            />
+          </div>
+        </Suspense>
+      )}
+
+      {theoryMode === 'Chord Progressions' && (
+        <Suspense fallback={<div className="card mt-4 p-4">Loading Chord Progressions...</div>}>
+          <div className="card mt-4">
+            <ChordProgressions
+              rootNote={rootNote}
+              selectedScale={selectedScale}
+              setSelectedChord={setSelectedChord}
+              instrumentConfig={instrumentConfig}
+            />
+          </div>
+        </Suspense>
+      )}
+
+      {theoryMode === 'Harmonic Functions' && (
+        <Suspense fallback={<div className="card mt-4 p-4">Loading Harmonic Functions...</div>}>
+          <div className="card mt-4">
+            <HarmonicFunctions
+              rootNote={rootNote}
+              selectedScale={selectedScale}
+              setSelectedChord={setSelectedChord}
+              instrumentConfig={instrumentConfig}
+            />
+          </div>
+        </Suspense>
+      )}
+
+      {theoryMode === 'CAGED System' && (
+        <Suspense fallback={<div className="card mt-4 p-4">Loading CAGED System...</div>}>
+          <div className="card mt-4">
+            <CAGEDSystem
+              rootNote={rootNote}
+              instrumentConfig={instrumentConfig}
+            />
+          </div>
+        </Suspense>
+      )}
+
+      {/* Instrument Visualization (always shown) */}
+      <Suspense fallback={<div className="card mt-4 p-4">Loading Instrument...</div>}>
         <div className="card mt-4">
           {instrumentConfig.type === 'keyboard' ? (
             <PianoKeyboard
@@ -106,17 +174,20 @@ function App() {
 
         </div>
       </Suspense>
-      <Suspense fallback={<div className="card mt-4 p-4">Loading Chord Visualizer...</div>}>
-        <div className="card mt-4">
-          <h2 className="text-xl font-semibold mb-2">Chords in the Scale of {rootNote} {selectedScale?.name || 'No Scale Selected'}</h2>
-          <ChordVisualizer
-            rootNote={rootNote}
-            selectedScale={selectedScale}
-            onChordSelect={setSelectedChord}
-            instrumentConfig={instrumentConfig}
-          />
-        </div>
-      </Suspense>
+      {/* Only show Chord Visualizer in Scales & Chords mode */}
+      {theoryMode === 'Scales & Chords' && (
+        <Suspense fallback={<div className="card mt-4 p-4">Loading Chord Visualizer...</div>}>
+          <div className="card mt-4">
+            <h2 className="text-xl font-semibold mb-2">Chords in the Scale of {rootNote} {selectedScale?.name || 'No Scale Selected'}</h2>
+            <ChordVisualizer
+              rootNote={rootNote}
+              selectedScale={selectedScale}
+              onChordSelect={setSelectedChord}
+              instrumentConfig={instrumentConfig}
+            />
+          </div>
+        </Suspense>
+      )}
       <Suspense fallback={<div className="card mt-4 p-4">Loading Audio Playback...</div>}>
         <div className="card mt-4">
           <AudioPlayback

@@ -127,3 +127,166 @@ export const getScaleDegree = (note, rootNote, scale) => {
   //   const rootIndex = NOTES.indexOf(root);
   //   return scale.map(interval => NOTES[(rootIndex + interval) % 12]);
   // };
+
+  // ============ NEW MUSIC THEORY FUNCTIONS ============
+
+  // Transpose a note by a given number of semitones
+  export const transposeNote = (note, semitones) => {
+    const noteIndex = NOTES.indexOf(note);
+    if (noteIndex === -1) return null;
+    return NOTES[(noteIndex + semitones + 12) % 12];
+  };
+
+  // Get the circle of fifths starting from a given note
+  export const getCircleOfFifths = (startNote = 'C') => {
+    const fifths = [];
+    let current = startNote;
+    for (let i = 0; i < 12; i++) {
+      fifths.push(current);
+      current = transposeNote(current, 7); // Perfect 5th = 7 semitones
+    }
+    return fifths;
+  };
+
+  // Get the relative key (major <-> minor)
+  export const getRelativeKey = (rootNote, scaleCategory) => {
+    // Major → Natural Minor (down 3 semitones)
+    // Minor → Major (up 3 semitones)
+    if (scaleCategory.includes('Major')) {
+      return transposeNote(rootNote, -3);
+    } else {
+      return transposeNote(rootNote, 3);
+    }
+  };
+
+  // Get the parallel key (same root, different mode)
+  export const getParallelKey = (rootNote) => {
+    return rootNote; // Same root note, different scale type
+  };
+
+  // Get common chord progressions
+  export const getCommonProgressions = () => {
+    return {
+      'Pop Progression': { degrees: [0, 5, 3, 4], notation: 'I-vi-IV-V', description: 'Classic pop progression' },
+      'Jazz ii-V-I': { degrees: [1, 4, 0], notation: 'ii-V-I', description: 'Essential jazz cadence' },
+      'Blues 12-Bar': { degrees: [0, 0, 0, 0, 3, 3, 0, 0, 4, 3, 0, 0], notation: 'I-I-I-I-IV-IV-I-I-V-IV-I-I', description: 'Traditional blues form' },
+      'Andalusian': { degrees: [0, 6, 5, 4], notation: 'i-VII-VI-V', description: 'Flamenco/Spanish progression' },
+      'Canon in D': { degrees: [0, 4, 5, 2, 3, 0, 3, 4], notation: 'I-V-vi-iii-IV-I-IV-V', description: 'Pachelbel\'s Canon' },
+      'Circle Progression': { degrees: [0, 3, 6, 2, 5, 1, 4, 0], notation: 'I-IV-vii°-iii-vi-ii-V-I', description: 'Descending circle of fifths' },
+    };
+  };
+
+  // Get harmonic function for a scale degree
+  export const getHarmonicFunction = (scaleDegree, scaleCategory) => {
+    const functions = {
+      'Major Family': ['Tonic', 'Subdominant', 'Tonic', 'Subdominant', 'Dominant', 'Tonic', 'Dominant'],
+      'Minor Family': ['Tonic', 'Subdominant', 'Tonic', 'Subdominant', 'Dominant', 'Tonic', 'Dominant'],
+    };
+
+    // Default to Major Family if not found
+    const family = scaleCategory.includes('Major') ? 'Major Family' : 'Minor Family';
+    return functions[family]?.[scaleDegree] || 'Unknown';
+  };
+
+  // Get diatonic chords for a scale (triads and 7ths)
+  export const getDiatonicChords = (rootNote, scale, includeSevenths = true) => {
+    const scaleNotes = getScaleNotes(rootNote, scale);
+    const chords = scaleNotes.map((note, i) => {
+      const third = scaleNotes[(i + 2) % scaleNotes.length];
+      const fifth = scaleNotes[(i + 4) % scaleNotes.length];
+      const triad = [note, third, fifth];
+
+      if (includeSevenths && scaleNotes.length >= 7) {
+        const seventh = scaleNotes[(i + 6) % scaleNotes.length];
+        return {
+          root: note,
+          triad,
+          seventh: [...triad, seventh],
+          degree: i
+        };
+      }
+      return {
+        root: note,
+        triad,
+        degree: i
+      };
+    });
+    return chords;
+  };
+
+  // Get interval between two notes
+  export const getIntervalBetweenNotes = (note1, note2) => {
+    const index1 = NOTES.indexOf(note1);
+    const index2 = NOTES.indexOf(note2);
+    if (index1 === -1 || index2 === -1) return null;
+
+    const semitones = (index2 - index1 + 12) % 12;
+    return {
+      semitones,
+      name: getIntervalName(semitones)
+    };
+  };
+
+  // Get interval matrix from a root note
+  export const getIntervalMatrix = (rootNote) => {
+    const intervals = [
+      { name: 'Unison (P1)', semitones: 0 },
+      { name: 'Minor 2nd (m2)', semitones: 1 },
+      { name: 'Major 2nd (M2)', semitones: 2 },
+      { name: 'Minor 3rd (m3)', semitones: 3 },
+      { name: 'Major 3rd (M3)', semitones: 4 },
+      { name: 'Perfect 4th (P4)', semitones: 5 },
+      { name: 'Tritone (TT)', semitones: 6 },
+      { name: 'Perfect 5th (P5)', semitones: 7 },
+      { name: 'Minor 6th (m6)', semitones: 8 },
+      { name: 'Major 6th (M6)', semitones: 9 },
+      { name: 'Minor 7th (m7)', semitones: 10 },
+      { name: 'Major 7th (M7)', semitones: 11 },
+    ];
+    return intervals.map(interval => ({
+      ...interval,
+      note: transposeNote(rootNote, interval.semitones)
+    }));
+  };
+
+  // Compare two scales and return differences
+  export const compareScales = (rootNote, scale1, scale2) => {
+    const notes1 = getScaleNotes(rootNote, scale1);
+    const notes2 = getScaleNotes(rootNote, scale2);
+
+    const onlyInScale1 = notes1.filter(note => !notes2.includes(note));
+    const onlyInScale2 = notes2.filter(note => !notes1.includes(note));
+    const common = notes1.filter(note => notes2.includes(note));
+
+    return { onlyInScale1, onlyInScale2, common };
+  };
+
+  // Get voice leading between two chords
+  export const getVoiceLeading = (chord1, chord2) => {
+    return chord1.map((note, i) => {
+      const targetNote = chord2[i] || chord2[0]; // Fallback to root if chord sizes differ
+      const interval = getIntervalBetweenNotes(note, targetNote);
+      return {
+        from: note,
+        to: targetNote,
+        interval: interval?.semitones || 0,
+        intervalName: interval?.name || 'Unison'
+      };
+    });
+  };
+
+  // CAGED System - Get chord positions for guitar
+  export const getCAGEDPositions = (rootNote) => {
+    const rootIndex = NOTES.indexOf(rootNote);
+
+    // Starting fret positions for each CAGED shape (relative to C major)
+    const CPosition = rootIndex; // C shape starts at the root
+
+    return {
+      'C Shape': { fret: (CPosition + 0) % 12, form: 'C', description: 'Barre at fret with C shape' },
+      'A Shape': { fret: (CPosition + 3) % 12, form: 'A', description: 'Barre at fret with A shape' },
+      'G Shape': { fret: (CPosition + 5) % 12, form: 'G', description: 'Barre at fret with G shape' },
+      'E Shape': { fret: (CPosition + 8) % 12, form: 'E', description: 'Barre at fret with E shape' },
+      'D Shape': { fret: (CPosition + 10) % 12, form: 'D', description: 'Barre at fret with D shape' },
+    };
+  };
