@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { NOTES, getScaleNotes, SCALE_LIBRARY, getScaleDegree } from '../utils/musicTheory';
 import './Fretboard.css';
 import './FretboardSection.css';
@@ -6,12 +6,33 @@ import './PrintStyles.css'; // Import print styles
 import PropTypes from 'prop-types';
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
 
-const FretboardNote = ({ note, fret, isRoot, selectedScale, showScaleDegrees, rootNote, stringNote, onNoteTap, stringIndex, showNonScaleNotes, octaves }) => {
+// Optimized FretboardNote component using React.memo
+const FretboardNote = React.memo(({
+  note,
+  fret,
+  isRoot,
+  scaleNotes,
+  showScaleDegrees,
+  rootNote,
+  stringNote,
+  onNoteTap,
+  stringIndex,
+  showNonScaleNotes,
+  octaves,
+  selectedScale
+}) => {
   const [isHovered, setIsHovered] = useState(false);
-  const scaleNotes = selectedScale ? getScaleNotes(rootNote, SCALE_LIBRARY[selectedScale.category][selectedScale.name]) : [];
-  const isInScale = scaleNotes.includes(note);
-  const scaleDegree = isInScale ? getScaleDegree(note, rootNote, SCALE_LIBRARY[selectedScale.category][selectedScale.name]) : '';
   const [isPlaying, setIsPlaying] = useState(false);
+
+  // Use passed scaleNotes to check if in scale - O(1) lookup if scaleNotes is simple array
+  const isInScale = scaleNotes.includes(note);
+
+  // Only calculate degree if needed and note is in scale
+  const scaleDegree = useMemo(() => {
+    return isInScale && selectedScale
+      ? getScaleDegree(note, rootNote, SCALE_LIBRARY[selectedScale.category][selectedScale.name])
+      : '';
+  }, [isInScale, selectedScale, note, rootNote]);
 
   // Determine note type for coloring
   const getNoteType = () => {
@@ -27,29 +48,32 @@ const FretboardNote = ({ note, fret, isRoot, selectedScale, showScaleDegrees, ro
   };
 
   // Calculate appropriate octave based on string and fret
-  const getOctave = () => {
+  // Memoized to avoid recalculation on every render
+  const octave = useMemo(() => {
     // Use provided octaves or fallback to standard guitar tuning
     const baseOctaves = octaves || [2, 2, 3, 3, 3, 4]; // Low E to high E (fallback)
 
     // Start with the base octave for this string
-    let octave = baseOctaves[stringIndex];
+    let baseOctave = baseOctaves[stringIndex];
 
     // Calculate note index changes
     const startNoteIndex = NOTES.indexOf(stringNote);
 
     // Calculate octave shifts based on fret position
     const octaveShift = Math.floor((startNoteIndex + fret) / 12);
-    return octave + octaveShift;
-  };
+    return baseOctave + octaveShift;
+  }, [octaves, stringIndex, stringNote, fret]);
 
-  const handleClick = () => {
+  const handleClick = useCallback(() => {
     setIsPlaying(true);
-    onNoteTap(note, getOctave());
+    onNoteTap(note, octave);
     setTimeout(() => setIsPlaying(false), 300);
-  };
+  }, [note, octave, onNoteTap]);
 
   // Get the note with octave for display
-  const noteWithOctave = `${note}${getOctave()}`;
+  const noteWithOctave = `${note}${octave}`;
+
+  const noteType = getNoteType();
 
   return (
     <div
@@ -58,7 +82,7 @@ const FretboardNote = ({ note, fret, isRoot, selectedScale, showScaleDegrees, ro
       onMouseLeave={() => setIsHovered(false)}
     >
       <div
-        className={`note-marker ${getNoteType()} ${isPlaying ? 'playing' : ''} ${!isInScale && !showNonScaleNotes ? 'hidden-note' : ''}`}
+        className={`note-marker ${noteType} ${isPlaying ? 'playing' : ''} ${!isInScale && !showNonScaleNotes ? 'hidden-note' : ''}`}
         onClick={handleClick}
         title={`${noteWithOctave}${scaleDegree ? ` (${scaleDegree})` : ''}`}
       >
@@ -71,12 +95,15 @@ const FretboardNote = ({ note, fret, isRoot, selectedScale, showScaleDegrees, ro
       )}
     </div>
   );
-};
+});
+
+FretboardNote.displayName = 'FretboardNote';
 
 FretboardNote.propTypes = {
   note: PropTypes.string.isRequired,
   fret: PropTypes.number.isRequired,
   isRoot: PropTypes.bool.isRequired,
+  scaleNotes: PropTypes.arrayOf(PropTypes.string).isRequired,
   selectedScale: PropTypes.shape({
     category: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
@@ -90,7 +117,8 @@ FretboardNote.propTypes = {
   octaves: PropTypes.arrayOf(PropTypes.number)
 };
 
-const StringLabel = ({ note, index, onClick }) => (
+// Memoized StringLabel
+const StringLabel = React.memo(({ note, index, onClick }) => (
   <div
     className="string-label"
     onClick={() => onClick(note, index)}
@@ -98,7 +126,9 @@ const StringLabel = ({ note, index, onClick }) => (
   >
     {note}
   </div>
-);
+));
+
+StringLabel.displayName = 'StringLabel';
 
 StringLabel.propTypes = {
   note: PropTypes.string.isRequired,
@@ -108,14 +138,26 @@ StringLabel.propTypes = {
 
 const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegrees, instrumentConfig, selectedInstrument }) => {
   const [audioInitialized, setAudioInitialized] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [scrollPosition, setScrollPosition] = useState(0);
+  // Use useRef for playing state to avoid re-rendering the whole fretboard during playback
+  const isPlayingRef = useRef(false);
+
+  // Use useRef for scroll position to avoid re-renders on scroll
+  const scrollPositionRef = useRef(0);
   const fretboardRef = useRef(null);
+
   const [showLegend, setShowLegend] = useState(true);
   const [showHints, setShowHints] = useState(false);
   const [showNonScaleNotes, setShowNonScaleNotes] = useState(false);
 
   const { tuning, fretCount, fretMarkers, doubleFretMarkers, octaves } = instrumentConfig;
+
+  // Memoize scale notes calculation to avoid recalculating on every render
+  // This is now calculated once per scale change, not 150 times per render
+  const scaleNotes = useMemo(() => {
+    return selectedScale
+      ? getScaleNotes(rootNote, SCALE_LIBRARY[selectedScale.category][selectedScale.name])
+      : [];
+  }, [rootNote, selectedScale]);
 
   // Initialize audio on component mount
   useEffect(() => {
@@ -149,15 +191,8 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
     }
   }, [instrumentConfig.soundfontName, audioInitialized]);
 
-  // Scroll to show the first few frets initially
-  useEffect(() => {
-    if (fretboardRef.current) {
-      fretboardRef.current.scrollLeft = scrollPosition;
-    }
-  }, [scrollPosition]);
-
-  // Play open string
-  const playOpenString = async (stringNote, index) => {
+  // Play open string - Memoized callback
+  const playOpenString = useCallback(async (stringNote, index) => {
     if (!audioInitialized) return;
 
     try {
@@ -168,27 +203,36 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
     } catch (error) {
       console.error('Error playing string:', error);
     }
-  };
+  }, [audioInitialized, octaves]);
 
-  // Handle note tap to play a note
-  const handleNoteTap = (note, octave) => {
-    if (audioInitialized && !isPlaying) {
-      setIsPlaying(true);
+  // Handle note tap to play a note - Memoized callback
+  const handleNoteTap = useCallback((note, octave) => {
+    if (audioInitialized && !isPlayingRef.current) {
+      isPlayingRef.current = true;
       SoundfontAudio.playNote(note, null, octave)
-        .then(() => setTimeout(() => setIsPlaying(false), 300))
+        .then(() => {
+          setTimeout(() => {
+            isPlayingRef.current = false;
+          }, 300);
+        })
         .catch(error => {
           console.error('Error playing note:', error);
-          setIsPlaying(false);
+          isPlayingRef.current = false;
         });
     }
-  };
+  }, [audioInitialized]);
 
-  // Handle scroll buttons
+  // Handle scroll buttons - Direct DOM manipulation to avoid re-renders
   const scrollFretboard = (direction) => {
     if (fretboardRef.current) {
       const scrollAmount = direction === 'left' ? -300 : 300;
-      const newPosition = Math.max(0, scrollPosition + scrollAmount);
-      setScrollPosition(newPosition);
+      const newPosition = Math.max(0, scrollPositionRef.current + scrollAmount);
+
+      scrollPositionRef.current = newPosition;
+      fretboardRef.current.scrollTo({
+        left: newPosition,
+        behavior: 'smooth'
+      });
     }
   };
 
@@ -273,18 +317,12 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
                   const isDoubleMarkerFret = doubleFretMarkers && doubleFretMarkers.includes(fret);
 
                   // Calculate middle string index for marker placement
-                  // For even number of strings (e.g. 4 or 6), we want to place it between the middle two strings
-                  // For 6 strings (0-5), middle is between 2 and 3. We place on 3 (bottom half) or 2 (top half) or just on one string with offset
-                  // The original code placed markers on specific strings.
-                  // Let's try to replicate the original look but dynamically.
-
                   const middleStringIndex = Math.floor(tuning.length / 2);
 
                   // Single dots
                   const isSingleDot = isMarkerFret && !isDoubleMarkerFret;
 
-                  // We place single dots on the string just below the middle (e.g. index 3 for guitar, index 2 for ukulele)
-                  // And we use CSS to shift it up to be between strings.
+                  // We place single dots on the string just below the middle
                   const markerStringIndex = middleStringIndex;
 
                   const isFretMarkerRender = (stringIndex === markerStringIndex && isSingleDot);
@@ -318,6 +356,7 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
                         note={note}
                         fret={fret}
                         isRoot={isRoot}
+                        scaleNotes={scaleNotes} // Passed from memoized calculation
                         selectedScale={selectedScale}
                         showScaleDegrees={showScaleDegrees}
                         rootNote={rootNote}
@@ -399,7 +438,7 @@ Fretboard.propTypes = {
   setShowScaleDegrees: PropTypes.func.isRequired,
   instrumentConfig: PropTypes.object.isRequired,
   selectedInstrument: PropTypes.string,
-  octaves: PropTypes.arrayOf(PropTypes.number), // Added prop validation
+  octaves: PropTypes.arrayOf(PropTypes.number),
 };
 
 export default Fretboard;
