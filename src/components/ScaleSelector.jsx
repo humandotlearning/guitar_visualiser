@@ -10,12 +10,17 @@ const ScaleSelector = ({ rootNote, setRootNote, selectedScale, setSelectedScale 
     <div className="space-y-6">
       {/* Root Note Selector */}
       <div>
-        <label className="block text-sm font-semibold text-slate-700 mb-2">Root Note</label>
-        <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-12 gap-2">
+        <h3 id="root-note-label" className="block text-sm font-semibold text-slate-700 mb-2">Root Note</h3>
+        <div
+          role="group"
+          aria-labelledby="root-note-label"
+          className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-12 gap-2"
+        >
           {NOTES.map(note => (
             <button
               key={note}
               onClick={() => setRootNote(note)}
+              aria-pressed={rootNote === note}
               className={`
                 px-2 py-2 rounded-lg text-sm font-bold transition-all duration-200 border
                 ${rootNote === note
@@ -32,11 +37,19 @@ const ScaleSelector = ({ rootNote, setRootNote, selectedScale, setSelectedScale 
 
       {/* Scale Categories Tabs */}
       <div>
-        <label className="block text-sm font-semibold text-slate-700 mb-2">Scale Type</label>
-        <div className="flex flex-wrap gap-2 mb-4 border-b border-slate-200 pb-2">
+        <h3 id="scale-type-label" className="block text-sm font-semibold text-slate-700 mb-2">Scale Type</h3>
+        <div
+          role="tablist"
+          aria-labelledby="scale-type-label"
+          className="flex flex-wrap gap-2 mb-4 border-b border-slate-200 pb-2"
+        >
           {Object.keys(SCALE_LIBRARY).map((category) => (
             <button
               key={category}
+              id={`tab-${category}`}
+              role="tab"
+              aria-selected={activeCategory === category}
+              aria-controls="scale-panel"
               onClick={() => setActiveCategory(category)}
               className={`
                 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
@@ -52,13 +65,19 @@ const ScaleSelector = ({ rootNote, setRootNote, selectedScale, setSelectedScale 
         </div>
 
         {/* Scales in Active Category */}
-        <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 min-h-[120px]">
+        <div
+          id="scale-panel"
+          role="tabpanel"
+          aria-labelledby={`tab-${activeCategory}`}
+          className="bg-slate-50 rounded-xl p-4 border border-slate-100 min-h-[120px]"
+        >
           <div className="flex flex-wrap gap-2">
             {Object.keys(SCALE_LIBRARY[activeCategory]).map((scale) => {
               const isSelected = selectedScale?.name === scale && selectedScale?.category === activeCategory;
               return (
                 <button
                   key={scale}
+                  aria-pressed={isSelected}
                   onClick={() => setSelectedScale(
                     isSelected ? null : { category: activeCategory, name: scale }
                   )}
