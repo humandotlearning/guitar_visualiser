@@ -1,8 +1,102 @@
-import React from 'react';
+import React, { useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { getScaleNotes, SCALE_LIBRARY } from '../utils/musicTheory';
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
 import './PianoKeyboardStyles.css';
+
+// Helper function to get color based on scale degree (matching ScaleNotes.jsx)
+const getScaleDegreeColor = (index) => {
+  switch (index) {
+    case 0: return 'var(--color-tonic)';      // Tonic (I)
+    case 1: return 'var(--color-major)';      // Major Step (II)
+    case 2: return 'var(--color-minor)';      // Minor Step (III)
+    case 3: return 'var(--color-perfect)';    // Perfect Fourth (IV)
+    case 4: return 'var(--color-perfect)';    // Perfect Fifth (V)
+    case 5: return 'var(--color-major)';      // Major Step (VI)
+    case 6: return 'var(--color-minor)';      // Minor Step (VII)
+    default: return 'black';
+  }
+};
+
+const PianoKey = React.memo(({
+  note,
+  octave,
+  isBlack,
+  isInScale,
+  isRoot,
+  isInChord,
+  degree,
+  color,
+  showScaleVisualization,
+  showChordVisualization,
+  showScaleDegrees,
+  hasSelectedChord,
+  onPlayNote
+}) => {
+  // Determine the style for this key
+  const keyStyle = {};
+
+  // Set CSS variable for scale color if applicable
+  if (showScaleVisualization && isInScale && color) {
+    keyStyle['--key-color'] = color;
+  }
+
+  // Apply chord highlighting
+  if (showChordVisualization && isInChord && hasSelectedChord) {
+    keyStyle.backgroundColor = '#eff6ff'; // Light blue tint for white keys
+    keyStyle.borderColor = '#3b82f6';
+    if (isBlack) {
+      keyStyle.backgroundColor = '#1e3a8a'; // Dark blue for black keys
+      keyStyle.borderColor = '#60a5fa';
+    }
+  }
+
+  // Determine CSS classes
+  const classes = [
+    'piano-key',
+    isBlack ? 'black-key' : 'white-key',
+    showScaleVisualization && isInScale ? 'in-scale' : '',
+    showChordVisualization && isInChord ? 'in-chord' : '',
+    isRoot ? 'is-root' : ''
+  ].filter(Boolean).join(' ');
+
+  const handleClick = useCallback(() => {
+    onPlayNote(note, octave);
+  }, [note, octave, onPlayNote]);
+
+  const title = `${note}${octave}${isInScale ? ` - Degree ${degree}` : ''}${isInChord ? ' (in chord)' : ''}`;
+
+  return (
+    <div
+      className={classes}
+      style={keyStyle}
+      onClick={handleClick}
+      title={title}
+    >
+      <div className="note-label">
+        {showScaleDegrees && isInScale ? degree : (showScaleVisualization && (isInScale || isRoot) ? note : '')}
+      </div>
+    </div>
+  );
+});
+
+PianoKey.displayName = 'PianoKey';
+
+PianoKey.propTypes = {
+  note: PropTypes.string.isRequired,
+  octave: PropTypes.number.isRequired,
+  isBlack: PropTypes.bool.isRequired,
+  isInScale: PropTypes.bool.isRequired,
+  isRoot: PropTypes.bool.isRequired,
+  isInChord: PropTypes.bool.isRequired,
+  degree: PropTypes.number,
+  color: PropTypes.string,
+  showScaleVisualization: PropTypes.bool.isRequired,
+  showChordVisualization: PropTypes.bool.isRequired,
+  showScaleDegrees: PropTypes.bool,
+  hasSelectedChord: PropTypes.bool.isRequired,
+  onPlayNote: PropTypes.func.isRequired
+};
 
 const PianoKeyboard = ({
   rootNote,
@@ -16,57 +110,52 @@ const PianoKeyboard = ({
   onToggleChord
 }) => {
   const { startOctave, endOctave } = instrumentConfig;
-  const scaleNotes = getScaleNotes(rootNote, SCALE_LIBRARY[selectedScale.category][selectedScale.name]);
 
-  // Helper function to get color based on scale degree (matching ScaleNotes.jsx)
-  const getScaleDegreeColor = (index) => {
-    switch (index) {
-      case 0: return 'var(--color-tonic)';      // Tonic (I)
-      case 1: return 'var(--color-major)';      // Major Step (II)
-      case 2: return 'var(--color-minor)';      // Minor Step (III)
-      case 3: return 'var(--color-perfect)';    // Perfect Fourth (IV)
-      case 4: return 'var(--color-perfect)';    // Perfect Fifth (V)
-      case 5: return 'var(--color-major)';      // Major Step (VI)
-      case 6: return 'var(--color-minor)';      // Minor Step (VII)
-      default: return 'black';
-    }
-  };
+  // Memoize scale notes calculation
+  const scaleNotes = useMemo(() => {
+    return getScaleNotes(rootNote, SCALE_LIBRARY[selectedScale.category][selectedScale.name]);
+  }, [rootNote, selectedScale]);
 
-  // Generate keys
-  const keys = [];
-  const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+  // Memoize keys generation
+  const keys = useMemo(() => {
+    const generatedKeys = [];
+    const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const hasSelectedChord = selectedChord && selectedChord.length > 0;
 
-  for (let octave = startOctave; octave <= endOctave; octave++) {
-    notes.forEach((note) => {
-      const isBlack = note.includes('#');
-      const noteName = note;
-      const fullNoteName = `${note}${octave}`;
+    for (let octave = startOctave; octave <= endOctave; octave++) {
+      notes.forEach((note) => {
+        const isBlack = note.includes('#');
+        const noteName = note;
+        const fullNoteName = `${note}${octave}`;
 
-      // Check if note is in scale
-      const scaleIndex = scaleNotes.indexOf(note);
-      const isInScale = scaleIndex !== -1;
-      const isRoot = note === rootNote;
+        // Check if note is in scale
+        const scaleIndex = scaleNotes.indexOf(note);
+        const isInScale = scaleIndex !== -1;
+        const isRoot = note === rootNote;
 
-      // Check if note is in the selected chord
-      const isInChord = selectedChord.length > 0 && selectedChord.includes(note);
+        // Check if note is in the selected chord
+        const isInChord = hasSelectedChord && selectedChord.includes(note);
 
-      keys.push({
-        note: noteName,
-        octave,
-        fullNoteName,
-        isBlack,
-        isInScale,
-        isRoot,
-        isInChord,
-        degree: isInScale ? scaleIndex + 1 : null,
-        color: isInScale ? getScaleDegreeColor(scaleIndex) : null
+        generatedKeys.push({
+          note: noteName,
+          octave,
+          fullNoteName,
+          isBlack,
+          isInScale,
+          isRoot,
+          isInChord,
+          degree: isInScale ? scaleIndex + 1 : null,
+          color: isInScale ? getScaleDegreeColor(scaleIndex) : null,
+          hasSelectedChord // Passing this down to avoid checking length in child
+        });
       });
-    });
-  }
+    }
+    return generatedKeys;
+  }, [startOctave, endOctave, scaleNotes, rootNote, selectedChord]);
 
-  const playNote = (note, octave) => {
+  const playNote = useCallback((note, octave) => {
     SoundfontAudio.playNote(note, null, octave);
-  };
+  }, []);
 
   return (
     <div className="piano-wrapper">
@@ -91,51 +180,16 @@ const PianoKeyboard = ({
       {/* Piano Keyboard */}
       <div className="piano-container">
         <div className="piano-keys">
-          {keys.map((key) => {
-            // Determine the style for this key
-            const keyStyle = {};
-
-            // Set CSS variable for scale color if applicable
-            if (showScaleVisualization && key.isInScale && key.color) {
-              keyStyle['--key-color'] = key.color;
-            }
-
-            // Apply chord highlighting
-            if (showChordVisualization && key.isInChord && selectedChord.length > 0) {
-              keyStyle.backgroundColor = '#eff6ff'; // Light blue tint for white keys
-              keyStyle.borderColor = '#3b82f6';
-              if (key.isBlack) {
-                keyStyle.backgroundColor = '#1e3a8a'; // Dark blue for black keys
-                keyStyle.borderColor = '#60a5fa';
-              }
-            } else if (showScaleVisualization && key.isInScale && key.color) {
-              // Optional: Tint the key slightly with the scale color
-              // keyStyle.backgroundColor = `${key.color}20`; // 20 hex = ~12% opacity
-            }
-
-            // Determine CSS classes
-            const classes = [
-              'piano-key',
-              key.isBlack ? 'black-key' : 'white-key',
-              showScaleVisualization && key.isInScale ? 'in-scale' : '',
-              showChordVisualization && key.isInChord ? 'in-chord' : '',
-              key.isRoot ? 'is-root' : ''
-            ].filter(Boolean).join(' ');
-
-            return (
-              <div
-                key={key.fullNoteName}
-                className={classes}
-                style={keyStyle}
-                onClick={() => playNote(key.note, key.octave)}
-                title={`${key.note}${key.octave}${key.isInScale ? ` - Degree ${key.degree}` : ''}${key.isInChord ? ' (in chord)' : ''}`}
-              >
-                <div className="note-label">
-                  {showScaleDegrees && key.isInScale ? key.degree : (showScaleVisualization && (key.isInScale || key.isRoot) ? key.note : '')}
-                </div>
-              </div>
-            );
-          })}
+          {keys.map((key) => (
+            <PianoKey
+              key={key.fullNoteName}
+              {...key}
+              showScaleVisualization={showScaleVisualization}
+              showChordVisualization={showChordVisualization}
+              showScaleDegrees={showScaleDegrees}
+              onPlayNote={playNote}
+            />
+          ))}
         </div>
       </div>
     </div>
