@@ -67,16 +67,18 @@ const PianoKey = React.memo(({
   const title = `${note}${octave}${isInScale ? ` - Degree ${degree}` : ''}${isInChord ? ' (in chord)' : ''}`;
 
   return (
-    <div
+    <button
+      type="button"
       className={classes}
       style={keyStyle}
       onClick={handleClick}
       title={title}
+      aria-label={`Play ${note}${octave}${isInScale ? `, Degree ${degree}` : ''}`}
     >
       <div className="note-label">
         {showScaleDegrees && isInScale ? degree : (showScaleVisualization && (isInScale || isRoot) ? note : '')}
       </div>
-    </div>
+    </button>
   );
 });
 

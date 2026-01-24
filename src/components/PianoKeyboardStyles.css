@@ -91,6 +91,20 @@
   justify-content: center;
   padding-bottom: 12px;
   box-sizing: border-box;
+  /* Button reset styles */
+  appearance: none;
+  background: none;
+  border: none;
+  padding: 0 0 12px 0; /* Keep bottom padding */
+  margin: 0;
+  font-family: inherit;
+  font-size: 100%;
+}
+
+.piano-key:focus-visible {
+  outline: none;
+  z-index: 50; /* Bring to top when focused */
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.6); /* Blue focus ring */
 }
 
 .white-key {
