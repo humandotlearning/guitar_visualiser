@@ -15,6 +15,7 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
 
   // Reference to detect clicks outside the settings panel
   const settingsRef = useRef(null);
+  const closeButtonRef = useRef(null);
 
   // Available guitar instruments
   const instruments = {
@@ -49,6 +50,13 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
       // Unbind the event listener on clean up
       document.removeEventListener('mousedown', handleClickOutside);
     };
+  }, [isSettingsOpen]);
+
+  // Focus management
+  useEffect(() => {
+    if (isSettingsOpen && closeButtonRef.current) {
+      closeButtonRef.current.focus();
+    }
   }, [isSettingsOpen]);
 
   // Initialize audio context on mount and handle instrument changes
@@ -218,10 +226,21 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
 
       {/* Settings panel (modal style) */}
       {isSettingsOpen && (
-        <div className="settings-panel settings-panel-audio" ref={settingsRef}>
+        <div
+          className="settings-panel settings-panel-audio"
+          ref={settingsRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="audio-settings-title"
+        >
           <div className="settings-header">
-            <div className="settings-title">Audio Settings</div>
-            <button className="settings-close" onClick={closeSettings}>
+            <div className="settings-title" id="audio-settings-title">Audio Settings</div>
+            <button
+              className="settings-close"
+              onClick={closeSettings}
+              aria-label="Close settings"
+              ref={closeButtonRef}
+            >
               ×
             </button>
           </div>
