@@ -93,6 +93,10 @@ export const CHORD_TYPES = {
 
 export const getScaleDegree = (note, rootNote, scale) => {
     const scaleNotes = getScaleNotes(rootNote, scale);
+    return getScaleDegreeFromNotes(note, scaleNotes);
+  };
+
+export const getScaleDegreeFromNotes = (note, scaleNotes) => {
     const degree = scaleNotes.indexOf(note);
     if (degree === -1) return '';
     const degrees = ['1', '2', '3', '4', '5', '6', '7'];

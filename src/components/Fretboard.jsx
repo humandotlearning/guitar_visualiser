@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { NOTES, getScaleNotes, SCALE_LIBRARY, getScaleDegree } from '../utils/musicTheory';
+import { NOTES, getScaleNotes, SCALE_LIBRARY, getScaleDegreeFromNotes } from '../utils/musicTheory';
 import './Fretboard.css';
 import './FretboardSection.css';
 import './PrintStyles.css'; // Import print styles
@@ -13,7 +13,6 @@ const FretboardNote = React.memo(({
   isRoot,
   scaleNotes,
   showScaleDegrees,
-  rootNote,
   stringNote,
   onNoteTap,
   stringIndex,
@@ -24,22 +23,26 @@ const FretboardNote = React.memo(({
   const [isHovered, setIsHovered] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  // Use passed scaleNotes to check if in scale - O(1) lookup if scaleNotes is simple array
-  const isInScale = scaleNotes.includes(note);
+  // Calculate degree index once.
+  // scaleNotes is memoized in parent, so this is fast.
+  const degreeIndex = useMemo(() => scaleNotes.indexOf(note), [scaleNotes, note]);
+
+  // Check if in scale based on index
+  const isInScale = degreeIndex !== -1;
 
   // Only calculate degree if needed and note is in scale
   const scaleDegree = useMemo(() => {
     return isInScale && selectedScale
-      ? getScaleDegree(note, rootNote, SCALE_LIBRARY[selectedScale.category][selectedScale.name])
+      ? getScaleDegreeFromNotes(note, scaleNotes)
       : '';
-  }, [isInScale, selectedScale, note, rootNote]);
+  }, [isInScale, selectedScale, note, scaleNotes]);
 
   // Determine note type for coloring
   const getNoteType = () => {
     if (!isInScale) return 'non-scale-note';
     if (isRoot) return 'root';
-    const interval = scaleNotes.indexOf(note);
-    switch (interval) {
+    // Use the already calculated index
+    switch (degreeIndex) {
       case 2: return 'third';
       case 4: return 'fifth';
       case 6: return 'seventh';
@@ -109,7 +112,6 @@ FretboardNote.propTypes = {
     name: PropTypes.string.isRequired,
   }).isRequired,
   showScaleDegrees: PropTypes.bool.isRequired,
-  rootNote: PropTypes.string.isRequired,
   stringNote: PropTypes.string.isRequired,
   onNoteTap: PropTypes.func.isRequired,
   stringIndex: PropTypes.number.isRequired,
@@ -359,7 +361,6 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
                         scaleNotes={scaleNotes} // Passed from memoized calculation
                         selectedScale={selectedScale}
                         showScaleDegrees={showScaleDegrees}
-                        rootNote={rootNote}
                         stringNote={string}
                         stringIndex={stringIndex}
                         onNoteTap={handleNoteTap}
