@@ -9,3 +9,7 @@
 ## 2025-01-24 - Fretboard Grid Memoization
 **Learning:** Even if child components are memoized (`React.memo`), the parent component's render loop can still be expensive if it performs O(N) calculations (like `tuning.map` * `fretCount` loop with marker logic) to generate props or wrapper elements.
 **Action:** Pre-calculate the grid structure (fret data, marker positions) in `useMemo` so that the render loop only iterates over pre-computed objects, avoiding repeated logic execution during re-renders triggered by unrelated state changes (like showing legends).
+
+## 2025-02-18 - Implicit Data Structures in Visualizers
+**Learning:** The `guitar.json` data uses an empty string suffix (`""`) to represent Major chords, but the `ChordVisualizer` mapping logic (`CHORD_TYPE_MAP`) missed this case, causing the "Chord Variations" section to render empty for the default state. This complicated performance verification.
+**Action:** When optimizing data-driven components, verify the "zero state" or default data mapping explicitly, as missing keys can be masked by unoptimized re-renders or silent failures.
