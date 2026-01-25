@@ -153,6 +153,53 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
 
   const { tuning, fretCount, fretMarkers, doubleFretMarkers, octaves } = instrumentConfig;
 
+  // Memoize fretboard grid structure to avoid recalculating markers and notes on every render
+  const fretboardGrid = useMemo(() => {
+    return tuning.map((string, stringIndex) => {
+      // Calculate middle string index for marker placement
+      const middleStringIndex = Math.floor(tuning.length / 2);
+
+      return [...Array(fretCount + 1)].map((_, fret) => {
+        const noteIndex = (NOTES.indexOf(string) + fret) % 12;
+        const note = NOTES[noteIndex];
+        const isRoot = note === rootNote;
+
+        // Dynamic fret marker logic
+        const isMarkerFret = fretMarkers && fretMarkers.includes(fret);
+        const isDoubleMarkerFret = doubleFretMarkers && doubleFretMarkers.includes(fret);
+
+        // Single dots
+        const isSingleDot = isMarkerFret && !isDoubleMarkerFret;
+
+        // We place single dots on the string just below the middle
+        const markerStringIndex = middleStringIndex;
+
+        const isFretMarkerRender = (stringIndex === markerStringIndex && isSingleDot);
+
+        // Custom logic for double dots to look good
+        let isDoubleDotRender = false;
+        if (isDoubleMarkerFret) {
+          if (tuning.length === 6) {
+            isDoubleDotRender = (stringIndex === 1 || stringIndex === 4);
+          } else if (tuning.length === 4) {
+            isDoubleDotRender = (stringIndex === 0 || stringIndex === 3); // Outer strings
+          } else {
+            isDoubleDotRender = (stringIndex === 0 || stringIndex === tuning.length - 1);
+          }
+        }
+
+        return {
+          note,
+          fret,
+          isRoot,
+          isFretMarkerRender,
+          isDoubleDotRender,
+          string
+        };
+      });
+    });
+  }, [tuning, fretCount, fretMarkers, doubleFretMarkers, rootNote]);
+
   // Memoize scale notes calculation to avoid recalculating on every render
   // This is now calculated once per scale change, not 150 times per render
   const scaleNotes = useMemo(() => {
@@ -307,40 +354,10 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
         </div>
         <div className="fretboard-scroll print-fretboard-scroll" ref={fretboardRef}>
           <div className="fretboard print-fretboard">
-            {tuning.map((string, stringIndex) => (
+            {fretboardGrid.map((stringFrets, stringIndex) => (
               <div key={stringIndex} className="string print-string">
-                {[...Array(fretCount + 1)].map((_, fret) => {
-                  const noteIndex = (NOTES.indexOf(string) + fret) % 12;
-                  const note = NOTES[noteIndex];
-                  const isRoot = note === rootNote;
-
-                  // Dynamic fret marker logic
-                  const isMarkerFret = fretMarkers && fretMarkers.includes(fret);
-                  const isDoubleMarkerFret = doubleFretMarkers && doubleFretMarkers.includes(fret);
-
-                  // Calculate middle string index for marker placement
-                  const middleStringIndex = Math.floor(tuning.length / 2);
-
-                  // Single dots
-                  const isSingleDot = isMarkerFret && !isDoubleMarkerFret;
-
-                  // We place single dots on the string just below the middle
-                  const markerStringIndex = middleStringIndex;
-
-                  const isFretMarkerRender = (stringIndex === markerStringIndex && isSingleDot);
-
-                  // Custom logic for double dots to look good
-                  let isDoubleDotRender = false;
-                  if (isDoubleMarkerFret) {
-                    if (tuning.length === 6) {
-                      isDoubleDotRender = (stringIndex === 1 || stringIndex === 4);
-                    } else if (tuning.length === 4) {
-                      isDoubleDotRender = (stringIndex === 0 || stringIndex === 3); // Outer strings
-                    } else {
-                      isDoubleDotRender = (stringIndex === 0 || stringIndex === tuning.length - 1);
-                    }
-                  }
-
+                {stringFrets.map((fretData) => {
+                  const { note, fret, isRoot, isFretMarkerRender, isDoubleDotRender, string } = fretData;
                   return (
                     <div
                       className={`fret ${fret === 0 ? 'first-fret' : ''}`}
