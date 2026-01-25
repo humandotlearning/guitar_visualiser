@@ -31,6 +31,23 @@
   --fret-marker-color: #aaaaaa;
 }
 
+/* Accessibility: Reset button styles for interactive elements to prevent global overrides */
+button.note-marker,
+button.string-label {
+  appearance: none;
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  cursor: pointer;
+  /* Reset potentially conflicting properties from global button styles */
+  min-width: auto;
+  min-height: auto;
+}
+
 /* Fretboard Container */
 .fretboard-container {
   position: relative;

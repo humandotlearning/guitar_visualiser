@@ -5,3 +5,7 @@
 ## 2026-01-24 - Semantic Interactive Elements
 **Learning:** Custom interactive elements (like piano keys) implemented as `div`s lack native keyboard accessibility. Converting them to `<button>`s provides immediate keyboard support (Tab, Enter/Space) but requires careful CSS resetting (`appearance: none`, etc.) to preserve the custom design.
 **Action:** When making custom interactive components accessible, start by swapping the tag to `<button>` and resetting styles, rather than adding `tabIndex` and key handlers to a `div`.
+
+## 2026-01-25 - Global Button Styles vs Custom Interactive Elements
+**Learning:** This project has global button styles in `App.css` that enforce background colors and padding. When converting custom interactive elements (like fretboard notes) from `div` to `button` for accessibility, these global styles bleed in.
+**Action:** Always verify custom buttons against global styles. Add specific CSS resets (background: transparent, border: none, padding: 0) to your component's CSS when converting to semantic buttons to avoid visual regressions.
