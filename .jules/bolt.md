@@ -13,3 +13,7 @@
 ## 2025-02-18 - Implicit Data Structures in Visualizers
 **Learning:** The `guitar.json` data uses an empty string suffix (`""`) to represent Major chords, but the `ChordVisualizer` mapping logic (`CHORD_TYPE_MAP`) missed this case, causing the "Chord Variations" section to render empty for the default state. This complicated performance verification.
 **Action:** When optimizing data-driven components, verify the "zero state" or default data mapping explicitly, as missing keys can be masked by unoptimized re-renders or silent failures.
+
+## 2025-02-19 - ChordVisualizer Derived State
+**Learning:** `ChordVisualizer` was using `useEffect` to sync `rootNote`/`selectedScale` props to local `chords` state, causing a double-render cascade (Render 1 -> Effect -> Set State -> Render 2).
+**Action:** Replaced `chords` state with `useMemo` derived state. To maintain the behavior of "reset selection on scale change", implemented a "state reset during render" pattern using `prevProps` tracking. This eliminates the intermediate DOM commit and Effect execution.
