@@ -167,6 +167,7 @@ const PianoKeyboard = ({
           onClick={onToggleScale}
           className={`toggle-button ${showScaleVisualization ? 'active' : ''}`}
           title="Toggle scale note visualization"
+          aria-pressed={showScaleVisualization}
         >
           {showScaleVisualization ? '✓' : ''} Show Scale Notes
         </button>
@@ -174,6 +175,7 @@ const PianoKeyboard = ({
           onClick={onToggleChord}
           className={`toggle-button ${showChordVisualization ? 'active' : ''}`}
           title="Toggle chord note highlighting"
+          aria-pressed={showChordVisualization}
         >
           {showChordVisualization ? '✓' : ''} Show Chord Highlighting
         </button>

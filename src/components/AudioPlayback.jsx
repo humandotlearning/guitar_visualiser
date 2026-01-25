@@ -221,7 +221,7 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
         <div className="settings-panel settings-panel-audio" ref={settingsRef}>
           <div className="settings-header">
             <div className="settings-title">Audio Settings</div>
-            <button className="settings-close" onClick={closeSettings}>
+            <button className="settings-close" onClick={closeSettings} aria-label="Close settings">
               ×
             </button>
           </div>
