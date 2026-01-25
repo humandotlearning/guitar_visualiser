@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { getChordNotes, CHORD_TYPES, SCALE_LIBRARY, getScaleNotes } from '../utils/musicTheory';
 import PropTypes from 'prop-types';
 import ClientOnly from '../utils/clientOnly';
@@ -6,7 +6,7 @@ import * as SoundfontAudio from '../utils/soundfontAudioUtils';
 import './ChordVisualizer.css';
 
 // Dynamically import the Chord component to avoid SSR issues
-const ChordComponent = ({ variation, instrument, onPlayChord }) => {
+const ChordComponent = React.memo(({ variation, instrument, onPlayChord }) => {
   const [Chord, setChord] = useState(null);
 
   useEffect(() => {
@@ -27,7 +27,9 @@ const ChordComponent = ({ variation, instrument, onPlayChord }) => {
       <Chord chord={variation} instrument={instrument} lite={false} />
     </div>
   );
-};
+});
+
+ChordComponent.displayName = 'ChordComponent';
 
 ChordComponent.propTypes = {
   variation: PropTypes.object.isRequired,
@@ -36,6 +38,7 @@ ChordComponent.propTypes = {
 };
 
 const CHORD_TYPE_MAP = {
+  '': 'major',
   major: 'major',
   minor: 'minor',
   m: 'minor',
@@ -202,7 +205,7 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
   };
 
   // Play a chord based on variation
-  const playChordVariation = async (variation) => {
+  const playChordVariation = useCallback(async (variation) => {
     if (!audioInitialized || isPlaying || !instrumentConfig) return;
 
     setIsPlaying(true);
@@ -252,7 +255,7 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
       console.error('Error playing chord:', error);
       setIsPlaying(false);
     }
-  };
+  }, [audioInitialized, isPlaying, instrumentConfig]);
 
   // Play the selected chord (all notes)
   const playSelectedChord = async () => {
@@ -319,11 +322,16 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
   const { category, name } = selectedScale;
   const scaleChords = SCALE_LIBRARY[category][name];
   const chordTypes = CHORD_TYPES[category];
-  const scaleNotes = getScaleNotes(rootNote, scaleChords);
+
+  // Memoize scale notes calculation to avoid recalculating on every render
+  const scaleNotes = useMemo(() => {
+    return getScaleNotes(rootNote, scaleChords);
+  }, [rootNote, scaleChords]);
 
   // Prepare instrument object for react-chords
   // tuning is High to Low, react-chords expects Low to High
-  const instrument = {
+  // Memoized to prevent re-renders of ChordComponent
+  const instrument = useMemo(() => ({
     strings: instrumentConfig ? instrumentConfig.strings : 6,
     fretsOnChord: 4,
     name: instrumentConfig ? instrumentConfig.label : 'Guitar',
@@ -331,7 +339,7 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
     tunings: {
       standard: instrumentConfig && instrumentConfig.tuning ? [...instrumentConfig.tuning].reverse() : ['E', 'A', 'D', 'G', 'B', 'E']
     }
-  };
+  }), [instrumentConfig]);
 
   return (
     <ClientOnly fallback={<div className="chord-visualizer p-4">Loading chord visualizer...</div>}>
