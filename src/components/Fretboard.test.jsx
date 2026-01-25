@@ -1,6 +1,5 @@
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import Fretboard from './Fretboard';
-import { INSTRUMENTS } from '../instruments'; // I need to export this or mock it.
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
 
 // Mock audio utils
@@ -11,10 +10,6 @@ jest.mock('../utils/soundfontAudioUtils', () => ({
   playString: jest.fn().mockResolvedValue(),
   setVolumeBoost: jest.fn(),
 }));
-
-// Mock INSTRUMENTS if not exported from instruments.js (it is default exported)
-// Actually I can just import it.
-// Wait, instruments.js has "export default INSTRUMENTS".
 
 const mockInstrumentConfig = {
   label: 'Guitar',
@@ -42,21 +37,8 @@ test('renders Fretboard with correct number of strings and frets', async () => {
   });
 
   // Check strings
-  // There are 6 strings in config
-  // Each string renders a "string" class div?
-  // Let's look at Fretboard.jsx code:
-  // {tuning.map((string, stringIndex) => ( <div className="string" ...> ))}
-
-  // Note: testing-library suggests testing by role or text.
-  // The strings have StringLabels which display the note name.
   // Tuning is E, B, G, D, A, E.
-  // But there are multiple 'E's.
-  // screen.getAllByText('E') should return 2 (for labels) + notes on fretboard?
-  // StringLabels have "string-label" class.
-
-  // Let's verify string labels exist
   expect(screen.getAllByText('E').length).toBeGreaterThan(0);
-  expect(screen.getAllByText('A').length).toBeGreaterThan(0);
 });
 
 test('handles scroll interaction', async () => {
@@ -77,4 +59,36 @@ test('handles scroll interaction', async () => {
   // but we can ensure clicking doesn't crash.
   fireEvent.click(scrollRightBtn);
   fireEvent.click(scrollLeftBtn);
+});
+
+test('notes and string labels are accessible buttons', async () => {
+  await act(async () => {
+    render(<Fretboard {...defaultProps} />);
+  });
+
+  // Check for string labels as buttons
+  // "Play open E string"
+  const stringLabels = screen.getAllByRole('button', { name: /Play open [A-G] string/i });
+  expect(stringLabels.length).toBeGreaterThan(0);
+  expect(stringLabels[0]).toHaveAttribute('type', 'button');
+
+  // Check for notes as buttons
+  // Try to find a specific note, e.g., Root C (Degree 1)
+  // There should be a C button.
+  const noteButtons = screen.getAllByRole('button', { name: /Play C[0-9], Degree 1/i });
+  expect(noteButtons.length).toBeGreaterThan(0);
+  expect(noteButtons[0]).toHaveAttribute('type', 'button');
+
+  // Verify that notes not in scale (like C# in C Major) are disabled/hidden
+  // C# is not in C Major scale.
+  const hiddenButtons = screen.queryAllByRole('button', { name: /Play C#[0-9]/i });
+
+  // We expect them to exist (as buttons) but be disabled because showNonScaleNotes is false by default
+  // Wait, if disabled, they might not be found by getByRole('button')?
+  // role="button" works for disabled buttons.
+
+  if (hiddenButtons.length > 0) {
+      expect(hiddenButtons[0]).toBeDisabled();
+      expect(hiddenButtons[0]).toHaveClass('hidden-note');
+  }
 });

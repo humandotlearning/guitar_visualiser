@@ -77,6 +77,7 @@ const FretboardNote = React.memo(({
   const noteWithOctave = `${note}${octave}`;
 
   const noteType = getNoteType();
+  const isHidden = !isInScale && !showNonScaleNotes;
 
   return (
     <div
@@ -84,13 +85,16 @@ const FretboardNote = React.memo(({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div
-        className={`note-marker ${noteType} ${isPlaying ? 'playing' : ''} ${!isInScale && !showNonScaleNotes ? 'hidden-note' : ''}`}
+      <button
+        type="button"
+        className={`note-marker ${noteType} ${isPlaying ? 'playing' : ''} ${isHidden ? 'hidden-note' : ''}`}
         onClick={handleClick}
         title={`${noteWithOctave}${scaleDegree ? ` (${scaleDegree})` : ''}`}
+        aria-label={`Play ${noteWithOctave}${scaleDegree ? `, Degree ${scaleDegree}` : ''}`}
+        disabled={isHidden}
       >
         {isInScale ? (showScaleDegrees ? scaleDegree : note) : note}
-      </div>
+      </button>
       {isHovered && (
         <div className="note-tooltip">
           {noteWithOctave} {scaleDegree && `(${scaleDegree})`}
@@ -121,13 +125,15 @@ FretboardNote.propTypes = {
 
 // Memoized StringLabel
 const StringLabel = React.memo(({ note, index, onClick }) => (
-  <div
+  <button
+    type="button"
     className="string-label"
     onClick={() => onClick(note, index)}
     title={`${note} String`}
+    aria-label={`Play open ${note} string`}
   >
     {note}
-  </div>
+  </button>
 ));
 
 StringLabel.displayName = 'StringLabel';
