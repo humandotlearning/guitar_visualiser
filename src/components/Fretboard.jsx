@@ -6,6 +6,18 @@ import './PrintStyles.css'; // Import print styles
 import PropTypes from 'prop-types';
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
 
+const ChevronLeft = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="15 18 9 12 15 6"></polyline>
+  </svg>
+);
+
+const ChevronRight = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="9 18 15 12 9 6"></polyline>
+  </svg>
+);
+
 // Optimized FretboardNote component using React.memo
 const FretboardNote = React.memo(({
   note,
@@ -307,21 +319,24 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
 
           <button
             onClick={() => setShowLegend(!showLegend)}
-            className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+            className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+            aria-pressed={showLegend}
           >
             {showLegend ? 'Hide Legend' : 'Show Legend'}
           </button>
 
           <button
             onClick={() => setShowHints(!showHints)}
-            className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+            className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+            aria-pressed={showHints}
           >
             {showHints ? 'Hide Hints' : 'Show Hints'}
           </button>
 
           <button
             onClick={() => setShowNonScaleNotes(!showNonScaleNotes)}
-            className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+            className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+            aria-pressed={showNonScaleNotes}
           >
             {showNonScaleNotes ? 'Hide Non-Scale Notes' : 'Show Non-Scale Notes'}
           </button>
@@ -330,17 +345,19 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
         <div className="scroll-buttons flex space-x-2">
           <button
             onClick={() => scrollFretboard('left')}
-            className="px-3 py-1 text-sm bg-gray-200 hover:bg-gray-300 rounded-md"
+            className="p-1 text-sm bg-gray-200 hover:bg-gray-300 rounded-md flex items-center justify-center transition-colors"
             aria-label="Scroll left"
+            title="Scroll Left"
           >
-            &lt;
+            <ChevronLeft />
           </button>
           <button
             onClick={() => scrollFretboard('right')}
-            className="px-3 py-1 text-sm bg-gray-200 hover:bg-gray-300 rounded-md"
+            className="p-1 text-sm bg-gray-200 hover:bg-gray-300 rounded-md flex items-center justify-center transition-colors"
             aria-label="Scroll right"
+            title="Scroll Right"
           >
-            &gt;
+            <ChevronRight />
           </button>
         </div>
       </div>
