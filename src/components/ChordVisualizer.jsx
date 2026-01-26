@@ -69,17 +69,63 @@ const getRomanNumeral = (num) => {
 };
 
 const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentConfig }) => {
-  const [chords, setChords] = useState({});
-  const [selectedChord, setSelectedChord] = useState(null);
-  const [selectedChordName, setSelectedChordName] = useState('');
-  const [chordVariations, setChordVariations] = useState([]);
+  // Derived state: calculate chords directly in render
+  const chords = useMemo(() => {
+    if (rootNote && selectedScale) {
+      return getChordNotes(rootNote, selectedScale);
+    }
+    return {};
+  }, [rootNote, selectedScale]);
+
+  // Track user selection. If null, we default to root chord.
+  const [internalSelectedChordName, setInternalSelectedChordName] = useState(null);
+
+  // State to track props for reset on change (mimics original behavior)
+  const [prevProps, setPrevProps] = useState({ rootNote, selectedScale });
+
+  // Reset selection if scale/root changes
+  if (prevProps.rootNote !== rootNote || prevProps.selectedScale !== selectedScale) {
+    setPrevProps({ rootNote, selectedScale });
+    setInternalSelectedChordName(null);
+  }
+
+  // Track chord data loaded from JSON
   const [chordData, setChordData] = useState(null);
+  const [chordVariations, setChordVariations] = useState([]);
+
   const [audioInitialized, setAudioInitialized] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [lastTapTime, setLastTapTime] = useState(0);
   const [lastTapChord, setLastTapChord] = useState(null);
   const [playingAllChords, setPlayingAllChords] = useState(false);
   const [currentChordIndex, setCurrentChordIndex] = useState(null);
+
+  // Derive selected chord name and object
+  // Logic:
+  // 1. If we have a user selection AND it exists in the current chords (e.g. scale didn't remove it), use it.
+  // 2. Otherwise, default to the first chord (root) of the current scale.
+  // 3. If chords is empty (no scale), selected is null.
+  const rootChordName = Object.keys(chords)[0];
+
+  // Effective name is the one we display
+  let selectedChordName = rootChordName;
+  if (internalSelectedChordName && chords[internalSelectedChordName]) {
+    selectedChordName = internalSelectedChordName;
+  }
+
+  // Special case: if user explicitly deselected (e.g. set to ''), we might want to support that.
+  // But current logic is "Deselect" -> setInternal to 'EMPTY' maybe?
+  // The original code set selectedChord to [].
+  // Let's support 'EMPTY' state if needed, but for now we default to root unless explicit deselect logic is added.
+  // Wait, original 'Deselect' logic: onChordSelect([]), setSelectedChord([]).
+  // If we want to support 'No Selection', we need to check if internalSelectedChordName is 'NONE'.
+
+  // Let's implement 'NONE' support
+  if (internalSelectedChordName === 'NONE') {
+    selectedChordName = null;
+  }
+
+  const selectedChord = selectedChordName ? chords[selectedChordName] : null;
 
   // Initialize audio when component mounts
   useEffect(() => {
@@ -103,9 +149,6 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
           if (instrumentConfig.chordDataKey === 'ukulele') {
             data = await import('../db/ukulele.json');
           } else if (instrumentConfig.chordDataKey === 'piano') {
-            // For now, we might not have a piano JSON, or we can use a generic one.
-            // If no JSON exists, we might need to generate chords algorithmically or just skip loading.
-            // Let's assume we don't have a piano.json yet and handle it gracefully.
             data = { default: { chords: {} } };
           } else {
             data = await import('../db/guitar.json');
@@ -119,16 +162,12 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
     }
   }, [instrumentConfig]);
 
+  // Sync selected chord with parent
   useEffect(() => {
-    if (rootNote && selectedScale) {
-      const chordNotes = getChordNotes(rootNote, selectedScale);
-      setChords(chordNotes);
-      // Select the root chord by default
-      const rootChord = Object.keys(chordNotes)[0];
-      setSelectedChord(chordNotes[rootChord]);
-      setSelectedChordName(rootChord);
-    }
-  }, [rootNote, selectedScale]);
+    // Only call onChordSelect if selectedChord is defined (or explicitly null/empty)
+    // The parent expects array or empty array
+    onChordSelect(selectedChord || []);
+  }, [selectedChord, onChordSelect]);
 
   // Handle instrument changes
   useEffect(() => {
@@ -144,55 +183,44 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
     }
   }, [instrumentConfig, audioInitialized]);
 
+  // Calculate variations
   useEffect(() => {
-    if (selectedChord && chordData && selectedScale) {
-      const chordName = Object.keys(chords).find(key => JSON.stringify(chords[key]) === JSON.stringify(selectedChord));
-      setSelectedChordName(chordName || '');
+    if (selectedChordName && chordData && selectedScale && selectedChord) {
+      const chordName = selectedChordName;
 
-      if (chordName) {
-        const chordTypeIndex = Object.keys(chords).indexOf(chordName);
-        const chordType = CHORD_TYPES[selectedScale.category][chordTypeIndex] || 'major';
-        const chordSuffix = CHORD_TYPE_MAP[chordType] || chordType; // Use the mapping
+      const chordTypeIndex = Object.keys(chords).indexOf(chordName);
+      const chordType = CHORD_TYPES[selectedScale.category][chordTypeIndex] || 'major';
+      const chordSuffix = CHORD_TYPE_MAP[chordType] || chordType;
 
-        // Map chord name to JSON key
-        const jsonKey = mapChordNameToJsonKey(chordName);
-        const chordInfo = chordData.chords[jsonKey]?.find(chord => chord.suffix === chordSuffix);
-        if (!chordInfo) {
-          console.warn(`No chord data found for ${chordName} with type ${chordSuffix}`);
-        }
+      // Map chord name to JSON key
+      const jsonKey = mapChordNameToJsonKey(chordName);
+      const chordInfo = chordData.chords[jsonKey]?.find(chord => chord.suffix === chordSuffix);
 
-        const variations = chordInfo ? chordInfo.positions : [];
-        setChordVariations(variations);
-      } else {
-        // No chord selected, clear variations
-        setChordVariations([]);
-      }
+      const variations = chordInfo ? chordInfo.positions : [];
+      setChordVariations(variations);
     } else {
-      // Clear variations if no chord is selected
       setChordVariations([]);
     }
-  }, [selectedChord, chords, selectedScale, chordData]);
+  }, [selectedChordName, selectedChord, chords, selectedScale, chordData]);
 
   // Handle double tap to select and play chord
-  const handleChordTap = (chordRoot, chordNotes) => {
+  const handleChordTap = (chordRoot) => {
     const now = Date.now();
     const doubleTapThreshold = 300; // ms
 
     // Check if clicking the same chord that's already selected
-    const isSameChord = JSON.stringify(selectedChord) === JSON.stringify(chordNotes);
+    const isSameChord = selectedChordName === chordRoot;
 
     if (isSameChord) {
       // Deselect the chord
-      onChordSelect([]);
-      setSelectedChord([]);
+      setInternalSelectedChordName('NONE');
       setLastTapTime(0);
       setLastTapChord(null);
       return;
     }
 
     // Update the selected chord
-    onChordSelect(chordNotes);
-    setSelectedChord(chordNotes);
+    setInternalSelectedChordName(chordRoot);
 
     // Check if it's a double tap on the same chord
     if (now - lastTapTime < doubleTapThreshold && lastTapChord === chordRoot) {
@@ -210,24 +238,15 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
 
     setIsPlaying(true);
     try {
-      // Extract the notes from the chord variation
       const notes = [];
       const { tuning, octaves } = instrumentConfig;
-      // tuning is High to Low (e.g. E, B, G, D, A, E)
-      // variation.frets is usually Low to High (e.g. E, A, D, G, B, E)
-      // So we need to map correctly.
 
-      // Process each string in the chord
       if (instrumentConfig.type === 'keyboard') {
-        // For piano, we need to handle chord playback differently if we had chord data.
-        // But since we don't have piano chord data yet, this part might not be reached for variations.
-        // If we want to play the 'selectedChord' (which is just notes), we use playSelectedChord.
         return;
       }
 
       variation.frets.forEach((fret, stringIndex) => {
-        if (fret !== -1) { // -1 means string is not played
-          // stringIndex 0 in variation.frets corresponds to the LAST element in our tuning array (Low string)
+        if (fret !== -1) {
           const tuningIndex = tuning.length - 1 - stringIndex;
           const stringNote = tuning[tuningIndex];
           const baseOctave = octaves ? octaves[tuningIndex] : 3;
@@ -236,7 +255,6 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
           const noteIndex = (NOTES.indexOf(stringNote) + fret) % 12;
           const note = NOTES[noteIndex];
 
-          // Calculate octave shift
           const octaveShift = Math.floor((NOTES.indexOf(stringNote) + fret) / 12);
           const octave = baseOctave + octaveShift;
 
@@ -244,12 +262,10 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
         }
       });
 
-      // Play each note in the chord
       await Promise.all(notes.map(({ note, octave }) =>
         SoundfontAudio.playNote(note, null, octave)
       ));
 
-      // Add a slight delay before allowing another chord to be played
       setTimeout(() => setIsPlaying(false), 1500);
     } catch (error) {
       console.error('Error playing chord:', error);
@@ -275,24 +291,18 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
   const playAllChords = async () => {
     if (!audioInitialized || playingAllChords || Object.keys(chords).length === 0) return;
 
-    // Store the currently selected chord before playing all chords
-    const previouslySelectedChord = selectedChord;
     const previouslySelectedChordName = selectedChordName;
 
     setPlayingAllChords(true);
     try {
-      // Play chords sequentially with a delay between them
       const chordKeys = Object.keys(chords);
       for (let i = 0; i < chordKeys.length; i++) {
         const chordKey = chordKeys[i];
         setCurrentChordIndex(i);
-        onChordSelect(chords[chordKey]);
-        setSelectedChord(chords[chordKey]);
+        setInternalSelectedChordName(chordKey); // Update selection via state
 
-        // Play the chord
         await SoundfontAudio.playChord(chords[chordKey]);
 
-        // Wait before playing the next chord
         if (i < chordKeys.length - 1) {
           await new Promise(resolve => setTimeout(resolve, 1000));
         }
@@ -300,16 +310,14 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
     } catch (err) {
       console.error('Error playing chords:', err);
     } finally {
-      // Reset after playing is complete and restore the previously selected chord
       setTimeout(() => {
         setPlayingAllChords(false);
         setCurrentChordIndex(null);
 
-        // Restore the previously selected chord
-        if (previouslySelectedChord) {
-          setSelectedChord(previouslySelectedChord);
-          setSelectedChordName(previouslySelectedChordName);
-          onChordSelect(previouslySelectedChord);
+        if (previouslySelectedChordName) {
+          setInternalSelectedChordName(previouslySelectedChordName);
+        } else if (previouslySelectedChordName === null && previouslySelectedChordName === 'NONE') {
+            setInternalSelectedChordName('NONE');
         }
       }, 500);
     }
@@ -323,14 +331,19 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
   const scaleChords = SCALE_LIBRARY[category][name];
   const chordTypes = CHORD_TYPES[category];
 
-  // Memoize scale notes calculation to avoid recalculating on every render
+  // Memoize scale notes calculation
+  // We can actually assume scaleNotes is just keys of chords?
+  // chords keys are roots. But order matters.
+  // getScaleNotes returns array of notes.
+  // getChordNotes returns object { Note: [...] }
+  // Object keys might not be in order?
+  // getChordNotes implementation iterates scale and adds keys.
+  // JS Object keys are ordered if string keys.
+  // But safer to rely on scaleNotes array for ordering.
   const scaleNotes = useMemo(() => {
     return getScaleNotes(rootNote, scaleChords);
   }, [rootNote, scaleChords]);
 
-  // Prepare instrument object for react-chords
-  // tuning is High to Low, react-chords expects Low to High
-  // Memoized to prevent re-renders of ChordComponent
   const instrument = useMemo(() => ({
     strings: instrumentConfig ? instrumentConfig.strings : 6,
     fretsOnChord: 4,
@@ -371,12 +384,12 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
             <tbody>
               <tr>
                 {Object.keys(chords).map((chordRoot, index) => {
-                  const isSelected = selectedChord === chords[chordRoot];
+                  const isSelected = selectedChordName === chordRoot;
                   const isPlaying = currentChordIndex === index && playingAllChords;
                   return (
                     <td key={index}>
                       <button
-                        onClick={() => handleChordTap(chordRoot, chords[chordRoot])}
+                        onClick={() => handleChordTap(chordRoot)}
                         className={`chord-button ${isSelected ? 'selected-chord' : ''} ${isPlaying ? 'playing-chord' : ''}`}
                         title="Double-tap to play"
                       >
@@ -437,4 +450,4 @@ ChordVisualizer.propTypes = {
   instrumentConfig: PropTypes.object
 };
 
-export default ChordVisualizer;
+export default React.memo(ChordVisualizer);
