@@ -1,6 +1,6 @@
 // File: components/ScaleNotes.jsx
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { getScaleNotes, getScalePattern, SCALE_LIBRARY } from '../utils/musicTheory';
 import PropTypes from 'prop-types';
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
@@ -31,8 +31,16 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
 
   if (!rootNote || !selectedScale) return null;
 
-  const scaleNotes = getScaleNotes(rootNote, SCALE_LIBRARY[selectedScale.category][selectedScale.name]);
-  const scalePattern = getScalePattern(SCALE_LIBRARY[selectedScale.category][selectedScale.name]);
+  // Memoize expensive calculations to prevent re-computation during playback animation
+  const scaleNotes = useMemo(() =>
+    getScaleNotes(rootNote, SCALE_LIBRARY[selectedScale.category][selectedScale.name]),
+    [rootNote, selectedScale]
+  );
+
+  const scalePattern = useMemo(() =>
+    getScalePattern(SCALE_LIBRARY[selectedScale.category][selectedScale.name]),
+    [selectedScale]
+  );
 
   // Helper function to get color based on scale degree
   const getScaleDegreeColor = (index) => {
