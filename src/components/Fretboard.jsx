@@ -180,7 +180,7 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
       return [...Array(fretCount + 1)].map((_, fret) => {
         const noteIndex = (NOTES.indexOf(string) + fret) % 12;
         const note = NOTES[noteIndex];
-        const isRoot = note === rootNote;
+        // isRoot calculation moved to render loop to avoid recalculating grid on root change
 
         // Dynamic fret marker logic
         const isMarkerFret = fretMarkers && fretMarkers.includes(fret);
@@ -209,14 +209,13 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
         return {
           note,
           fret,
-          isRoot,
           isFretMarkerRender,
           isDoubleDotRender,
           string
         };
       });
     });
-  }, [tuning, fretCount, fretMarkers, doubleFretMarkers, rootNote]);
+  }, [tuning, fretCount, fretMarkers, doubleFretMarkers]);
 
   // Memoize scale notes calculation to avoid recalculating on every render
   // This is now calculated once per scale change, not 150 times per render
@@ -380,7 +379,8 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
             {fretboardGrid.map((stringFrets, stringIndex) => (
               <div key={stringIndex} className="string print-string">
                 {stringFrets.map((fretData) => {
-                  const { note, fret, isRoot, isFretMarkerRender, isDoubleDotRender, string } = fretData;
+                  const { note, fret, isFretMarkerRender, isDoubleDotRender, string } = fretData;
+                  const isRoot = note === rootNote;
                   return (
                     <div
                       className={`fret ${fret === 0 ? 'first-fret' : ''}`}
