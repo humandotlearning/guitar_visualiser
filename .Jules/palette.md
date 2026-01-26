@@ -9,3 +9,7 @@
 ## 2026-01-25 - Global Button Styles vs Custom Interactive Elements
 **Learning:** This project has global button styles in `App.css` that enforce background colors and padding. When converting custom interactive elements (like fretboard notes) from `div` to `button` for accessibility, these global styles bleed in.
 **Action:** Always verify custom buttons against global styles. Add specific CSS resets (background: transparent, border: none, padding: 0) to your component's CSS when converting to semantic buttons to avoid visual regressions.
+
+## 2026-01-26 - Async Audio Feedback
+**Learning:** Audio playback operations (loading soundfonts, scheduling notes) can have invisible latency. Users need immediate visual feedback (like a spinner or "Playing..." text) to confirm their action was registered, especially when the audio context is initializing.
+**Action:** Always add a visual "playing" or "loading" state to buttons that trigger audio generation, toggled immediately on click.
