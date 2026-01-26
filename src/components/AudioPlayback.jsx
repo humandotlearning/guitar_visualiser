@@ -4,6 +4,13 @@ import * as SoundfontAudio from '../utils/soundfontAudioUtils';
 import { getScaleNotes, SCALE_LIBRARY } from '../utils/musicTheory';
 import './SoundSettings.css';
 
+const Spinner = () => (
+  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+  </svg>
+);
+
 const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrument, onInstrumentChange }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioInitialized, setAudioInitialized] = useState(false);
@@ -300,21 +307,21 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
           disabled={isPlaying || scaleNotes.length === 0}
           className={`p-2 ${isPlaying && activeElement === 'scale' ? 'bg-green-500' : 'bg-blue-500'} text-white rounded disabled:opacity-50`}
         >
-          {isPlaying && activeElement === 'scale' ? 'Playing...' : `${rootNote} ${selectedScale?.name || ''} Scale`}
+          {isPlaying && activeElement === 'scale' ? <><Spinner /> Playing...</> : `${rootNote} ${selectedScale?.name || ''} Scale`}
         </button>
         <button
           onClick={playChord}
           disabled={isPlaying || !selectedChord || selectedChord.length === 0}
           className={`p-2 ${isPlaying && activeElement === 'chord' ? 'bg-green-500' : 'bg-blue-500'} text-white rounded disabled:opacity-50`}
         >
-          {isPlaying && activeElement === 'chord' ? 'Playing...' : `${getChordRootName()} Chord`}
+          {isPlaying && activeElement === 'chord' ? <><Spinner /> Playing...</> : `${getChordRootName()} Chord`}
         </button>
         <button
           onClick={playArpeggio}
           disabled={isPlaying || !selectedChord || selectedChord.length === 0}
           className={`p-2 ${isPlaying && activeElement === 'arpeggio' ? 'bg-green-500' : 'bg-blue-500'} text-white rounded disabled:opacity-50`}
         >
-          {isPlaying && activeElement === 'arpeggio' ? 'Playing...' : `${getChordRootName()} Arpeggio`}
+          {isPlaying && activeElement === 'arpeggio' ? <><Spinner /> Playing...</> : `${getChordRootName()} Arpeggio`}
         </button>
       </div>
       {!audioInitialized && (
