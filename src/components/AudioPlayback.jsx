@@ -13,6 +13,7 @@ const Spinner = () => (
 
 const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrument, onInstrumentChange }) => {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isTestingSound, setIsTestingSound] = useState(false);
   const [audioInitialized, setAudioInitialized] = useState(false);
   const [activeElement, setActiveElement] = useState(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -22,6 +23,13 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
 
   // Reference to detect clicks outside the settings panel
   const settingsRef = useRef(null);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   // Available guitar instruments
   const instruments = {
@@ -181,11 +189,23 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
 
   // Play a test note with the current instrument
   const playTestNote = async () => {
+    if (isTestingSound || !audioInitialized) return;
+
+    setIsTestingSound(true);
     try {
       // Play a simple E chord to test the instrument
       await SoundfontAudio.playChord(['E', 'G#', 'B'], sustain);
+      // Show playing state for 1.5s
+      setTimeout(() => {
+        if (mountedRef.current) {
+          setIsTestingSound(false);
+        }
+      }, 1500);
     } catch (error) {
       console.error('Error playing test note:', error);
+      if (mountedRef.current) {
+        setIsTestingSound(false);
+      }
     }
   };
 
@@ -255,10 +275,18 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
                 ))}
               </select>
               <button
-                className="test-sound-button"
+                className={`test-sound-button ${isTestingSound ? 'opacity-90 cursor-wait' : ''}`}
                 onClick={playTestNote}
+                disabled={isTestingSound || !audioInitialized}
+                aria-label={isTestingSound ? "Playing test sound" : "Test instrument sound"}
               >
-                Test Sound
+                {isTestingSound ? (
+                  <span className="flex items-center justify-center">
+                    <Spinner /> Playing...
+                  </span>
+                ) : (
+                  'Test Sound'
+                )}
               </button>
             </div>
           </div>
