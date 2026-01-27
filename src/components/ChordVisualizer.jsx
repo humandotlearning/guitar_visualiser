@@ -91,7 +91,6 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
 
   // Track chord data loaded from JSON
   const [chordData, setChordData] = useState(null);
-  const [chordVariations, setChordVariations] = useState([]);
 
   const [audioInitialized, setAudioInitialized] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -183,8 +182,8 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
     }
   }, [instrumentConfig, audioInitialized]);
 
-  // Calculate variations
-  useEffect(() => {
+  // Derived state: calculate variations directly in render
+  const chordVariations = useMemo(() => {
     if (selectedChordName && chordData && selectedScale && selectedChord) {
       const chordName = selectedChordName;
 
@@ -196,11 +195,9 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
       const jsonKey = mapChordNameToJsonKey(chordName);
       const chordInfo = chordData.chords[jsonKey]?.find(chord => chord.suffix === chordSuffix);
 
-      const variations = chordInfo ? chordInfo.positions : [];
-      setChordVariations(variations);
-    } else {
-      setChordVariations([]);
+      return chordInfo ? chordInfo.positions : [];
     }
+    return [];
   }, [selectedChordName, selectedChord, chords, selectedScale, chordData]);
 
   // Handle double tap to select and play chord

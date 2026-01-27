@@ -17,3 +17,7 @@
 ## 2025-02-19 - ChordVisualizer Derived State
 **Learning:** `ChordVisualizer` was using `useEffect` to sync `rootNote`/`selectedScale` props to local `chords` state, causing a double-render cascade (Render 1 -> Effect -> Set State -> Render 2).
 **Action:** Replaced `chords` state with `useMemo` derived state. To maintain the behavior of "reset selection on scale change", implemented a "state reset during render" pattern using `prevProps` tracking. This eliminates the intermediate DOM commit and Effect execution.
+
+## 2025-02-24 - ChordVisualizer Variations Derived State
+**Learning:** `ChordVisualizer` was using `useEffect` to calculate `chordVariations` when `selectedChordName` changed, triggering a second render. Even when data is loaded asynchronously (`chordData`), derivations based on that data should be computed using `useMemo` once the data is available, rather than syncing to another state variable via `useEffect`.
+**Action:** Replace `useState` + `useEffect` with `useMemo` for derived state, even if the source data (e.g., `chordData`) was originally loaded asynchronously.
