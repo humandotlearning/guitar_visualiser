@@ -315,3 +315,46 @@
 .settings-close:hover {
   color: #1f2937;
 }
+
+/* Loading State Styles */
+.test-sound-button:disabled {
+  background-color: #93c5fd;
+  cursor: not-allowed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.spinner {
+  animation: sound-settings-rotate 2s linear infinite;
+  width: 14px;
+  height: 14px;
+}
+
+.spinner .path {
+  stroke: #ffffff;
+  stroke-linecap: round;
+  animation: sound-settings-dash 1.5s ease-in-out infinite;
+}
+
+@keyframes sound-settings-rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes sound-settings-dash {
+  0% {
+    stroke-dasharray: 1, 150;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -35;
+  }
+  100% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -124;
+  }
+}

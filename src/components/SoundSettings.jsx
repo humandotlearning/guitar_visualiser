@@ -8,6 +8,7 @@ const SoundSettings = ({ onInstrumentChange }) => {
   const [volume, setVolume] = useState(0.8);
   const [sustain, setSustain] = useState(1.5);
   const [isOpen, setIsOpen] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
   
   // Reference to detect clicks outside the settings panel
   const settingsRef = useRef(null);
@@ -64,11 +65,17 @@ const SoundSettings = ({ onInstrumentChange }) => {
 
   // Play a test note with the current instrument
   const playTestNote = async () => {
+    setIsPlaying(true);
     try {
       // Play a simple E chord to test the instrument
       await SoundfontAudio.playChord(['E', 'G#', 'B'], sustain);
+      // Wait for the sustain duration to give visual feedback
+      // This is a UX enhancement so the user sees the "Playing..." state
+      await new Promise(resolve => setTimeout(resolve, sustain * 1000));
     } catch (error) {
       console.error('Error playing test note:', error);
+    } finally {
+      setIsPlaying(false);
     }
   };
 
@@ -108,8 +115,17 @@ const SoundSettings = ({ onInstrumentChange }) => {
               <button 
                 className="test-sound-button"
                 onClick={playTestNote}
+                disabled={isPlaying}
+                aria-disabled={isPlaying}
               >
-                Test Sound
+                {isPlaying ? (
+                  <>
+                    <svg className="spinner" viewBox="0 0 50 50" aria-hidden="true">
+                      <circle className="path" cx="25" cy="25" r="20" fill="none" strokeWidth="5"></circle>
+                    </svg>
+                    Playing...
+                  </>
+                ) : 'Test Sound'}
               </button>
             </div>
           </div>
