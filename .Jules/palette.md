@@ -13,3 +13,7 @@
 ## 2026-01-26 - Async Audio Feedback
 **Learning:** Audio playback operations (loading soundfonts, scheduling notes) can have invisible latency. Users need immediate visual feedback (like a spinner or "Playing..." text) to confirm their action was registered, especially when the audio context is initializing.
 **Action:** Always add a visual "playing" or "loading" state to buttons that trigger audio generation, toggled immediately on click.
+
+## 2026-01-27 - Async Feedback Consistency
+**Learning:** Even "Test" actions need explicit loading states. Users might assume a "Test Sound" button is instant, but audio context initialization and soundfont loading are async. Without "Playing..." feedback, users may spam-click, causing audio artifacts or frustration.
+**Action:** Treat "Test" or "Preview" buttons as async operations requiring immediate visual feedback (spinner/text change) and disabled states, just like form submissions.
