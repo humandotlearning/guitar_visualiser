@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { NOTES, getScaleNotes, SCALE_LIBRARY, getScaleDegreeFromNotes } from '../utils/musicTheory';
+import { NOTES, getScaleNotes, SCALE_LIBRARY } from '../utils/musicTheory';
 import './Fretboard.css';
 import './FretboardSection.css';
 import './PrintStyles.css'; // Import print styles
@@ -44,10 +44,9 @@ const FretboardNote = React.memo(({
 
   // Only calculate degree if needed and note is in scale
   const scaleDegree = useMemo(() => {
-    return isInScale && selectedScale
-      ? getScaleDegreeFromNotes(note, scaleNotes)
-      : '';
-  }, [isInScale, selectedScale, note, scaleNotes]);
+    if (!isInScale || !selectedScale) return '';
+    return (degreeIndex + 1).toString();
+  }, [isInScale, selectedScale, degreeIndex]);
 
   // Determine note type for coloring
   const getNoteType = () => {
