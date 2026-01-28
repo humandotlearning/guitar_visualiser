@@ -17,3 +17,7 @@
 ## 2026-01-27 - Async Feedback Consistency
 **Learning:** Even "Test" actions need explicit loading states. Users might assume a "Test Sound" button is instant, but audio context initialization and soundfont loading are async. Without "Playing..." feedback, users may spam-click, causing audio artifacts or frustration.
 **Action:** Treat "Test" or "Preview" buttons as async operations requiring immediate visual feedback (spinner/text change) and disabled states, just like form submissions.
+
+## 2026-01-28 - Accessible Interactive Wrappers
+**Learning:** Wrapped interactive components (like chord diagrams) often use `div` with `onClick`, which fails accessibility checks. Wrapping them in a `<button>` with style resets (`appearance: none`, `bg: transparent`, etc.) and a proper `aria-label` provides instant keyboard accessibility without visual disruption.
+**Action:** When component libraries provide non-interactive visuals that you make interactive, wrap them in a semantic `<button>` instead of a `div`.

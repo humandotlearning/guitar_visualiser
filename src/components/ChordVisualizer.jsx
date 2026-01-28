@@ -6,7 +6,7 @@ import * as SoundfontAudio from '../utils/soundfontAudioUtils';
 import './ChordVisualizer.css';
 
 // Dynamically import the Chord component to avoid SSR issues
-const ChordComponent = React.memo(({ variation, instrument, onPlayChord }) => {
+const ChordComponent = React.memo(({ variation, instrument, onPlayChord, label }) => {
   const [Chord, setChord] = useState(null);
 
   useEffect(() => {
@@ -23,9 +23,16 @@ const ChordComponent = React.memo(({ variation, instrument, onPlayChord }) => {
 
   if (!Chord) return <div className="h-24 w-full bg-gray-100 animate-pulse rounded"></div>;
   return (
-    <div onClick={handleClick} style={{ cursor: 'pointer' }} title="Click to play chord">
+    <button
+      type="button"
+      onClick={handleClick}
+      style={{ cursor: 'pointer' }}
+      title="Click to play chord"
+      className="w-full bg-transparent border-0 p-0 text-left cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+      aria-label={label}
+    >
       <Chord chord={variation} instrument={instrument} lite={false} />
-    </div>
+    </button>
   );
 });
 
@@ -34,7 +41,8 @@ ChordComponent.displayName = 'ChordComponent';
 ChordComponent.propTypes = {
   variation: PropTypes.object.isRequired,
   instrument: PropTypes.object.isRequired,
-  onPlayChord: PropTypes.func.isRequired
+  onPlayChord: PropTypes.func.isRequired,
+  label: PropTypes.string
 };
 
 const CHORD_TYPE_MAP = {
@@ -426,6 +434,7 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
                       variation={variation}
                       instrument={instrument}
                       onPlayChord={playChordVariation}
+                      label={`Play variation ${index + 1}`}
                     />
                   )}
                 </div>
