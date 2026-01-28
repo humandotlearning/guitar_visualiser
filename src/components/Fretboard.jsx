@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { NOTES, getScaleNotes, SCALE_LIBRARY } from '../utils/musicTheory';
+import { Switch } from './ui/switch';
 import './Fretboard.css';
 import './FretboardSection.css';
 import './PrintStyles.css'; // Import print styles
@@ -305,15 +306,19 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
     <div className="fretboard-section print-section">
       <div className="fretboard-controls flex items-center justify-between mb-3">
         <div className="flex space-x-4">
-          <label className="flex items-center space-x-2">
-            <input
-              type="checkbox"
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="show-scale-degrees"
               checked={showScaleDegrees}
-              onChange={(e) => setShowScaleDegrees(e.target.checked)}
-              className="form-checkbox h-4 w-4"
+              onCheckedChange={setShowScaleDegrees}
             />
-            <span>Show Scale Degrees</span>
-          </label>
+            <label
+              htmlFor="show-scale-degrees"
+              className="text-sm font-medium cursor-pointer"
+            >
+              Show Scale Degrees
+            </label>
+          </div>
 
           <button
             onClick={() => setShowLegend(!showLegend)}
