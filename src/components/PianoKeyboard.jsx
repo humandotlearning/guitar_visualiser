@@ -1,6 +1,6 @@
 import React, { useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { getScaleNotes, SCALE_LIBRARY } from '../utils/musicTheory';
+import { getScaleNotes, SCALE_LIBRARY, NOTES } from '../utils/musicTheory';
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
 import './PianoKeyboardStyles.css';
 
@@ -121,22 +121,25 @@ const PianoKeyboard = ({
   // Memoize keys generation
   const keys = useMemo(() => {
     const generatedKeys = [];
-    const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-    const hasSelectedChord = selectedChord && selectedChord.length > 0;
+
+    // Performance optimization: Create Map/Set for O(1) lookups
+    const scaleNoteToIndex = new Map(scaleNotes.map((n, i) => [n, i]));
+    const chordNoteSet = new Set(selectedChord || []);
+    const hasSelectedChord = chordNoteSet.size > 0;
 
     for (let octave = startOctave; octave <= endOctave; octave++) {
-      notes.forEach((note) => {
+      NOTES.forEach((note) => {
         const isBlack = note.includes('#');
         const noteName = note;
         const fullNoteName = `${note}${octave}`;
 
-        // Check if note is in scale
-        const scaleIndex = scaleNotes.indexOf(note);
+        // Check if note is in scale (O(1) lookup)
+        const scaleIndex = scaleNoteToIndex.has(note) ? scaleNoteToIndex.get(note) : -1;
         const isInScale = scaleIndex !== -1;
         const isRoot = note === rootNote;
 
-        // Check if note is in the selected chord
-        const isInChord = hasSelectedChord && selectedChord.includes(note);
+        // Check if note is in the selected chord (O(1) lookup)
+        const isInChord = hasSelectedChord && chordNoteSet.has(note);
 
         generatedKeys.push({
           note: noteName,
@@ -148,7 +151,7 @@ const PianoKeyboard = ({
           isInChord,
           degree: isInScale ? scaleIndex + 1 : null,
           color: isInScale ? getScaleDegreeColor(scaleIndex) : null,
-          hasSelectedChord // Passing this down to avoid checking length in child
+          hasSelectedChord
         });
       });
     }

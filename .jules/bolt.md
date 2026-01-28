@@ -21,3 +21,7 @@
 ## 2025-02-21 - O(1) Scale Degree Lookup
 **Learning:** `FretboardNote` was performing an O(N) array search via `getScaleDegreeFromNotes` for every fret, despite having the index already computed. Hardcoded array solutions (like `['1', '2'...]`) are brittle and fail for scales > 7 notes.
 **Action:** Replace redundant searches with direct index arithmetic (e.g., `(index + 1).toString()`) when the index is already known, ensuring O(1) performance and generalized support for any list length.
+
+## 2025-02-21 - PianoKeyboard Render Loop Optimization
+**Learning:** Even small loops inside `useMemo` can be optimized by pre-calculating lookup structures (Map/Set) to avoid O(N) operations inside the loop. This reduces complexity from O(Keys * ScaleLength) to O(Keys).
+**Action:** Always check nested loops for repetitive lookups that can be hoisted out into efficient data structures like Sets or Maps.
