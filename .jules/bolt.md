@@ -17,3 +17,7 @@
 ## 2025-02-19 - ChordVisualizer Derived State
 **Learning:** `ChordVisualizer` was using `useEffect` to sync `rootNote`/`selectedScale` props to local `chords` state, causing a double-render cascade (Render 1 -> Effect -> Set State -> Render 2).
 **Action:** Replaced `chords` state with `useMemo` derived state. To maintain the behavior of "reset selection on scale change", implemented a "state reset during render" pattern using `prevProps` tracking. This eliminates the intermediate DOM commit and Effect execution.
+
+## 2025-02-21 - O(1) Scale Degree Lookup
+**Learning:** `FretboardNote` was performing an O(N) array search via `getScaleDegreeFromNotes` for every fret, despite having the index already computed. Hardcoded array solutions (like `['1', '2'...]`) are brittle and fail for scales > 7 notes.
+**Action:** Replace redundant searches with direct index arithmetic (e.g., `(index + 1).toString()`) when the index is already known, ensuring O(1) performance and generalized support for any list length.
