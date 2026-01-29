@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
 import { getScaleNotes, SCALE_LIBRARY } from '../utils/musicTheory';
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
@@ -33,6 +33,8 @@ const PianoKey = React.memo(({
   hasSelectedChord,
   onPlayNote
 }) => {
+  const [isPlaying, setIsPlaying] = useState(false);
+
   // Determine the style for this key
   const keyStyle = {};
 
@@ -57,11 +59,14 @@ const PianoKey = React.memo(({
     isBlack ? 'black-key' : 'white-key',
     showScaleVisualization && isInScale ? 'in-scale' : '',
     showChordVisualization && isInChord ? 'in-chord' : '',
-    isRoot ? 'is-root' : ''
+    isRoot ? 'is-root' : '',
+    isPlaying ? 'playing' : ''
   ].filter(Boolean).join(' ');
 
   const handleClick = useCallback(() => {
+    setIsPlaying(true);
     onPlayNote(note, octave);
+    setTimeout(() => setIsPlaying(false), 300);
   }, [note, octave, onPlayNote]);
 
   const title = `${note}${octave}${isInScale ? ` - Degree ${degree}` : ''}${isInChord ? ' (in chord)' : ''}`;
