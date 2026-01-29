@@ -21,3 +21,7 @@
 ## 2025-02-21 - O(1) Scale Degree Lookup
 **Learning:** `FretboardNote` was performing an O(N) array search via `getScaleDegreeFromNotes` for every fret, despite having the index already computed. Hardcoded array solutions (like `['1', '2'...]`) are brittle and fail for scales > 7 notes.
 **Action:** Replace redundant searches with direct index arithmetic (e.g., `(index + 1).toString()`) when the index is already known, ensuring O(1) performance and generalized support for any list length.
+
+## 2025-02-21 - Fretboard Render Loop Memoization
+**Learning:** The `Fretboard` component's render loop (mapping over 150+ frets/strings) was re-executing whenever any state changed (like toggling legends), even if the grid data was memoized. `React.memo` on child components is not enough if the parent re-creates the VDOM structure around them.
+**Action:** Extract expensive render loops (like grids or lists) into a dedicated, memoized sub-component (e.g., `FretboardGrid`) to prevent VDOM re-creation when parent state changes.

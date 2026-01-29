@@ -156,6 +156,85 @@ StringLabel.propTypes = {
   onClick: PropTypes.func.isRequired
 };
 
+// Memoized FretboardGrid component to avoid re-rendering the entire grid on legend/hint toggles
+const FretboardGrid = React.memo(({
+  fretboardGrid,
+  rootNote,
+  scaleNotes,
+  selectedScale,
+  showScaleDegrees,
+  showNonScaleNotes,
+  octaves,
+  onNoteTap,
+  fretCount
+}) => {
+  return (
+    <div className="fretboard print-fretboard">
+      {fretboardGrid.map((stringFrets, stringIndex) => (
+        <div key={stringIndex} className="string print-string">
+          {stringFrets.map((fretData) => {
+            const { note, fret, isFretMarkerRender, isDoubleDotRender, string } = fretData;
+            const isRoot = note === rootNote;
+            return (
+              <div
+                className={`fret ${fret === 0 ? 'first-fret' : ''}`}
+                key={`fret-${stringIndex}-${fret}`}
+              >
+                {isFretMarkerRender && (
+                  <div className="fret-marker"></div>
+                )}
+                {isDoubleDotRender && (
+                  <div className="fret-marker"></div>
+                )}
+
+                <FretboardNote
+                  key={fret}
+                  note={note}
+                  fret={fret}
+                  isRoot={isRoot}
+                  scaleNotes={scaleNotes} // Passed from memoized calculation
+                  selectedScale={selectedScale}
+                  showScaleDegrees={showScaleDegrees}
+                  stringNote={string}
+                  stringIndex={stringIndex}
+                  onNoteTap={onNoteTap}
+                  showNonScaleNotes={showNonScaleNotes}
+                  octaves={octaves}
+                />
+              </div>
+            );
+          })}
+        </div>
+      ))}
+
+      <div className="fret-numbers">
+        {[...Array(fretCount + 1)].map((_, fret) => (
+          <div
+            key={fret}
+            className={`fret-number ${fret === 0 ? "fret-number-nut" : ""}`}
+          >
+            {fret}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+});
+
+FretboardGrid.displayName = 'FretboardGrid';
+
+FretboardGrid.propTypes = {
+  fretboardGrid: PropTypes.array.isRequired,
+  rootNote: PropTypes.string.isRequired,
+  scaleNotes: PropTypes.array.isRequired,
+  selectedScale: PropTypes.object.isRequired,
+  showScaleDegrees: PropTypes.bool.isRequired,
+  showNonScaleNotes: PropTypes.bool.isRequired,
+  octaves: PropTypes.array,
+  onNoteTap: PropTypes.func.isRequired,
+  fretCount: PropTypes.number.isRequired
+};
+
 const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegrees, instrumentConfig, selectedInstrument }) => {
   const [audioInitialized, setAudioInitialized] = useState(false);
   // Use useRef for playing state to avoid re-rendering the whole fretboard during playback
@@ -379,55 +458,17 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
           ))}
         </div>
         <div className="fretboard-scroll print-fretboard-scroll" ref={fretboardRef}>
-          <div className="fretboard print-fretboard">
-            {fretboardGrid.map((stringFrets, stringIndex) => (
-              <div key={stringIndex} className="string print-string">
-                {stringFrets.map((fretData) => {
-                  const { note, fret, isFretMarkerRender, isDoubleDotRender, string } = fretData;
-                  const isRoot = note === rootNote;
-                  return (
-                    <div
-                      className={`fret ${fret === 0 ? 'first-fret' : ''}`}
-                      key={`fret-${stringIndex}-${fret}`}
-                    >
-                      {isFretMarkerRender && (
-                        <div className="fret-marker"></div>
-                      )}
-                      {isDoubleDotRender && (
-                        <div className="fret-marker"></div>
-                      )}
-
-                      <FretboardNote
-                        key={fret}
-                        note={note}
-                        fret={fret}
-                        isRoot={isRoot}
-                        scaleNotes={scaleNotes} // Passed from memoized calculation
-                        selectedScale={selectedScale}
-                        showScaleDegrees={showScaleDegrees}
-                        stringNote={string}
-                        stringIndex={stringIndex}
-                        onNoteTap={handleNoteTap}
-                        showNonScaleNotes={showNonScaleNotes}
-                        octaves={octaves}
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
-
-            <div className="fret-numbers">
-              {[...Array(fretCount + 1)].map((_, fret) => (
-                <div
-                  key={fret}
-                  className={`fret-number ${fret === 0 ? "fret-number-nut" : ""}`}
-                >
-                  {fret}
-                </div>
-              ))}
-            </div>
-          </div>
+          <FretboardGrid
+            fretboardGrid={fretboardGrid}
+            rootNote={rootNote}
+            scaleNotes={scaleNotes}
+            selectedScale={selectedScale}
+            showScaleDegrees={showScaleDegrees}
+            showNonScaleNotes={showNonScaleNotes}
+            octaves={octaves}
+            onNoteTap={handleNoteTap}
+            fretCount={fretCount}
+          />
         </div>
       </div>
 
