@@ -25,3 +25,7 @@
 ## 2026-01-29 - Visual Feedback for Instrument Keys
 **Learning:** For musical instrument interfaces (like piano keys), purely auditory feedback is insufficient, especially when audio is async or muted. Users need immediate tactile/visual confirmation (like a key press animation) even for brief clicks. Using `:active` is not enough as it disappears on release; a short `setTimeout` driven state ensures the interaction is registered visually.
 **Action:** When implementing instrument keys or sound triggers, always couple the sound trigger with a visual state (playing/active) that persists for a minimum duration (e.g., 300ms) to ensure the user perceives the actuation.
+
+## 2026-01-30 - Read-Only vs Disabled States
+**Learning:** Rendering disabled form inputs for permanently read-only data confuses users by suggesting potential interactivity. Static text presentations are clearer and more honest about the data's state.
+**Action:** When a form component is reused for display-only purposes, add a `readOnly` prop to render a semantic text view instead of disabling all inputs.

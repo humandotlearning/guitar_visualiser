@@ -9,7 +9,7 @@ const TUNINGS = {
   'DADGAD': ['D', 'A', 'G', 'D', 'A', 'D'],
 };
 
-const FretboardCustomization = ({ tuning, setTuning, fretCount, setFretCount }) => {
+const FretboardCustomization = ({ tuning, setTuning, fretCount, setFretCount, readOnly = false }) => {
   const handleTuningChange = (e) => {
     setTuning(TUNINGS[e.target.value]);
   };
@@ -17,6 +17,21 @@ const FretboardCustomization = ({ tuning, setTuning, fretCount, setFretCount }) 
   const currentTuning = Object.entries(TUNINGS).find(([, notes]) => 
     notes.join(',') === tuning.join(',')
   )?.[0] || 'Standard';
+
+  if (readOnly) {
+    return (
+      <div className="mb-4 space-y-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
+        <div className="flex justify-between items-center border-b border-slate-200 pb-2">
+          <span className="text-sm font-medium text-slate-500">Tuning</span>
+          <span className="text-sm font-bold text-slate-700">{currentTuning}</span>
+        </div>
+        <div className="flex justify-between items-center pt-2">
+          <span className="text-sm font-medium text-slate-500">Fret Count</span>
+          <span className="text-sm font-bold text-slate-700">{fretCount}</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mb-4 space-y-4">
@@ -57,7 +72,7 @@ FretboardCustomization.propTypes = {
   setTuning: PropTypes.func.isRequired,
   fretCount: PropTypes.number.isRequired,
   setFretCount: PropTypes.func.isRequired,
-
+  readOnly: PropTypes.bool,
 };
 
 export default FretboardCustomization;

@@ -252,6 +252,7 @@ function App() {
                 setTuning={() => { }}
                 fretCount={instrumentConfig.fretCount}
                 setFretCount={() => { }}
+                readOnly={true}
               />
             )}
           </div>
