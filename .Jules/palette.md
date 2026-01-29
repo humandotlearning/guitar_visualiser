@@ -21,3 +21,7 @@
 ## 2026-01-28 - Accessible Interactive Wrappers
 **Learning:** Wrapped interactive components (like chord diagrams) often use `div` with `onClick`, which fails accessibility checks. Wrapping them in a `<button>` with style resets (`appearance: none`, `bg: transparent`, etc.) and a proper `aria-label` provides instant keyboard accessibility without visual disruption.
 **Action:** When component libraries provide non-interactive visuals that you make interactive, wrap them in a semantic `<button>` instead of a `div`.
+
+## 2026-01-29 - Visual Feedback for Instrument Keys
+**Learning:** For musical instrument interfaces (like piano keys), purely auditory feedback is insufficient, especially when audio is async or muted. Users need immediate tactile/visual confirmation (like a key press animation) even for brief clicks. Using `:active` is not enough as it disappears on release; a short `setTimeout` driven state ensures the interaction is registered visually.
+**Action:** When implementing instrument keys or sound triggers, always couple the sound trigger with a visual state (playing/active) that persists for a minimum duration (e.g., 300ms) to ensure the user perceives the actuation.
