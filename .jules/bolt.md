@@ -25,3 +25,7 @@
 ## 2025-02-21 - Fretboard Render Loop Memoization
 **Learning:** The `Fretboard` component's render loop (mapping over 150+ frets/strings) was re-executing whenever any state changed (like toggling legends), even if the grid data was memoized. `React.memo` on child components is not enough if the parent re-creates the VDOM structure around them.
 **Action:** Extract expensive render loops (like grids or lists) into a dedicated, memoized sub-component (e.g., `FretboardGrid`) to prevent VDOM re-creation when parent state changes.
+
+## 2025-02-21 - PianoKeyboard O(1) Lookups
+**Learning:** `PianoKeyboard` was performing O(N) lookups inside the key generation loop. While lists are small, this violates the principle of minimizing work in render loops.
+**Action:** Replaced `indexOf` (O(N)) and `includes` (O(M)) with `Map` and `Set` lookups (O(1)) derived in `useMemo`, ensuring consistent performance regardless of scale/chord complexity.

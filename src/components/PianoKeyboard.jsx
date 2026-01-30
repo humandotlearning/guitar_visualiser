@@ -123,11 +123,23 @@ const PianoKeyboard = ({
     return getScaleNotes(rootNote, SCALE_LIBRARY[selectedScale.category][selectedScale.name]);
   }, [rootNote, selectedScale]);
 
+  // Create O(1) lookup map for scale notes
+  const scaleNoteMap = useMemo(() => {
+    const map = new Map();
+    scaleNotes.forEach((note, index) => map.set(note, index));
+    return map;
+  }, [scaleNotes]);
+
+  // Create O(1) lookup set for chord notes
+  const chordNoteSet = useMemo(() => {
+    return new Set(selectedChord || []);
+  }, [selectedChord]);
+
   // Memoize keys generation
   const keys = useMemo(() => {
     const generatedKeys = [];
     const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-    const hasSelectedChord = selectedChord && selectedChord.length > 0;
+    const hasSelectedChord = (selectedChord && selectedChord.length > 0);
 
     for (let octave = startOctave; octave <= endOctave; octave++) {
       notes.forEach((note) => {
@@ -135,13 +147,13 @@ const PianoKeyboard = ({
         const noteName = note;
         const fullNoteName = `${note}${octave}`;
 
-        // Check if note is in scale
-        const scaleIndex = scaleNotes.indexOf(note);
+        // Check if note is in scale using O(1) Map lookup
+        const scaleIndex = scaleNoteMap.has(note) ? scaleNoteMap.get(note) : -1;
         const isInScale = scaleIndex !== -1;
         const isRoot = note === rootNote;
 
-        // Check if note is in the selected chord
-        const isInChord = hasSelectedChord && selectedChord.includes(note);
+        // Check if note is in the selected chord using O(1) Set lookup
+        const isInChord = hasSelectedChord && chordNoteSet.has(note);
 
         generatedKeys.push({
           note: noteName,
@@ -158,7 +170,7 @@ const PianoKeyboard = ({
       });
     }
     return generatedKeys;
-  }, [startOctave, endOctave, scaleNotes, rootNote, selectedChord]);
+  }, [startOctave, endOctave, scaleNoteMap, chordNoteSet, rootNote, selectedChord]);
 
   const playNote = useCallback((note, octave) => {
     SoundfontAudio.playNote(note, null, octave);
