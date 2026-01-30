@@ -25,3 +25,7 @@
 ## 2025-02-21 - Fretboard Render Loop Memoization
 **Learning:** The `Fretboard` component's render loop (mapping over 150+ frets/strings) was re-executing whenever any state changed (like toggling legends), even if the grid data was memoized. `React.memo` on child components is not enough if the parent re-creates the VDOM structure around them.
 **Action:** Extract expensive render loops (like grids or lists) into a dedicated, memoized sub-component (e.g., `FretboardGrid`) to prevent VDOM re-creation when parent state changes.
+
+## 2025-02-25 - PianoKeyboard Prop Stability
+**Learning:** `PianoKeyboard` was re-rendering on every `App` state change (like `theoryMode`) because `App.js` was passing unstable inline callbacks (`() => setShow...`) for toggle controls. Even with `React.memo`, these new function references forced re-renders.
+**Action:** Use `useCallback` for event handlers passed to heavy, memoized components. Ensure the dependency array is correct (empty if using functional state updates) to keep the callback stable across renders.

@@ -1,4 +1,4 @@
-import React, { useState, lazy, Suspense } from 'react';
+import React, { useState, lazy, Suspense, useCallback } from 'react';
 import INSTRUMENTS from './instruments';
 // Lazy load the larger components
 const Fretboard = lazy(() => import('./components/Fretboard'));
@@ -40,6 +40,14 @@ function App() {
   const handleInstrumentChange = (e) => {
     setSelectedInstrument(e.target.value);
   };
+
+  const handleToggleScaleOnPiano = useCallback(() => {
+    setShowScaleOnPiano(prev => !prev);
+  }, []);
+
+  const handleToggleChordOnPiano = useCallback(() => {
+    setShowChordOnPiano(prev => !prev);
+  }, []);
 
   return (
     <div className="min-h-screen bg-slate-50 pb-12">
@@ -199,8 +207,8 @@ function App() {
                 selectedChord={selectedChord}
                 showScaleVisualization={showScaleOnPiano}
                 showChordVisualization={showChordOnPiano}
-                onToggleScale={() => setShowScaleOnPiano(!showScaleOnPiano)}
-                onToggleChord={() => setShowChordOnPiano(!showChordOnPiano)}
+                onToggleScale={handleToggleScaleOnPiano}
+                onToggleChord={handleToggleChordOnPiano}
               />
             ) : (
               <Fretboard

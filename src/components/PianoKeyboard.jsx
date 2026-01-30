@@ -217,4 +217,4 @@ PianoKeyboard.propTypes = {
   onToggleChord: PropTypes.func,
 };
 
-export default PianoKeyboard;
+export default React.memo(PianoKeyboard);
