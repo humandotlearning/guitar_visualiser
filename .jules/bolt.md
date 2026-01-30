@@ -29,3 +29,7 @@
 ## 2025-02-25 - PianoKeyboard Prop Stability
 **Learning:** `PianoKeyboard` was re-rendering on every `App` state change (like `theoryMode`) because `App.js` was passing unstable inline callbacks (`() => setShow...`) for toggle controls. Even with `React.memo`, these new function references forced re-renders.
 **Action:** Use `useCallback` for event handlers passed to heavy, memoized components. Ensure the dependency array is correct (empty if using functional state updates) to keep the callback stable across renders.
+
+## 2025-02-27 - Component Splitting for Independent Props
+**Learning:** `ScaleSelector` was re-rendering the entire list of scale buttons (~30 elements) whenever the Root Note changed, even though the scale list depends only on the Scale Type.
+**Action:** Split components with independent prop dependencies into separate, memoized sub-components. Move strictly local state (like `activeCategory`) down to the specific sub-component to isolate re-renders.
