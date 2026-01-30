@@ -304,6 +304,7 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
                   value={volume}
                   onChange={(e) => setVolume(parseFloat(e.target.value))}
                   className="slider"
+                  aria-valuetext={`${Math.round(volume * 100)}%`}
                 />
               </div>
             </div>
@@ -322,6 +323,7 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
                   value={sustain}
                   onChange={(e) => setSustain(parseFloat(e.target.value))}
                   className="slider"
+                  aria-valuetext={`${sustain.toFixed(1)} seconds`}
                 />
               </div>
             </div>

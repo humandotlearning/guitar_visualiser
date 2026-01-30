@@ -25,3 +25,7 @@
 ## 2026-01-29 - Visual Feedback for Instrument Keys
 **Learning:** For musical instrument interfaces (like piano keys), purely auditory feedback is insufficient, especially when audio is async or muted. Users need immediate tactile/visual confirmation (like a key press animation) even for brief clicks. Using `:active` is not enough as it disappears on release; a short `setTimeout` driven state ensures the interaction is registered visually.
 **Action:** When implementing instrument keys or sound triggers, always couple the sound trigger with a visual state (playing/active) that persists for a minimum duration (e.g., 300ms) to ensure the user perceives the actuation.
+
+## 2026-01-30 - Focus Visibility for Custom Controls
+**Learning:** CSS Resets like `outline: none` on custom controls (like sliders or custom buttons) destroy accessibility unless explicit `:focus-visible` styles are added back. Browsers often hide default rings for mouse users but need them for keyboard users.
+**Action:** Whenever using `outline: none` or `appearance: none`, immediately add a `:focus-visible` rule with a clear outline (e.g., `outline: 2px solid var(--primary-color)`) to restore keyboard accessibility.

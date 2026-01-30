@@ -48,6 +48,14 @@ button.string-label {
   min-height: auto;
 }
 
+/* Explicit focus styles for keyboard accessibility */
+button.note-marker:focus-visible,
+button.string-label:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+  z-index: 20; /* Ensure focus ring is visible above other elements */
+}
+
 /* Fretboard Container */
 .fretboard-container {
   position: relative;
