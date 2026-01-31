@@ -235,6 +235,8 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
           className={`settings-toggle settings-toggle-small ${isSettingsOpen ? 'active' : ''}`}
           onClick={() => setIsSettingsOpen(!isSettingsOpen)}
           aria-label="Sound Settings"
+          aria-expanded={isSettingsOpen}
+          aria-controls="audio-settings-panel"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="10" cy="10" r="2"></circle>
@@ -245,9 +247,16 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
 
       {/* Settings panel (modal style) */}
       {isSettingsOpen && (
-        <div className="settings-panel settings-panel-audio" ref={settingsRef}>
+        <div
+          className="settings-panel settings-panel-audio"
+          ref={settingsRef}
+          id="audio-settings-panel"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="audio-settings-title"
+        >
           <div className="settings-header">
-            <div className="settings-title">Audio Settings</div>
+            <div className="settings-title" id="audio-settings-title">Audio Settings</div>
             <button className="settings-close" onClick={closeSettings} aria-label="Close settings">
               ×
             </button>

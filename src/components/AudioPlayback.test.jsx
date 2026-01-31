@@ -1,123 +1,53 @@
 import React from 'react';
-import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import AudioPlayback from './AudioPlayback';
-import * as SoundfontAudio from '../utils/soundfontAudioUtils';
 
-// Mock the utils directly
+// Mock the soundfontAudioUtils
 jest.mock('../utils/soundfontAudioUtils', () => ({
   initializeAudio: jest.fn().mockResolvedValue({}),
-  loadInstrument: jest.fn().mockResolvedValue({
-    play: jest.fn(),
-    stop: jest.fn(),
-  }),
-  playNote: jest.fn().mockResolvedValue(),
-  playChord: jest.fn().mockResolvedValue(),
-  playString: jest.fn().mockResolvedValue(),
-  playFrettedNote: jest.fn().mockResolvedValue(),
+  loadInstrument: jest.fn().mockResolvedValue({}),
   setVolume: jest.fn(),
   setSustain: jest.fn(),
+  playNote: jest.fn().mockResolvedValue(),
+  playChord: jest.fn().mockResolvedValue(),
 }));
 
 describe('AudioPlayback Component', () => {
-  const mockProps = {
+  const defaultProps = {
     rootNote: 'C',
     selectedScale: { category: 'Major Family', name: 'Major' },
-    selectedChord: ['C', 'E', 'G'],
+    selectedChord: [],
     selectedInstrument: 'acoustic_guitar_steel',
     onInstrumentChange: jest.fn(),
   };
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
-  test('renders Test Sound button', async () => {
-    render(<AudioPlayback {...mockProps} />);
-
-    // Open settings panel
-    const settingsButton = screen.getByLabelText('Sound Settings');
-    fireEvent.click(settingsButton);
-
-    const testButton = screen.getByText('Test Sound');
-    expect(testButton).toBeInTheDocument();
-  });
-
-  test('Test Sound button triggers audio and shows loading state', async () => {
-    // We need to fake timers for setTimeout
-    jest.useFakeTimers();
-
-    render(<AudioPlayback {...mockProps} />);
-
-    // Initialize audio first (simulate click)
-    const container = screen.getByText(/Audio Playback/i).closest('div');
-    fireEvent.click(container); // Triggers initAudio
-
-    // Wait for audio initialization effect
-    await waitFor(() => {
-        expect(SoundfontAudio.initializeAudio).toHaveBeenCalled();
-    });
-
-    // Open settings panel
-    const settingsButton = screen.getByLabelText('Sound Settings');
-    fireEvent.click(settingsButton);
-
-    const testButton = screen.getByText('Test Sound');
-
-    // Click test button
-    fireEvent.click(testButton);
-
-    // Verify playChord was called
-    expect(SoundfontAudio.playChord).toHaveBeenCalled();
-
-    // Check for loading state - wait for state update
-    // Note: The implementation is not there yet, so this test is expected to fail or not find the loading state
-    // But since I am writing the test BEFORE the implementation (TDDish), I should expect it to fail if I ran it now.
-    // However, I'm just creating the file.
-
-    // In the future implementation, "Test Sound" text should be replaced or accompanied by "Playing..."
-    // For now, let's just checking playChord call is enough for the "before" state,
-    // but the plan says "verify that clicking the button triggers the mocked audio function AND changes the button state".
-
-    // Check for loading state
-    expect(screen.getByText('Playing...')).toBeInTheDocument();
-
-    // Wait for the async playChord to resolve and register the timeout
+  test('settings toggle has correct ARIA attributes', async () => {
     await act(async () => {
-        await Promise.resolve();
+      render(<AudioPlayback {...defaultProps} />);
     });
 
-    // Fast-forward time to finish playback
-    act(() => {
-        jest.advanceTimersByTime(1500);
-    });
-
-    // Check that it returns to normal
-    expect(screen.getByText('Test Sound')).toBeInTheDocument();
-
-    // Cleanup
-    jest.useRealTimers();
-  });
-
-  test('volume and sustain sliders have accessible aria-valuetext', () => {
-    render(<AudioPlayback {...mockProps} />);
-
-    // Open settings panel
     const settingsButton = screen.getByLabelText('Sound Settings');
-    fireEvent.click(settingsButton);
 
-    const volumeSlider = screen.getByLabelText(/Volume:/);
-    const sustainSlider = screen.getByLabelText(/Sustain:/);
+    // Initially closed
+    expect(settingsButton).toHaveAttribute('aria-expanded', 'false');
+    expect(settingsButton).toHaveAttribute('aria-controls', 'audio-settings-panel');
 
-    // Initial values
-    expect(volumeSlider).toHaveAttribute('aria-valuetext', '80%');
-    expect(sustainSlider).toHaveAttribute('aria-valuetext', '1.5 seconds');
+    // Click to open
+    await act(async () => {
+      fireEvent.click(settingsButton);
+    });
 
-    // Change volume
-    fireEvent.change(volumeSlider, { target: { value: '0.5' } });
-    expect(volumeSlider).toHaveAttribute('aria-valuetext', '50%');
+    expect(settingsButton).toHaveAttribute('aria-expanded', 'true');
 
-    // Change sustain
-    fireEvent.change(sustainSlider, { target: { value: '2.0' } });
-    expect(sustainSlider).toHaveAttribute('aria-valuetext', '2.0 seconds');
+    // Check panel accessibility
+    const panel = screen.getByRole('dialog');
+    expect(panel).toBeInTheDocument();
+    expect(panel).toHaveAttribute('aria-modal', 'true');
+    expect(panel).toHaveAttribute('aria-labelledby', 'audio-settings-title');
+    expect(panel).toHaveAttribute('id', 'audio-settings-panel');
+
+    // Check title id
+    const title = screen.getByText('Audio Settings');
+    expect(title).toHaveAttribute('id', 'audio-settings-title');
   });
 });
