@@ -29,3 +29,7 @@
 ## 2026-01-30 - Read-Only vs Disabled States
 **Learning:** Rendering disabled form inputs for permanently read-only data confuses users by suggesting potential interactivity. Static text presentations are clearer and more honest about the data's state.
 **Action:** When a form component is reused for display-only purposes, add a `readOnly` prop to render a semantic text view instead of disabling all inputs.
+
+## 2026-02-01 - Interactive Data Tables
+**Learning:** Static data tables (like scale notes) often contain elements that users naturally want to interact with (e.g., clicking a note to hear it). Converting these static text cells into interactive buttons provides delight and utility without cluttering the UI.
+**Action:** When rendering lists of musical data (notes, chords), wrap the content in semantic `<button>` elements with `aria-label` and visual feedback states to make them playable.

@@ -39,4 +39,20 @@ describe('ScaleNotes', () => {
     const { container } = render(<ScaleNotes rootNote="" selectedScale={null} />);
     expect(container.firstChild).toBeNull();
   });
+
+  test('plays note when clicked', () => {
+    const SoundfontAudio = require('../utils/soundfontAudioUtils');
+    const userEvent = require('@testing-library/user-event').default;
+
+    render(<ScaleNotes {...mockProps} />);
+
+    // Find the button for "C" (first note)
+    const cNoteButton = screen.getByRole('button', { name: 'Play C' });
+
+    // Click it
+    userEvent.click(cNoteButton);
+
+    // Check if playNote was called with 'C'
+    expect(SoundfontAudio.playNote).toHaveBeenCalledWith('C');
+  });
 });

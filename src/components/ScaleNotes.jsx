@@ -5,6 +5,44 @@ import { getScaleNotes, getScalePattern, SCALE_LIBRARY } from '../utils/musicThe
 import PropTypes from 'prop-types';
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
 
+const NoteButton = ({ note, color, isSequenceActive, onPlay }) => {
+  const [isPressed, setIsPressed] = useState(false);
+
+  const handlePlay = () => {
+    setIsPressed(true);
+    onPlay(note);
+    setTimeout(() => setIsPressed(false), 300);
+  };
+
+  const isActive = isSequenceActive || isPressed;
+
+  return (
+    <button
+      onClick={handlePlay}
+      aria-label={`Play ${note}`}
+      className="w-full h-full block focus:outline-none focus:ring-2 focus:ring-blue-400 rounded transition-all duration-200"
+      style={{
+        color: color,
+        fontWeight: 'bold',
+        backgroundColor: isActive ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
+        transform: isActive ? 'scale(1.1)' : 'scale(1)',
+        padding: '8px 12px',
+        border: 'none',
+        cursor: 'pointer'
+      }}
+    >
+      {note}
+    </button>
+  );
+};
+
+NoteButton.propTypes = {
+  note: PropTypes.string.isRequired,
+  color: PropTypes.string.isRequired,
+  isSequenceActive: PropTypes.bool.isRequired,
+  onPlay: PropTypes.func.isRequired,
+};
+
 const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentNoteIndex, setCurrentNoteIndex] = useState(null);
@@ -122,15 +160,14 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
           <tr>
             <td className="border p-2 font-medium"><b>Note</b></td>
             {scaleNotes.map((note, index) => (
-              <td key={index} style={{ 
-                color: getScaleDegreeColor(index),
-                fontWeight: 'bold',
-                backgroundColor: currentNoteIndex === index ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
-                transition: 'background-color 0.3s ease',
-                padding: '8px 12px',
-                borderRadius: '4px',
-                transform: currentNoteIndex === index ? 'scale(1.1)' : 'scale(1)',
-              }}>{note}</td>
+              <td key={index} className="border p-0 align-middle">
+                <NoteButton
+                  note={note}
+                  color={getScaleDegreeColor(index)}
+                  isSequenceActive={currentNoteIndex === index}
+                  onPlay={(n) => SoundfontAudio.playNote(n)}
+                />
+              </td>
             ))}
           </tr>
         </tbody>
