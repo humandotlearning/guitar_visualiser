@@ -1,8 +1,21 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
 import { getScaleNotes, SCALE_LIBRARY } from '../utils/musicTheory';
 import './SoundSettings.css';
+
+// Available guitar instruments
+const instruments = {
+  'acoustic_guitar_nylon': 'Acoustic Guitar (nylon)',
+  'acoustic_guitar_steel': 'Acoustic Guitar (steel)',
+  'electric_guitar_clean': 'Electric Guitar (clean)',
+  'electric_guitar_jazz': 'Electric Guitar (jazz)',
+  'electric_guitar_muted': 'Electric Guitar (muted)',
+  'overdriven_guitar': 'Overdriven Guitar',
+  'distortion_guitar': 'Distortion Guitar',
+  'guitar_harmonics': 'Guitar Harmonics',
+  'ukulele': 'Ukulele'
+};
 
 const Spinner = () => (
   <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -31,22 +44,9 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
     };
   }, []);
 
-  // Available guitar instruments
-  const instruments = {
-    'acoustic_guitar_nylon': 'Acoustic Guitar (nylon)',
-    'acoustic_guitar_steel': 'Acoustic Guitar (steel)',
-    'electric_guitar_clean': 'Electric Guitar (clean)',
-    'electric_guitar_jazz': 'Electric Guitar (jazz)',
-    'electric_guitar_muted': 'Electric Guitar (muted)',
-    'overdriven_guitar': 'Overdriven Guitar',
-    'distortion_guitar': 'Distortion Guitar',
-    'guitar_harmonics': 'Guitar Harmonics',
-    'ukulele': 'Ukulele'
-  };
-
   // Get scale notes if rootNote and selectedScale are provided
-  const scaleNotes = selectedScale && rootNote ?
-    getScaleNotes(rootNote, SCALE_LIBRARY[selectedScale.category][selectedScale.name]) : [];
+  const scaleNotes = useMemo(() => selectedScale && rootNote ?
+    getScaleNotes(rootNote, SCALE_LIBRARY[selectedScale.category][selectedScale.name]) : [], [selectedScale, rootNote]);
 
   // Close settings when clicking outside
   useEffect(() => {
@@ -379,4 +379,6 @@ AudioPlayback.propTypes = {
   onInstrumentChange: PropTypes.func.isRequired
 };
 
-export default AudioPlayback;
+AudioPlayback.displayName = 'AudioPlayback';
+
+export default React.memo(AudioPlayback);
