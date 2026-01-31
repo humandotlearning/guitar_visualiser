@@ -29,3 +29,7 @@
 ## 2025-02-25 - PianoKeyboard Prop Stability
 **Learning:** `PianoKeyboard` was re-rendering on every `App` state change (like `theoryMode`) because `App.js` was passing unstable inline callbacks (`() => setShow...`) for toggle controls. Even with `React.memo`, these new function references forced re-renders.
 **Action:** Use `useCallback` for event handlers passed to heavy, memoized components. Ensure the dependency array is correct (empty if using functional state updates) to keep the callback stable across renders.
+
+## 2025-03-01 - ChordVisualizer Variations Optimization
+**Learning:** `ChordVisualizer` was still using `useEffect` + `useState` for `chordVariations` (derived from `chords` and `chordData`), causing an unnecessary double-render when selecting a chord, even though `chords` itself was already optimized.
+**Action:** Apply `useMemo` for all derived data, not just the primary ones. Be thorough in checking for `useState` + `useEffect` patterns that simply compute data from props/state.
