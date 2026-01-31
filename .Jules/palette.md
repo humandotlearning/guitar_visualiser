@@ -29,3 +29,7 @@
 ## 2026-01-30 - Read-Only vs Disabled States
 **Learning:** Rendering disabled form inputs for permanently read-only data confuses users by suggesting potential interactivity. Static text presentations are clearer and more honest about the data's state.
 **Action:** When a form component is reused for display-only purposes, add a `readOnly` prop to render a semantic text view instead of disabling all inputs.
+
+## 2026-01-31 - Range Input Accessibility
+**Learning:** Native range inputs (`<input type="range">`) display their value visually but screen readers announce only the numeric value. For non-linear or formatted values (like percentages or units), this lacks context.
+**Action:** Always add `aria-valuetext` to range inputs when the raw numeric value doesn't fully communicate the meaning (e.g., `aria-valuetext="50%"` or `aria-valuetext="1.5 seconds"`).

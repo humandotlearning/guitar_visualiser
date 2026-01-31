@@ -97,4 +97,27 @@ describe('AudioPlayback Component', () => {
     // Cleanup
     jest.useRealTimers();
   });
+
+  test('volume and sustain sliders have accessible aria-valuetext', () => {
+    render(<AudioPlayback {...mockProps} />);
+
+    // Open settings panel
+    const settingsButton = screen.getByLabelText('Sound Settings');
+    fireEvent.click(settingsButton);
+
+    const volumeSlider = screen.getByLabelText(/Volume:/);
+    const sustainSlider = screen.getByLabelText(/Sustain:/);
+
+    // Initial values
+    expect(volumeSlider).toHaveAttribute('aria-valuetext', '80%');
+    expect(sustainSlider).toHaveAttribute('aria-valuetext', '1.5 seconds');
+
+    // Change volume
+    fireEvent.change(volumeSlider, { target: { value: '0.5' } });
+    expect(volumeSlider).toHaveAttribute('aria-valuetext', '50%');
+
+    // Change sustain
+    fireEvent.change(sustainSlider, { target: { value: '2.0' } });
+    expect(sustainSlider).toHaveAttribute('aria-valuetext', '2.0 seconds');
+  });
 });
