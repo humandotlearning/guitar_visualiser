@@ -33,3 +33,7 @@
 ## 2026-01-31 - Range Input Accessibility
 **Learning:** Native range inputs (`<input type="range">`) display their value visually but screen readers announce only the numeric value. For non-linear or formatted values (like percentages or units), this lacks context.
 **Action:** Always add `aria-valuetext` to range inputs when the raw numeric value doesn't fully communicate the meaning (e.g., `aria-valuetext="50%"` or `aria-valuetext="1.5 seconds"`).
+
+## 2026-02-01 - Disclosure vs Toggle Attributes
+**Learning:** A toggle button that controls the visibility of another element (like a settings panel) is a Disclosure pattern, not a simple State Toggle. It requires `aria-expanded` and `aria-controls` to communicate the relationship and state to screen readers, whereas `aria-pressed` is for buttons that toggle their own state (like "Mute").
+**Action:** When implementing a button that opens/closes a panel, menu, or dialog, always use `aria-expanded={isOpen}` and `aria-controls={targetId}` instead of `aria-pressed`.
