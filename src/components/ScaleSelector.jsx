@@ -3,7 +3,8 @@ import React from 'react';
 import { NOTES, SCALE_LIBRARY } from '../utils/musicTheory';
 import PropTypes from 'prop-types';
 
-const ScaleSelector = ({ rootNote, setRootNote, selectedScale, setSelectedScale }) => {
+// Memoized to prevent unnecessary re-renders when parent state (like playback or theory mode) changes
+const ScaleSelector = React.memo(({ rootNote, setRootNote, selectedScale, setSelectedScale }) => {
   const [activeCategory, setActiveCategory] = React.useState(Object.keys(SCALE_LIBRARY)[0]);
 
   return (
@@ -98,7 +99,7 @@ const ScaleSelector = ({ rootNote, setRootNote, selectedScale, setSelectedScale 
       </div>
     </div>
   );
-};
+});
 
 ScaleSelector.propTypes = {
   rootNote: PropTypes.string.isRequired,
@@ -110,5 +111,7 @@ ScaleSelector.propTypes = {
   setSelectedScale: PropTypes.func.isRequired,
 
 };
+
+ScaleSelector.displayName = 'ScaleSelector';
 
 export default ScaleSelector;

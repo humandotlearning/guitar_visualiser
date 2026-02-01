@@ -5,7 +5,8 @@ import { getScaleNotes, getScalePattern, SCALE_LIBRARY } from '../utils/musicThe
 import PropTypes from 'prop-types';
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
 
-const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
+// Memoized to avoid re-rendering the note table when unrelated parent state updates
+const ScaleNotes = React.memo(({ rootNote, selectedScale, selectedInstrument }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentNoteIndex, setCurrentNoteIndex] = useState(null);
   const [audioInitialized, setAudioInitialized] = useState(false);
@@ -146,7 +147,9 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
       </p>
     </div>
   );
-};
+});
+
+ScaleNotes.displayName = 'ScaleNotes';
 
 ScaleNotes.propTypes = {
   rootNote: PropTypes.string.isRequired,

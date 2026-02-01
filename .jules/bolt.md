@@ -33,3 +33,7 @@
 ## 2025-03-01 - ChordVisualizer Variations Optimization
 **Learning:** `ChordVisualizer` was still using `useEffect` + `useState` for `chordVariations` (derived from `chords` and `chordData`), causing an unnecessary double-render when selecting a chord, even though `chords` itself was already optimized.
 **Action:** Apply `useMemo` for all derived data, not just the primary ones. Be thorough in checking for `useState` + `useEffect` patterns that simply compute data from props/state.
+
+## 2025-03-03 - Scale UI Memoization
+**Learning:** Interactive UI components like `ScaleSelector` and `ScaleNotes` were not memoized, causing them to re-render whenever global app state (like `theoryMode` or `selectedInstrument`) changed, even if their own props were stable.
+**Action:** Wrap purely presentational or stable UI components with `React.memo`, especially if they are situated in a high-level container like `App.js` that manages many unrelated state variables.
