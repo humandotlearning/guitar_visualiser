@@ -251,6 +251,11 @@
   outline: none;
 }
 
+.slider:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
 .slider::-webkit-slider-thumb {
   appearance: none;
   width: 1.25rem;
