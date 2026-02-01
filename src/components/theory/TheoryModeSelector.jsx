@@ -33,7 +33,11 @@ export default function TheoryModeSelector({ selectedMode, setSelectedMode, inst
       </div>
 
       {/* Horizontal Scroll Container for Modes */}
-      <div className="overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide">
+      <div
+        className="overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide"
+        role="group"
+        aria-label="Theory Mode Selection"
+      >
         <div className="flex gap-4 min-w-max">
           {Object.entries(availableModes).map(([category, modes]) => (
             <div key={category} className="flex gap-2">
@@ -41,6 +45,7 @@ export default function TheoryModeSelector({ selectedMode, setSelectedMode, inst
                 <button
                   key={mode}
                   onClick={() => setSelectedMode(mode)}
+                  aria-pressed={selectedMode === mode}
                   className={`
                     flex flex-col items-center justify-center px-4 py-3 rounded-xl transition-all duration-200 border min-w-[140px]
                     ${selectedMode === mode
@@ -52,7 +57,7 @@ export default function TheoryModeSelector({ selectedMode, setSelectedMode, inst
                   <span className="font-bold text-sm text-center leading-tight">
                     {mode}
                   </span>
-                  <span className={`text-[10px] mt-1 uppercase tracking-wider ${selectedMode === mode ? 'text-blue-200' : 'text-slate-400'}`}>
+                  <span className={`text-[10px] mt-1 uppercase tracking-wider ${selectedMode === mode ? 'text-blue-50' : 'text-slate-500'}`}>
                     {category}
                   </span>
                 </button>
