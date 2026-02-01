@@ -1,8 +1,20 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
 import { getScaleNotes, SCALE_LIBRARY } from '../utils/musicTheory';
 import './SoundSettings.css';
+
+const instruments = {
+  'acoustic_guitar_nylon': 'Acoustic Guitar (nylon)',
+  'acoustic_guitar_steel': 'Acoustic Guitar (steel)',
+  'electric_guitar_clean': 'Electric Guitar (clean)',
+  'electric_guitar_jazz': 'Electric Guitar (jazz)',
+  'electric_guitar_muted': 'Electric Guitar (muted)',
+  'overdriven_guitar': 'Overdriven Guitar',
+  'distortion_guitar': 'Distortion Guitar',
+  'guitar_harmonics': 'Guitar Harmonics',
+  'ukulele': 'Ukulele'
+};
 
 const Spinner = () => (
   <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -19,11 +31,14 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [volume, setVolume] = useState(0.8);
   const [sustain, setSustain] = useState(1.5);
-  const [localInstrument, setLocalInstrument] = useState(selectedInstrument || 'acoustic_guitar_steel');
 
   // Reference to detect clicks outside the settings panel
   const settingsRef = useRef(null);
   const mountedRef = useRef(true);
+
+  // Refs to track instrument state without triggering re-renders or stale closures
+  const selectedInstrumentRef = useRef(selectedInstrument);
+  const lastLoadedInstrument = useRef(null);
 
   useEffect(() => {
     return () => {
@@ -31,22 +46,17 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
     };
   }, []);
 
-  // Available guitar instruments
-  const instruments = {
-    'acoustic_guitar_nylon': 'Acoustic Guitar (nylon)',
-    'acoustic_guitar_steel': 'Acoustic Guitar (steel)',
-    'electric_guitar_clean': 'Electric Guitar (clean)',
-    'electric_guitar_jazz': 'Electric Guitar (jazz)',
-    'electric_guitar_muted': 'Electric Guitar (muted)',
-    'overdriven_guitar': 'Overdriven Guitar',
-    'distortion_guitar': 'Distortion Guitar',
-    'guitar_harmonics': 'Guitar Harmonics',
-    'ukulele': 'Ukulele'
-  };
+  // Keep selectedInstrumentRef updated for the initialization closure
+  useEffect(() => {
+    selectedInstrumentRef.current = selectedInstrument;
+  }, [selectedInstrument]);
 
   // Get scale notes if rootNote and selectedScale are provided
-  const scaleNotes = selectedScale && rootNote ?
-    getScaleNotes(rootNote, SCALE_LIBRARY[selectedScale.category][selectedScale.name]) : [];
+  // Memoized to prevent recalculation on every render
+  const scaleNotes = useMemo(() => {
+    return selectedScale && rootNote ?
+      getScaleNotes(rootNote, SCALE_LIBRARY[selectedScale.category][selectedScale.name]) : [];
+  }, [rootNote, selectedScale]);
 
   // Close settings when clicking outside
   useEffect(() => {
@@ -66,17 +76,25 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
     };
   }, [isSettingsOpen]);
 
-  // Initialize audio context on mount and handle instrument changes
+  // Initialize audio context on mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const initAudio = async () => {
         try {
           await SoundfontAudio.initializeAudio();
-          await SoundfontAudio.loadInstrument(localInstrument);
-          // Apply audio settings
+
+          // Use ref to get the most current instrument even if closure is stale
+          const instrumentToLoad = selectedInstrumentRef.current || 'acoustic_guitar_steel';
+          await SoundfontAudio.loadInstrument(instrumentToLoad);
+          lastLoadedInstrument.current = instrumentToLoad;
+
+          // Apply audio settings (using closure values is fine for defaults)
           SoundfontAudio.setVolume(volume);
           SoundfontAudio.setSustain(sustain);
-          setAudioInitialized(true);
+
+          if (mountedRef.current) {
+            setAudioInitialized(true);
+          }
         } catch (error) {
           console.error('Error initializing audio:', error);
         }
@@ -94,27 +112,35 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
         document.removeEventListener('click', handleFirstInteraction);
       };
     }
-  }, []);
+  }, []); // Run once on mount
 
-  // Handle instrument and audio setting changes
+  // Handle instrument changes
   useEffect(() => {
-    if (audioInitialized) {
-      const updateAudioSettings = async () => {
+    if (audioInitialized && selectedInstrument && selectedInstrument !== lastLoadedInstrument.current) {
+      const updateInstrument = async () => {
         try {
-          if (selectedInstrument && selectedInstrument !== localInstrument) {
-            setLocalInstrument(selectedInstrument);
-            await SoundfontAudio.loadInstrument(selectedInstrument);
-          }
-          // Update audio settings
-          SoundfontAudio.setVolume(volume);
-          SoundfontAudio.setSustain(sustain);
+          // Update ref immediately to prevent race conditions
+          lastLoadedInstrument.current = selectedInstrument;
+          await SoundfontAudio.loadInstrument(selectedInstrument);
         } catch (error) {
-          console.error('Error updating audio settings:', error);
+          console.error('Error updating instrument:', error);
         }
       };
-      updateAudioSettings();
+      updateInstrument();
     }
-  }, [selectedInstrument, volume, sustain, audioInitialized, localInstrument]);
+  }, [selectedInstrument, audioInitialized]);
+
+  // Handle volume/sustain changes
+  useEffect(() => {
+    if (audioInitialized) {
+      try {
+        SoundfontAudio.setVolume(volume);
+        SoundfontAudio.setSustain(sustain);
+      } catch (error) {
+        console.error('Error updating audio settings:', error);
+      }
+    }
+  }, [volume, sustain, audioInitialized]);
 
   // Play a single note with the current instrument
   const playNote = async (note, duration = null) => {
@@ -227,7 +253,7 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
       <div className="flex justify-between items-center mb-2">
         <div>
           <h2 className="text-xl font-semibold">Audio Playback</h2>
-          <p className="text-sm text-gray-600">Using: {instruments[localInstrument]}</p>
+          <p className="text-sm text-gray-600">Using: {instruments[selectedInstrument] || instruments['acoustic_guitar_steel']}</p>
         </div>
 
         {/* Settings button */}
@@ -257,15 +283,12 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
             <label htmlFor="audio-instrument-select">Guitar Sound</label>
             <div className="instrument-controls instrument-row">
               <div className="selected-instrument">
-                <span className="selected-instrument-name">{instruments[localInstrument]}</span>
+                <span className="selected-instrument-name">{instruments[selectedInstrument] || instruments['acoustic_guitar_steel']}</span>
               </div>
               <select
                 id="audio-instrument-select"
-                value={localInstrument}
-                onChange={(e) => {
-                  setLocalInstrument(e.target.value);
-                  onInstrumentChange(e.target.value);
-                }}
+                value={selectedInstrument}
+                onChange={onInstrumentChange}
                 className="instrument-select"
               >
                 {Object.entries(instruments).map(([value, name]) => (
