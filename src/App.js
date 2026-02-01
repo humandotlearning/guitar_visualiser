@@ -37,9 +37,9 @@ function App() {
   // Derived instrument data (fallback to guitar if unknown)
   const instrumentConfig = INSTRUMENTS[selectedInstrument] || INSTRUMENTS['acoustic_guitar_steel'];
 
-  const handleInstrumentChange = (e) => {
+  const handleInstrumentChange = useCallback((e) => {
     setSelectedInstrument(e.target.value);
-  };
+  }, []);
 
   const handleToggleScaleOnPiano = useCallback(() => {
     setShowScaleOnPiano(prev => !prev);
