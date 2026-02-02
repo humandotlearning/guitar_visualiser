@@ -30,6 +30,7 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
 
   // Reference to detect clicks outside the settings panel
   const settingsRef = useRef(null);
+  const previousFocusRef = useRef(null);
   const mountedRef = useRef(true);
 
   useEffect(() => {
@@ -42,7 +43,7 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
   const scaleNotes = useMemo(() => selectedScale && rootNote ?
     getScaleNotes(rootNote, SCALE_LIBRARY[selectedScale.category][selectedScale.name]) : [], [selectedScale, rootNote]);
 
-  // Close settings when clicking outside
+  // Close settings when clicking outside and handle Escape key
   useEffect(() => {
     function handleClickOutside(event) {
       if (settingsRef.current && !settingsRef.current.contains(event.target)) {
@@ -50,13 +51,38 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
       }
     }
 
+    function handleKeyDown(event) {
+      if (event.key === 'Escape') {
+        setIsSettingsOpen(false);
+      }
+    }
+
     // Bind the event listener
     if (isSettingsOpen) {
       document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleKeyDown);
+
+      // Save previous focus
+      previousFocusRef.current = document.activeElement;
+
+      // Focus the first focusable element in the modal, or the close button
+      // Use setTimeout to allow render to complete
+      setTimeout(() => {
+        const closeBtn = settingsRef.current?.querySelector('.settings-close');
+        if (closeBtn) {
+          closeBtn.focus();
+        }
+      }, 0);
+    } else if (previousFocusRef.current) {
+      // Restore focus when closed
+      previousFocusRef.current.focus();
+      previousFocusRef.current = null;
     }
+
     return () => {
       // Unbind the event listener on clean up
       document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isSettingsOpen]);
 
@@ -251,7 +277,11 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
         >
           <div className="settings-header">
             <div className="settings-title" id="audio-settings-title">Audio Settings</div>
-            <button className="settings-close" onClick={closeSettings} aria-label="Close settings">
+            <button
+              className="settings-close focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+              onClick={closeSettings}
+              aria-label="Close settings"
+            >
               ×
             </button>
           </div>
