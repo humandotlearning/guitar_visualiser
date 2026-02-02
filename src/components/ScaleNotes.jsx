@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
 import Spinner from './ui/Spinner';
 
+// Memoized ScaleNotes component to avoid re-rendering when unrelated App state changes (e.g. Chord selection)
 const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentNoteIndex, setCurrentNoteIndex] = useState(null);
@@ -158,4 +159,4 @@ ScaleNotes.propTypes = {
   selectedInstrument: PropTypes.string,
 };
 
-export default ScaleNotes;
+export default React.memo(ScaleNotes);
