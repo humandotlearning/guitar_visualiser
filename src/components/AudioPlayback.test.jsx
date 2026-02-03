@@ -50,4 +50,55 @@ describe('AudioPlayback Component', () => {
     const title = screen.getByText('Audio Settings');
     expect(title).toHaveAttribute('id', 'audio-settings-title');
   });
+
+  test('closes settings on Escape key press', async () => {
+    await act(async () => {
+      render(<AudioPlayback {...defaultProps} />);
+    });
+
+    const settingsButton = screen.getByLabelText('Sound Settings');
+
+    // Open settings
+    await act(async () => {
+      fireEvent.click(settingsButton);
+    });
+
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+    // Press Escape
+    await act(async () => {
+      fireEvent.keyDown(document, { key: 'Escape', code: 'Escape' });
+    });
+
+    // Should be closed
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  test('manages focus correctly', async () => {
+    await act(async () => {
+      render(<AudioPlayback {...defaultProps} />);
+    });
+
+    const settingsButton = screen.getByLabelText('Sound Settings');
+    settingsButton.focus();
+    expect(document.activeElement).toBe(settingsButton);
+
+    // Open settings
+    await act(async () => {
+      fireEvent.click(settingsButton);
+    });
+
+    // Focus should move to close button or inside modal
+    const closeButton = screen.getByLabelText('Close settings');
+    // We expect the implementation to focus the close button for accessibility
+    expect(document.activeElement).toBe(closeButton);
+
+    // Close settings
+    await act(async () => {
+      fireEvent.click(closeButton);
+    });
+
+    // Focus should return to settings button
+    expect(document.activeElement).toBe(settingsButton);
+  });
 });
