@@ -235,6 +235,7 @@ FretboardGrid.propTypes = {
   fretCount: PropTypes.number.isRequired
 };
 
+// Memoized Fretboard component to prevent unnecessary re-renders when parent state changes (e.g. selected chord)
 const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegrees, instrumentConfig, selectedInstrument }) => {
   const [audioInitialized, setAudioInitialized] = useState(false);
   // Use useRef for playing state to avoid re-rendering the whole fretboard during playback
@@ -527,4 +528,4 @@ Fretboard.propTypes = {
   octaves: PropTypes.arrayOf(PropTypes.number),
 };
 
-export default Fretboard;
+export default React.memo(Fretboard);
