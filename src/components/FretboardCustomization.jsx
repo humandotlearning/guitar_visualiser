@@ -9,7 +9,7 @@ const TUNINGS = {
   'DADGAD': ['D', 'A', 'G', 'D', 'A', 'D'],
 };
 
-const FretboardCustomization = ({ tuning, setTuning, fretCount, setFretCount, readOnly = false }) => {
+const FretboardCustomization = React.memo(({ tuning, setTuning, fretCount, setFretCount, readOnly = false }) => {
   const handleTuningChange = (e) => {
     setTuning(TUNINGS[e.target.value]);
   };
@@ -65,7 +65,9 @@ const FretboardCustomization = ({ tuning, setTuning, fretCount, setFretCount, re
       </div>
     </div>
   );
-};
+});
+
+FretboardCustomization.displayName = 'FretboardCustomization';
 
 FretboardCustomization.propTypes = {
   tuning: PropTypes.arrayOf(PropTypes.string).isRequired,
