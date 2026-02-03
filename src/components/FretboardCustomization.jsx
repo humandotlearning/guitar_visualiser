@@ -61,6 +61,7 @@ const FretboardCustomization = ({ tuning, setTuning, fretCount, setFretCount, re
           onChange={(e) => setFretCount(Number(e.target.value))}
           className="w-full"
           disabled={typeof setFretCount !== 'function' || setFretCount.toString().includes('noop')}
+          aria-valuetext={`${fretCount} frets`}
         />
       </div>
     </div>
