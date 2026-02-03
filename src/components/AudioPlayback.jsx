@@ -27,6 +27,7 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
   const [volume, setVolume] = useState(0.8);
   const [sustain, setSustain] = useState(1.5);
   const [localInstrument, setLocalInstrument] = useState(selectedInstrument || 'acoustic_guitar_steel');
+  const [isLoading, setIsLoading] = useState(false);
 
   // Reference to detect clicks outside the settings panel
   const settingsRef = useRef(null);
@@ -91,14 +92,21 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
     if (typeof window !== 'undefined') {
       const initAudio = async () => {
         try {
+          setIsLoading(true);
           await SoundfontAudio.initializeAudio();
           await SoundfontAudio.loadInstrument(localInstrument);
           // Apply audio settings
           SoundfontAudio.setVolume(volume);
           SoundfontAudio.setSustain(sustain);
-          setAudioInitialized(true);
+          if (mountedRef.current) {
+            setAudioInitialized(true);
+            setIsLoading(false);
+          }
         } catch (error) {
           console.error('Error initializing audio:', error);
+          if (mountedRef.current) {
+            setIsLoading(false);
+          }
         }
       };
 
@@ -122,14 +130,17 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
       const updateAudioSettings = async () => {
         try {
           if (selectedInstrument && selectedInstrument !== localInstrument) {
+            setIsLoading(true);
             setLocalInstrument(selectedInstrument);
             await SoundfontAudio.loadInstrument(selectedInstrument);
+            if (mountedRef.current) setIsLoading(false);
           }
           // Update audio settings
           SoundfontAudio.setVolume(volume);
           SoundfontAudio.setSustain(sustain);
         } catch (error) {
           console.error('Error updating audio settings:', error);
+          if (mountedRef.current) setIsLoading(false);
         }
       };
       updateAudioSettings();
@@ -148,7 +159,7 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
 
   // Play the entire scale sequentially
   const playScale = async () => {
-    if (!audioInitialized || isPlaying || scaleNotes.length === 0) return;
+    if (!audioInitialized || isPlaying || scaleNotes.length === 0 || isLoading) return;
 
     setActiveElement('scale');
     setIsPlaying(true);
@@ -171,7 +182,7 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
 
   // Play chord (all notes together)
   const playChord = async () => {
-    if (!audioInitialized || isPlaying || !selectedChord || selectedChord.length === 0) return;
+    if (!audioInitialized || isPlaying || !selectedChord || selectedChord.length === 0 || isLoading) return;
 
     setActiveElement('chord');
     setIsPlaying(true);
@@ -186,7 +197,7 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
 
   // Play an arpeggio of the selected chord
   const playArpeggio = async () => {
-    if (!audioInitialized || isPlaying || !selectedChord || selectedChord.length === 0) return;
+    if (!audioInitialized || isPlaying || !selectedChord || selectedChord.length === 0 || isLoading) return;
 
     setActiveElement('arpeggio');
     setIsPlaying(true);
@@ -209,7 +220,7 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
 
   // Play a test note with the current instrument
   const playTestNote = async () => {
-    if (isTestingSound || !audioInitialized) return;
+    if (isTestingSound || !audioInitialized || isLoading) return;
 
     setIsTestingSound(true);
     try {
@@ -247,7 +258,10 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
       <div className="flex justify-between items-center mb-2">
         <div>
           <h2 className="text-xl font-semibold">Audio Playback</h2>
-          <p className="text-sm text-gray-600">Using: {instruments[localInstrument]}</p>
+          <p className="text-sm text-gray-600">
+            Using: {instruments[localInstrument]}
+            {isLoading && <Spinner className="!text-blue-500 inline-block ml-2 w-3 h-3" />}
+          </p>
         </div>
 
         {/* Settings button */}
@@ -300,6 +314,7 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
                   onInstrumentChange(e.target.value);
                 }}
                 className="instrument-select"
+                disabled={isLoading}
               >
                 {Object.entries(instruments).map(([value, name]) => (
                   <option key={value} value={value}>
@@ -308,18 +323,22 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
                 ))}
               </select>
               <button
-                className={`test-sound-button ${isTestingSound ? 'opacity-90 cursor-wait' : ''}`}
+                className={`test-sound-button ${isTestingSound || isLoading ? 'opacity-90 cursor-wait' : ''}`}
                 onClick={playTestNote}
-                disabled={isTestingSound || !audioInitialized}
-                aria-label={isTestingSound ? "Playing test sound" : "Test instrument sound"}
+                disabled={isTestingSound || !audioInitialized || isLoading}
+                aria-label={isLoading ? "Loading sound" : (isTestingSound ? "Playing test sound" : "Test instrument sound")}
               >
-                {isTestingSound ? (
+                {isLoading ? (
+                  <span className="flex items-center justify-center">
+                    <Spinner /> Loading...
+                  </span>
+                ) : (isTestingSound ? (
                   <span className="flex items-center justify-center">
                     <Spinner /> Playing...
                   </span>
                 ) : (
                   'Test Sound'
-                )}
+                ))}
               </button>
             </div>
           </div>
@@ -367,24 +386,24 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
       <div className="grid grid-cols-3 gap-2">
         <button
           onClick={playScale}
-          disabled={isPlaying || scaleNotes.length === 0}
+          disabled={isPlaying || scaleNotes.length === 0 || isLoading}
           className={`p-2 ${isPlaying && activeElement === 'scale' ? 'bg-green-500' : 'bg-blue-500'} text-white rounded disabled:opacity-50`}
         >
-          {isPlaying && activeElement === 'scale' ? <><Spinner /> Playing...</> : `${rootNote} ${selectedScale?.name || ''} Scale`}
+          {isLoading ? <><Spinner /> Loading Sound...</> : (isPlaying && activeElement === 'scale' ? <><Spinner /> Playing...</> : `${rootNote} ${selectedScale?.name || ''} Scale`)}
         </button>
         <button
           onClick={playChord}
-          disabled={isPlaying || !selectedChord || selectedChord.length === 0}
+          disabled={isPlaying || !selectedChord || selectedChord.length === 0 || isLoading}
           className={`p-2 ${isPlaying && activeElement === 'chord' ? 'bg-green-500' : 'bg-blue-500'} text-white rounded disabled:opacity-50`}
         >
-          {isPlaying && activeElement === 'chord' ? <><Spinner /> Playing...</> : `${getChordRootName()} Chord`}
+          {isLoading ? <><Spinner /> Loading Sound...</> : (isPlaying && activeElement === 'chord' ? <><Spinner /> Playing...</> : `${getChordRootName()} Chord`)}
         </button>
         <button
           onClick={playArpeggio}
-          disabled={isPlaying || !selectedChord || selectedChord.length === 0}
+          disabled={isPlaying || !selectedChord || selectedChord.length === 0 || isLoading}
           className={`p-2 ${isPlaying && activeElement === 'arpeggio' ? 'bg-green-500' : 'bg-blue-500'} text-white rounded disabled:opacity-50`}
         >
-          {isPlaying && activeElement === 'arpeggio' ? <><Spinner /> Playing...</> : `${getChordRootName()} Arpeggio`}
+          {isLoading ? <><Spinner /> Loading Sound...</> : (isPlaying && activeElement === 'arpeggio' ? <><Spinner /> Playing...</> : `${getChordRootName()} Arpeggio`)}
         </button>
       </div>
       {!audioInitialized && (
