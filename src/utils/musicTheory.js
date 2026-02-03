@@ -102,6 +102,19 @@ export const getScaleDegreeFromNotes = (note, scaleNotes) => {
     const degrees = ['1', '2', '3', '4', '5', '6', '7'];
     return degrees[degree];
   };
+
+export const getScaleDegreeColor = (index) => {
+  switch (index) {
+    case 0: return 'var(--color-tonic)';      // Tonic (I)
+    case 1: return 'var(--color-major)';      // Major Step (II)
+    case 2: return 'var(--color-minor)';      // Minor Step (III)
+    case 3: return 'var(--color-perfect)';    // Perfect Fourth (IV)
+    case 4: return 'var(--color-perfect)';    // Perfect Fifth (V)
+    case 5: return 'var(--color-major)';      // Major Step (VI)
+    case 6: return 'var(--color-minor)';      // Minor Step (VII)
+    default: return 'black';
+  }
+};
   
   export const getNoteFrequency = (note) => {
     const A4 = 440;

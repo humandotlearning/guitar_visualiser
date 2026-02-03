@@ -1,12 +1,51 @@
 // File: components/ScaleNotes.jsx
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { getScaleNotes, getScalePattern, SCALE_LIBRARY } from '../utils/musicTheory';
+import React, { useState, useEffect, useMemo, memo } from 'react';
+import { getScaleNotes, getScalePattern, SCALE_LIBRARY, getScaleDegreeColor } from '../utils/musicTheory';
 import PropTypes from 'prop-types';
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
 import Spinner from './ui/Spinner';
 
-const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
+// Optimized sub-component for header cells to prevent re-renders
+const ScaleDegreeHeader = memo(({ scaleNotes }) => (
+  <thead>
+    <tr>
+      <th className="border p-2">Degree</th>
+      {scaleNotes.map((note, index) => (
+        <th key={index} style={{ color: getScaleDegreeColor(index) }}>{index + 1}</th>
+      ))}
+    </tr>
+  </thead>
+));
+
+ScaleDegreeHeader.displayName = 'ScaleDegreeHeader';
+ScaleDegreeHeader.propTypes = {
+  scaleNotes: PropTypes.arrayOf(PropTypes.string).isRequired
+};
+
+// Optimized sub-component for note cells to isolate re-renders during playback animation
+const ScaleNoteCell = memo(({ note, index, isCurrent }) => {
+  return (
+    <td style={{
+      color: getScaleDegreeColor(index),
+      fontWeight: 'bold',
+      backgroundColor: isCurrent ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
+      transition: 'background-color 0.3s ease',
+      padding: '8px 12px',
+      borderRadius: '4px',
+      transform: isCurrent ? 'scale(1.1)' : 'scale(1)',
+    }}>{note}</td>
+  );
+});
+
+ScaleNoteCell.displayName = 'ScaleNoteCell';
+ScaleNoteCell.propTypes = {
+  note: PropTypes.string.isRequired,
+  index: PropTypes.number.isRequired,
+  isCurrent: PropTypes.bool.isRequired
+};
+
+const ScaleNotes = memo(({ rootNote, selectedScale, selectedInstrument }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentNoteIndex, setCurrentNoteIndex] = useState(null);
   const [audioInitialized, setAudioInitialized] = useState(false);
@@ -30,44 +69,34 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
     };
   }, [selectedInstrument]);
 
-  if (!rootNote || !selectedScale) return null;
-
   // Memoize expensive calculations to prevent re-computation during playback animation
   const scaleNotes = useMemo(() =>
-    getScaleNotes(rootNote, SCALE_LIBRARY[selectedScale.category][selectedScale.name]),
+    selectedScale && rootNote
+      ? getScaleNotes(rootNote, SCALE_LIBRARY[selectedScale.category][selectedScale.name])
+      : [],
     [rootNote, selectedScale]
   );
 
   const scalePattern = useMemo(() =>
-    getScalePattern(SCALE_LIBRARY[selectedScale.category][selectedScale.name]),
+    selectedScale
+      ? getScalePattern(SCALE_LIBRARY[selectedScale.category][selectedScale.name])
+      : '',
     [selectedScale]
   );
 
-  // Helper function to get color based on scale degree
-  const getScaleDegreeColor = (index) => {
-    switch (index) {
-      case 0: return 'var(--color-tonic)';      // Tonic (I)
-      case 1: return 'var(--color-major)';      // Major Step (II)
-      case 2: return 'var(--color-minor)';      // Minor Step (III)
-      case 3: return 'var(--color-perfect)';    // Perfect Fourth (IV)
-      case 4: return 'var(--color-perfect)';    // Perfect Fifth (V)
-      case 5: return 'var(--color-major)';      // Major Step (VI)
-      case 6: return 'var(--color-minor)';      // Minor Step (VII)
-      default: return 'black';
-    }
-  };
+  if (!rootNote || !selectedScale) return null;
 
   // Play the scale notes in sequence
   const playScale = async () => {
     if (!audioInitialized || isPlaying) return;
-    
+
     setIsPlaying(true);
     try {
       // Play notes sequentially with a delay between them
       for (let i = 0; i < scaleNotes.length; i++) {
         // Set current note index immediately before playing
         setCurrentNoteIndex(i);
-        
+
         // Play the note and await, catch errors
         try {
           await SoundfontAudio.playNote(scaleNotes[i]);
@@ -96,7 +125,7 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
     <div>
       <div className="flex items-center justify-between mb-4">
         <h2>Notes of {rootNote} {selectedScale.name} </h2>
-        <button 
+        <button
           onClick={playScale}
           disabled={isPlaying || !audioInitialized}
           className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:opacity-50 flex items-center"
@@ -111,43 +140,35 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
       <h3> {selectedScale.name} Scale Pattern  :  <b>{scalePattern}</b></h3>
       <br></br>
       <table className="table-auto">
-        <thead>
-          <tr>
-            <th className="border p-2">Degree</th>
-            {scaleNotes.map((note, index) => (
-              <th key={index} style={{ color: getScaleDegreeColor(index) }}>{index + 1}</th>
-            ))}
-          </tr>
-        </thead>
+        <ScaleDegreeHeader scaleNotes={scaleNotes} />
         <tbody>
           <tr>
             <th scope="row" className="border p-2 font-medium text-left"><b>Note</b></th>
             {scaleNotes.map((note, index) => (
-              <td key={index} style={{ 
-                color: getScaleDegreeColor(index),
-                fontWeight: 'bold',
-                backgroundColor: currentNoteIndex === index ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
-                transition: 'background-color 0.3s ease',
-                padding: '8px 12px',
-                borderRadius: '4px',
-                transform: currentNoteIndex === index ? 'scale(1.1)' : 'scale(1)',
-              }}>{note}</td>
+              <ScaleNoteCell
+                key={index}
+                note={note}
+                index={index}
+                isCurrent={currentNoteIndex === index}
+              />
             ))}
           </tr>
         </tbody>
-      </table><br/>
+      </table><br />
       <p className="text-sm text-gray-600">
-        This table shows the notes of the {rootNote} {selectedScale.name} scale in order, 
-        along with their scale degrees. The scale pattern represents the intervals between each note. 
+        This table shows the notes of the {rootNote} {selectedScale.name} scale in order,
+        along with their scale degrees. The scale pattern represents the intervals between each note.
       </p>
-      <br/>
+      <br />
       <p className="text-sm text-gray-600">
-        <b>W </b> refers to Whole Step.<br/>
+        <b>W </b> refers to Whole Step.<br />
         <b>H </b> refers to Half Step
       </p>
     </div>
   );
-};
+});
+
+ScaleNotes.displayName = 'ScaleNotes';
 
 ScaleNotes.propTypes = {
   rootNote: PropTypes.string.isRequired,

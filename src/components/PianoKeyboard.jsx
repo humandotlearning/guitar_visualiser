@@ -1,22 +1,8 @@
 import React, { useMemo, useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
-import { getScaleNotes, SCALE_LIBRARY } from '../utils/musicTheory';
+import { getScaleNotes, SCALE_LIBRARY, getScaleDegreeColor } from '../utils/musicTheory';
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
 import './PianoKeyboardStyles.css';
-
-// Helper function to get color based on scale degree (matching ScaleNotes.jsx)
-const getScaleDegreeColor = (index) => {
-  switch (index) {
-    case 0: return 'var(--color-tonic)';      // Tonic (I)
-    case 1: return 'var(--color-major)';      // Major Step (II)
-    case 2: return 'var(--color-minor)';      // Minor Step (III)
-    case 3: return 'var(--color-perfect)';    // Perfect Fourth (IV)
-    case 4: return 'var(--color-perfect)';    // Perfect Fifth (V)
-    case 5: return 'var(--color-major)';      // Major Step (VI)
-    case 6: return 'var(--color-minor)';      // Minor Step (VII)
-    default: return 'black';
-  }
-};
 
 const PianoKey = React.memo(({
   note,
