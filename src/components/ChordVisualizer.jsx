@@ -102,8 +102,6 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
 
   const [audioInitialized, setAudioInitialized] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [lastTapTime, setLastTapTime] = useState(0);
-  const [lastTapChord, setLastTapChord] = useState(null);
   const [playingAllChords, setPlayingAllChords] = useState(false);
   const [currentChordIndex, setCurrentChordIndex] = useState(null);
 
@@ -208,33 +206,38 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
     return [];
   }, [selectedChordName, selectedChord, chords, selectedScale, chordData]);
 
-  // Handle double tap to select and play chord
-  const handleChordTap = (chordRoot) => {
-    const now = Date.now();
-    const doubleTapThreshold = 300; // ms
-
+  // Handle click to select chord
+  const handleChordSelect = (chordRoot) => {
     // Check if clicking the same chord that's already selected
     const isSameChord = selectedChordName === chordRoot;
 
     if (isSameChord) {
       // Deselect the chord
       setInternalSelectedChordName('NONE');
-      setLastTapTime(0);
-      setLastTapChord(null);
       return;
     }
 
     // Update the selected chord
     setInternalSelectedChordName(chordRoot);
+  };
 
-    // Check if it's a double tap on the same chord
-    if (now - lastTapTime < doubleTapThreshold && lastTapChord === chordRoot) {
-      // It's a double tap, so play the chord
-      playSelectedChord();
+  // Play a single chord with visual feedback
+  const playSingleChord = async (chord, index) => {
+    if (!audioInitialized || isPlaying || playingAllChords || !chord) return;
+
+    setIsPlaying(true);
+    setCurrentChordIndex(index);
+
+    try {
+      await SoundfontAudio.playChord(chord);
+    } catch (error) {
+      console.error('Error playing chord:', error);
+    } finally {
+      setTimeout(() => {
+        setIsPlaying(false);
+        setCurrentChordIndex(null);
+      }, 1500);
     }
-
-    setLastTapTime(now);
-    setLastTapChord(chordRoot);
   };
 
   // Play a chord based on variation
@@ -277,20 +280,6 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
       setIsPlaying(false);
     }
   }, [audioInitialized, isPlaying, instrumentConfig]);
-
-  // Play the selected chord (all notes)
-  const playSelectedChord = async () => {
-    if (!audioInitialized || isPlaying || !selectedChord) return;
-
-    setIsPlaying(true);
-    try {
-      await SoundfontAudio.playChord(selectedChord);
-      setTimeout(() => setIsPlaying(false), 1500);
-    } catch (error) {
-      console.error('Error playing chord:', error);
-      setIsPlaying(false);
-    }
-  };
 
   // Play all chords in the scale sequentially
   const playAllChords = async () => {
@@ -363,7 +352,7 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
     <ClientOnly fallback={<div className="chord-visualizer p-4">Loading chord visualizer...</div>}>
       <div className="chord-visualizer">
         <div className="flex items-center justify-between mb-4">
-          <p className="double-tap-instruction">Double-tap on any chord to play it</p>
+          <div></div>
           <button
             onClick={playAllChords}
             disabled={playingAllChords || !audioInitialized}
@@ -390,16 +379,32 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
               <tr>
                 {Object.keys(chords).map((chordRoot, index) => {
                   const isSelected = selectedChordName === chordRoot;
-                  const isPlaying = currentChordIndex === index && playingAllChords;
+                  // Check if this chord is playing (either via Play All or individual Play)
+                  const isVisualPlaying = currentChordIndex === index && (playingAllChords || isPlaying);
+
                   return (
                     <td key={index}>
                       <button
-                        onClick={() => handleChordTap(chordRoot)}
-                        className={`chord-button ${isSelected ? 'selected-chord' : ''} ${isPlaying ? 'playing-chord' : ''}`}
-                        title="Double-tap to play"
+                        onClick={() => handleChordSelect(chordRoot)}
+                        className={`chord-button ${isSelected ? 'selected-chord' : ''} ${isVisualPlaying ? 'playing-chord' : ''}`}
+                        title="Click to select"
+                        aria-pressed={isSelected}
                       >
                         {chordRoot}{chordTypes[index]}
                       </button>
+
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          playSingleChord(chords[chordRoot], index);
+                        }}
+                        className="play-button w-full flex items-center justify-center gap-1 mb-2 hover:bg-blue-600 hover:text-white transition-colors"
+                        aria-label={`Play ${chordRoot} ${chordTypes[index]}`}
+                        disabled={!audioInitialized || (isPlaying && currentChordIndex !== index) || playingAllChords}
+                      >
+                        <span className="text-[10px]">▶</span> Play
+                      </button>
+
                       <div className="chord-notes">
                         {chords[chordRoot].join(', ')}
                       </div>
