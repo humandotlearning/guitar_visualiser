@@ -18,6 +18,9 @@ import OrientationPrompt from './components/OrientationPrompt';
 import TheoryModeSelector from './components/theory/TheoryModeSelector';
 import './App.css';
 
+// Define NOOP function outside component for stable reference
+const NOOP = () => { };
+
 function App() {
 
   const defaultRootNote = 'A';
@@ -257,9 +260,9 @@ function App() {
             {instrumentConfig.type !== 'keyboard' && (
               <FretboardCustomization
                 tuning={instrumentConfig.tuning}
-                setTuning={() => { }}
+                setTuning={NOOP}
                 fretCount={instrumentConfig.fretCount}
-                setFretCount={() => { }}
+                setFretCount={NOOP}
                 readOnly={true}
               />
             )}
