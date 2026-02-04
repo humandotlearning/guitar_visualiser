@@ -6,6 +6,46 @@ import PropTypes from 'prop-types';
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
 import Spinner from './ui/Spinner';
 
+// Helper function to get color based on scale degree
+// Moved outside component to avoid recreation
+const getScaleDegreeColor = (index) => {
+  switch (index) {
+    case 0: return 'var(--color-tonic)';      // Tonic (I)
+    case 1: return 'var(--color-major)';      // Major Step (II)
+    case 2: return 'var(--color-minor)';      // Minor Step (III)
+    case 3: return 'var(--color-perfect)';    // Perfect Fourth (IV)
+    case 4: return 'var(--color-perfect)';    // Perfect Fifth (V)
+    case 5: return 'var(--color-major)';      // Major Step (VI)
+    case 6: return 'var(--color-minor)';      // Minor Step (VII)
+    default: return 'black';
+  }
+};
+
+// Memoized cell component to prevent table re-renders during playback
+const ScaleNoteCell = React.memo(({ note, index, isCurrent }) => {
+  const color = getScaleDegreeColor(index);
+  return (
+    <td style={{
+      color: color,
+      fontWeight: 'bold',
+      backgroundColor: isCurrent ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
+      transition: 'background-color 0.3s ease',
+      padding: '8px 12px',
+      borderRadius: '4px',
+      transform: isCurrent ? 'scale(1.1)' : 'scale(1)',
+    }}>
+      {note}
+    </td>
+  );
+});
+
+ScaleNoteCell.displayName = 'ScaleNoteCell';
+ScaleNoteCell.propTypes = {
+  note: PropTypes.string.isRequired,
+  index: PropTypes.number.isRequired,
+  isCurrent: PropTypes.bool.isRequired,
+};
+
 // Memoized ScaleNotes component to avoid re-rendering when unrelated App state changes (e.g. Chord selection)
 const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -43,20 +83,6 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
     getScalePattern(SCALE_LIBRARY[selectedScale.category][selectedScale.name]),
     [selectedScale]
   );
-
-  // Helper function to get color based on scale degree
-  const getScaleDegreeColor = (index) => {
-    switch (index) {
-      case 0: return 'var(--color-tonic)';      // Tonic (I)
-      case 1: return 'var(--color-major)';      // Major Step (II)
-      case 2: return 'var(--color-minor)';      // Minor Step (III)
-      case 3: return 'var(--color-perfect)';    // Perfect Fourth (IV)
-      case 4: return 'var(--color-perfect)';    // Perfect Fifth (V)
-      case 5: return 'var(--color-major)';      // Major Step (VI)
-      case 6: return 'var(--color-minor)';      // Minor Step (VII)
-      default: return 'black';
-    }
-  };
 
   // Play the scale notes in sequence
   const playScale = async () => {
@@ -124,15 +150,12 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
           <tr>
             <th scope="row" className="border p-2 font-medium text-left"><b>Note</b></th>
             {scaleNotes.map((note, index) => (
-              <td key={index} style={{ 
-                color: getScaleDegreeColor(index),
-                fontWeight: 'bold',
-                backgroundColor: currentNoteIndex === index ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
-                transition: 'background-color 0.3s ease',
-                padding: '8px 12px',
-                borderRadius: '4px',
-                transform: currentNoteIndex === index ? 'scale(1.1)' : 'scale(1)',
-              }}>{note}</td>
+              <ScaleNoteCell
+                key={index}
+                note={note}
+                index={index}
+                isCurrent={currentNoteIndex === index}
+              />
             ))}
           </tr>
         </tbody>
