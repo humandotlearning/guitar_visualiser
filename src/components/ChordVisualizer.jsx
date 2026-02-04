@@ -102,8 +102,6 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
 
   const [audioInitialized, setAudioInitialized] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [lastTapTime, setLastTapTime] = useState(0);
-  const [lastTapChord, setLastTapChord] = useState(null);
   const [playingAllChords, setPlayingAllChords] = useState(false);
   const [currentChordIndex, setCurrentChordIndex] = useState(null);
 
@@ -208,33 +206,31 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
     return [];
   }, [selectedChordName, selectedChord, chords, selectedScale, chordData]);
 
-  // Handle double tap to select and play chord
+  // Play a specific chord (by notes array)
+  const playChordNotes = useCallback(async (notes) => {
+    if (!audioInitialized || isPlaying || !notes) return;
+
+    setIsPlaying(true);
+    try {
+      await SoundfontAudio.playChord(notes);
+      setTimeout(() => setIsPlaying(false), 1500);
+    } catch (error) {
+      console.error('Error playing chord:', error);
+      setIsPlaying(false);
+    }
+  }, [audioInitialized, isPlaying]);
+
+  // Handle tap to select and play chord
   const handleChordTap = (chordRoot) => {
-    const now = Date.now();
-    const doubleTapThreshold = 300; // ms
-
-    // Check if clicking the same chord that's already selected
-    const isSameChord = selectedChordName === chordRoot;
-
-    if (isSameChord) {
-      // Deselect the chord
-      setInternalSelectedChordName('NONE');
-      setLastTapTime(0);
-      setLastTapChord(null);
-      return;
+    // Update the selected chord if it's different
+    if (selectedChordName !== chordRoot) {
+      setInternalSelectedChordName(chordRoot);
     }
 
-    // Update the selected chord
-    setInternalSelectedChordName(chordRoot);
-
-    // Check if it's a double tap on the same chord
-    if (now - lastTapTime < doubleTapThreshold && lastTapChord === chordRoot) {
-      // It's a double tap, so play the chord
-      playSelectedChord();
+    // Always play the chord on click
+    if (chords[chordRoot]) {
+      playChordNotes(chords[chordRoot]);
     }
-
-    setLastTapTime(now);
-    setLastTapChord(chordRoot);
   };
 
   // Play a chord based on variation
@@ -278,19 +274,6 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
     }
   }, [audioInitialized, isPlaying, instrumentConfig]);
 
-  // Play the selected chord (all notes)
-  const playSelectedChord = async () => {
-    if (!audioInitialized || isPlaying || !selectedChord) return;
-
-    setIsPlaying(true);
-    try {
-      await SoundfontAudio.playChord(selectedChord);
-      setTimeout(() => setIsPlaying(false), 1500);
-    } catch (error) {
-      console.error('Error playing chord:', error);
-      setIsPlaying(false);
-    }
-  };
 
   // Play all chords in the scale sequentially
   const playAllChords = async () => {
@@ -363,7 +346,7 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
     <ClientOnly fallback={<div className="chord-visualizer p-4">Loading chord visualizer...</div>}>
       <div className="chord-visualizer">
         <div className="flex items-center justify-between mb-4">
-          <p className="double-tap-instruction">Double-tap on any chord to play it</p>
+          <p className="double-tap-instruction">Click a chord to select and play</p>
           <button
             onClick={playAllChords}
             disabled={playingAllChords || !audioInitialized}
@@ -396,7 +379,8 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
                       <button
                         onClick={() => handleChordTap(chordRoot)}
                         className={`chord-button ${isSelected ? 'selected-chord' : ''} ${isPlaying ? 'playing-chord' : ''}`}
-                        title="Double-tap to play"
+                        title="Click to play"
+                        aria-pressed={isSelected}
                       >
                         {chordRoot}{chordTypes[index]}
                       </button>
