@@ -61,6 +61,7 @@ const FretboardCustomization = React.memo(({ tuning, setTuning, fretCount, setFr
           onChange={(e) => setFretCount(Number(e.target.value))}
           className="w-full"
           disabled={typeof setFretCount !== 'function' || setFretCount.toString().includes('noop')}
+          aria-valuetext={`${fretCount} frets`}
         />
       </div>
     </div>

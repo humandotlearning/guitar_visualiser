@@ -241,6 +241,12 @@ button.string-label {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
+.note-marker:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.6);
+  z-index: 50;
+}
+
 .note-marker.playing {
   animation: pulse 0.3s ease-in-out;
 }
@@ -352,6 +358,13 @@ button.string-label {
 
 .string-label:hover {
   background-color: #34495e;
+}
+
+.string-label:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 3px rgba(59, 130, 246, 0.6);
+  z-index: 50;
+  position: relative;
 }
 
 /* String thickness (thicker for low strings, thinner for high strings) */
