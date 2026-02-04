@@ -6,17 +6,7 @@ import * as SoundfontAudio from '../utils/soundfontAudioUtils';
 import './ChordVisualizer.css';
 
 // Dynamically import the Chord component to avoid SSR issues
-const ChordComponent = React.memo(({ variation, instrument, onPlayChord, label }) => {
-  const [Chord, setChord] = useState(null);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      import('@tombatossals/react-chords/lib/Chord').then((module) => {
-        setChord(() => module.default);
-      });
-    }
-  }, []);
-
+const ChordComponent = React.memo(({ variation, instrument, onPlayChord, label, Chord }) => {
   const handleClick = () => {
     onPlayChord(variation);
   };
@@ -42,7 +32,8 @@ ChordComponent.propTypes = {
   variation: PropTypes.object.isRequired,
   instrument: PropTypes.object.isRequired,
   onPlayChord: PropTypes.func.isRequired,
-  label: PropTypes.string
+  label: PropTypes.string,
+  Chord: PropTypes.elementType
 };
 
 const CHORD_TYPE_MAP = {
@@ -77,6 +68,17 @@ const getRomanNumeral = (num) => {
 };
 
 const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentConfig }) => {
+  // Load the Chord component library once
+  const [ChordLibrary, setChordLibrary] = useState(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      import('@tombatossals/react-chords/lib/Chord').then((module) => {
+        setChordLibrary(() => module.default);
+      });
+    }
+  }, []);
+
   // Derived state: calculate chords directly in render
   const chords = useMemo(() => {
     if (rootNote && selectedScale) {
@@ -432,6 +434,7 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
                       instrument={instrument}
                       onPlayChord={playChordVariation}
                       label={`Play variation ${index + 1}`}
+                      Chord={ChordLibrary}
                     />
                   )}
                 </div>
