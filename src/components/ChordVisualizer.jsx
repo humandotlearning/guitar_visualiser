@@ -237,6 +237,20 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
     setLastTapChord(chordRoot);
   };
 
+  // Play a specific chord (helper for the individual play buttons)
+  const playSpecificChord = async (chordNotes) => {
+    if (!audioInitialized || isPlaying || !chordNotes) return;
+
+    setIsPlaying(true);
+    try {
+      await SoundfontAudio.playChord(chordNotes);
+      setTimeout(() => setIsPlaying(false), 1500);
+    } catch (error) {
+      console.error('Error playing chord:', error);
+      setIsPlaying(false);
+    }
+  };
+
   // Play a chord based on variation
   const playChordVariation = useCallback(async (variation) => {
     if (!audioInitialized || isPlaying || !instrumentConfig) return;
@@ -363,7 +377,6 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
     <ClientOnly fallback={<div className="chord-visualizer p-4">Loading chord visualizer...</div>}>
       <div className="chord-visualizer">
         <div className="flex items-center justify-between mb-4">
-          <p className="double-tap-instruction">Double-tap on any chord to play it</p>
           <button
             onClick={playAllChords}
             disabled={playingAllChords || !audioInitialized}
@@ -396,7 +409,7 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
                       <button
                         onClick={() => handleChordTap(chordRoot)}
                         className={`chord-button ${isSelected ? 'selected-chord' : ''} ${isPlaying ? 'playing-chord' : ''}`}
-                        title="Double-tap to play"
+                        title="Click to select"
                       >
                         {chordRoot}{chordTypes[index]}
                       </button>
@@ -406,6 +419,19 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
                       <div className="chord-degree">
                         {index + 1} {chordTypes[index]}
                       </div>
+                      {isSelected && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            playSpecificChord(chords[chordRoot]);
+                          }}
+                          className="play-button w-full mt-2"
+                          disabled={isPlaying || !audioInitialized}
+                          aria-label={`Play ${chordRoot} ${chordTypes[index]} chord`}
+                        >
+                          ▶ Play
+                        </button>
+                      )}
                     </td>
                   );
                 })}
