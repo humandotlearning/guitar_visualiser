@@ -73,3 +73,11 @@ test('renders chord variations as accessible buttons', async () => {
   expect(variations.length).toBeGreaterThan(0);
   expect(variations[0]).toHaveAttribute('type', 'button');
 });
+
+test('renders placeholder when no scale selected', async () => {
+    await act(async () => {
+        render(<ChordVisualizer {...defaultProps} selectedScale={null} />);
+    });
+
+    expect(screen.getByText('Please select a scale.')).toBeInTheDocument();
+});
