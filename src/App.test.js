@@ -24,3 +24,13 @@ test('renders Guitar Visualizer title', async () => {
   const titleElements = screen.getAllByText(/Visualizer/i);
   expect(titleElements.length).toBeGreaterThan(0);
 });
+
+test('instrument selector has accessible label', async () => {
+  await act(async () => {
+    render(<App />);
+  });
+
+  const select = screen.getByLabelText(/select instrument/i);
+  expect(select).toBeInTheDocument();
+  expect(select).toHaveAttribute('id', 'instrument-select');
+});
