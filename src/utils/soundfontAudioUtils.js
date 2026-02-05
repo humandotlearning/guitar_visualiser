@@ -5,12 +5,16 @@ let audioContext = null;
 let instrument = null;
 let isLoading = false;
 let loadPromise = null;
+let loadedSoundfontName = null;
 
 // Sound settings
 let globalVolume = 1.0;
 let volumeBoost = 2.5;
 let globalSustain = 1.5;
 let currentInstrumentName = '';
+
+const NOTE_REGEX = /[A-G][#b]?[0-9]/;
+export const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
 export const INSTRUMENTS = {
   'acoustic_guitar_nylon': 'Acoustic Guitar (nylon)',
@@ -80,18 +84,23 @@ export const getCurrentInstrumentName = () => currentInstrumentName;
 export const loadInstrument = async (instrumentName = DEFAULT_INSTRUMENT) => {
   currentInstrumentName = instrumentName;
 
+  // Map instrument names to soundfont names if needed
+  let soundfontName = instrumentName;
+  if (instrumentName === 'ukulele') {
+    soundfontName = 'acoustic_guitar_nylon';
+  }
+
+  // OPTIMIZATION: Return cached instrument if already loaded
+  if (instrument && loadedSoundfontName === soundfontName) {
+    return instrument;
+  }
+
   if (isLoading && loadPromise) {
     return loadPromise;
   }
 
   if (!audioContext) {
     await initializeAudio();
-  }
-
-  // Map instrument names to soundfont names if needed
-  let soundfontName = instrumentName;
-  if (instrumentName === 'ukulele') {
-    soundfontName = 'acoustic_guitar_nylon';
   }
 
   isLoading = true;
@@ -101,6 +110,7 @@ export const loadInstrument = async (instrumentName = DEFAULT_INSTRUMENT) => {
     gain: globalVolume * volumeBoost,
   }).then(loadedInstrument => {
     instrument = loadedInstrument;
+    loadedSoundfontName = soundfontName;
     console.log(`Loaded instrument: ${instrumentName} (soundfont: ${soundfontName}) with volume: ${globalVolume * volumeBoost}`);
     isLoading = false;
     return instrument;
@@ -116,6 +126,7 @@ export const loadInstrument = async (instrumentName = DEFAULT_INSTRUMENT) => {
           gain: globalVolume * volumeBoost,
         });
         currentInstrumentName = DEFAULT_INSTRUMENT;
+        loadedSoundfontName = DEFAULT_INSTRUMENT; // Assuming default instrument is what it is
         console.log('Fallback to default instrument succeeded.');
         isLoading = false;
         return instrument;
@@ -136,7 +147,7 @@ export const loadInstrument = async (instrumentName = DEFAULT_INSTRUMENT) => {
 // Map note to MIDI format (C4, D#3, etc.)
 export const noteToMidi = (note, octave = 4) => {
   // If note already has octave (like 'C4'), return as is
-  if (note.match(/[A-G][#b]?[0-9]/)) {
+  if (NOTE_REGEX.test(note)) {
     return note;
   }
   return `${note}${octave}`;
@@ -247,7 +258,6 @@ export const playFrettedNote = async (stringNote, fret, duration = null) => {
   }
 
   // Calculate the resulting note
-  const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
   const startNoteIndex = NOTES.indexOf(stringNote);
   const resultNoteIndex = (startNoteIndex + fret) % 12;
   const resultNote = NOTES[resultNoteIndex];
@@ -275,5 +285,3 @@ export const getCurrentInstrument = () => {
 export const getAudioContext = () => {
   return audioContext;
 };
-
-export const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
