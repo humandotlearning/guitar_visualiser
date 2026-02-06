@@ -93,6 +93,16 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
     }
   };
 
+  // Play a single note
+  const playSingleNote = async (note) => {
+    if (!audioInitialized) return;
+    try {
+      await SoundfontAudio.playNote(note);
+    } catch (error) {
+      console.error('Error playing note:', error);
+    }
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
@@ -124,15 +134,22 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
           <tr>
             <th scope="row" className="border p-2 font-medium text-left"><b>Note</b></th>
             {scaleNotes.map((note, index) => (
-              <td key={index} style={{ 
-                color: getScaleDegreeColor(index),
-                fontWeight: 'bold',
-                backgroundColor: currentNoteIndex === index ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
-                transition: 'background-color 0.3s ease',
-                padding: '8px 12px',
-                borderRadius: '4px',
-                transform: currentNoteIndex === index ? 'scale(1.1)' : 'scale(1)',
-              }}>{note}</td>
+              <td key={index} className="p-1">
+                <button
+                  onClick={() => playSingleNote(note)}
+                  aria-label={`Play ${note}, degree ${index + 1}`}
+                  className={`
+                    w-full h-full block font-bold px-3 py-2 rounded transition-all duration-200 bg-transparent
+                    ${currentNoteIndex === index ? 'bg-blue-100 scale-110' : 'hover:bg-slate-100'}
+                    focus:outline-none focus:ring-2 focus:ring-blue-300
+                  `}
+                  style={{
+                    color: getScaleDegreeColor(index),
+                  }}
+                >
+                  {note}
+                </button>
+              </td>
             ))}
           </tr>
         </tbody>
