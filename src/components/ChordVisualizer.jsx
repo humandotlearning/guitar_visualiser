@@ -79,6 +79,25 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
     }
   }, []);
 
+  const category = selectedScale?.category;
+  const name = selectedScale?.name;
+  const scaleChords = (category && name && SCALE_LIBRARY[category]) ? SCALE_LIBRARY[category][name] : null;
+  const chordTypes = (category && CHORD_TYPES[category]) ? CHORD_TYPES[category] : [];
+
+  // Memoize scale notes calculation
+  // We can actually assume scaleNotes is just keys of chords?
+  // chords keys are roots. But order matters.
+  // getScaleNotes returns array of notes.
+  // getChordNotes returns object { Note: [...] }
+  // Object keys might not be in order?
+  // getChordNotes implementation iterates scale and adds keys.
+  // JS Object keys are ordered if string keys.
+  // But safer to rely on scaleNotes array for ordering.
+  const scaleNotes = useMemo(() => {
+    if (!rootNote || !scaleChords) return [];
+    return getScaleNotes(rootNote, scaleChords);
+  }, [rootNote, scaleChords]);
+
   // Derived state: calculate chords directly in render
   const chords = useMemo(() => {
     if (rootNote && selectedScale) {
@@ -114,7 +133,7 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
   // 1. If we have a user selection AND it exists in the current chords (e.g. scale didn't remove it), use it.
   // 2. Otherwise, default to the first chord (root) of the current scale.
   // 3. If chords is empty (no scale), selected is null.
-  const rootChordName = Object.keys(chords)[0];
+  const rootChordName = scaleNotes.length > 0 ? scaleNotes[0] : null;
 
   // Effective name is the one we display
   let selectedChordName = rootChordName;
@@ -197,7 +216,7 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
     if (selectedChordName && chordData && selectedScale && selectedChord) {
       const chordName = selectedChordName;
 
-      const chordTypeIndex = Object.keys(chords).indexOf(chordName);
+      const chordTypeIndex = scaleNotes.indexOf(chordName);
       const chordType = CHORD_TYPES[selectedScale.category][chordTypeIndex] || 'major';
       const chordSuffix = CHORD_TYPE_MAP[chordType] || chordType;
 
@@ -310,13 +329,13 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
 
   // Play all chords in the scale sequentially
   const playAllChords = async () => {
-    if (!audioInitialized || playingAllChords || Object.keys(chords).length === 0) return;
+    if (!audioInitialized || playingAllChords || scaleNotes.length === 0) return;
 
     const previouslySelectedChordName = selectedChordName;
 
     setPlayingAllChords(true);
     try {
-      const chordKeys = Object.keys(chords);
+      const chordKeys = scaleNotes;
       for (let i = 0; i < chordKeys.length; i++) {
         const chordKey = chordKeys[i];
         setCurrentChordIndex(i);
@@ -347,23 +366,6 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
   if (!rootNote || !selectedScale) {
     return <div className="chord-visualizer"><p>Please select a scale.</p></div>;
   }
-
-  const { category, name } = selectedScale;
-  const scaleChords = SCALE_LIBRARY[category][name];
-  const chordTypes = CHORD_TYPES[category];
-
-  // Memoize scale notes calculation
-  // We can actually assume scaleNotes is just keys of chords?
-  // chords keys are roots. But order matters.
-  // getScaleNotes returns array of notes.
-  // getChordNotes returns object { Note: [...] }
-  // Object keys might not be in order?
-  // getChordNotes implementation iterates scale and adds keys.
-  // JS Object keys are ordered if string keys.
-  // But safer to rely on scaleNotes array for ordering.
-  const scaleNotes = useMemo(() => {
-    return getScaleNotes(rootNote, scaleChords);
-  }, [rootNote, scaleChords]);
 
   const instrument = useMemo(() => ({
     strings: instrumentConfig ? instrumentConfig.strings : 6,
@@ -403,7 +405,7 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
             </thead>
             <tbody>
               <tr>
-                {Object.keys(chords).map((chordRoot, index) => {
+                {scaleNotes.map((chordRoot, index) => {
                   const isSelected = selectedChordName === chordRoot;
                   const isPlaying = currentChordIndex === index && playingAllChords;
                   return (
@@ -444,7 +446,7 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
 
         {selectedChord && chordVariations.length > 0 ? (
           <>
-            <h3 className="text-lg font-semibold mt-4 mb-2">Chord Variations of {selectedChordName}{chordTypes[Object.keys(chords).indexOf(selectedChordName)]}</h3>
+            <h3 className="text-lg font-semibold mt-4 mb-2">Chord Variations of {selectedChordName}{chordTypes[scaleNotes.indexOf(selectedChordName)]}</h3>
             <p className="text-sm mb-2">Click on a chord diagram to hear how it sounds</p>
             <div className="chord-grid">
               {chordVariations.map((variation, index) => (
