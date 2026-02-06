@@ -24,7 +24,7 @@ const FretboardNote = React.memo(({
   note,
   fret,
   isRoot,
-  scaleNotes,
+  scaleNoteIndicesMap,
   showScaleDegrees,
   stringNote,
   onNoteTap,
@@ -36,9 +36,11 @@ const FretboardNote = React.memo(({
   const [isHovered, setIsHovered] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  // Calculate degree index once.
-  // scaleNotes is memoized in parent, so this is fast.
-  const degreeIndex = useMemo(() => scaleNotes.indexOf(note), [scaleNotes, note]);
+  // Calculate degree index once using O(1) Map lookup.
+  // scaleNoteIndicesMap is memoized in parent, so this is fast.
+  const degreeIndex = useMemo(() => {
+    return scaleNoteIndicesMap.has(note) ? scaleNoteIndicesMap.get(note) : -1;
+  }, [scaleNoteIndicesMap, note]);
 
   // Check if in scale based on index
   const isInScale = degreeIndex !== -1;
@@ -122,7 +124,7 @@ FretboardNote.propTypes = {
   note: PropTypes.string.isRequired,
   fret: PropTypes.number.isRequired,
   isRoot: PropTypes.bool.isRequired,
-  scaleNotes: PropTypes.arrayOf(PropTypes.string).isRequired,
+  scaleNoteIndicesMap: PropTypes.instanceOf(Map).isRequired,
   selectedScale: PropTypes.shape({
     category: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
@@ -160,7 +162,7 @@ StringLabel.propTypes = {
 const FretboardGrid = React.memo(({
   fretboardGrid,
   rootNote,
-  scaleNotes,
+  scaleNoteIndicesMap,
   selectedScale,
   showScaleDegrees,
   showNonScaleNotes,
@@ -192,7 +194,7 @@ const FretboardGrid = React.memo(({
                   note={note}
                   fret={fret}
                   isRoot={isRoot}
-                  scaleNotes={scaleNotes} // Passed from memoized calculation
+                  scaleNoteIndicesMap={scaleNoteIndicesMap} // Passed from memoized calculation
                   selectedScale={selectedScale}
                   showScaleDegrees={showScaleDegrees}
                   stringNote={string}
@@ -226,7 +228,7 @@ FretboardGrid.displayName = 'FretboardGrid';
 FretboardGrid.propTypes = {
   fretboardGrid: PropTypes.array.isRequired,
   rootNote: PropTypes.string.isRequired,
-  scaleNotes: PropTypes.array.isRequired,
+  scaleNoteIndicesMap: PropTypes.instanceOf(Map).isRequired,
   selectedScale: PropTypes.object.isRequired,
   showScaleDegrees: PropTypes.bool.isRequired,
   showNonScaleNotes: PropTypes.bool.isRequired,
@@ -304,6 +306,15 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
       ? getScaleNotes(rootNote, SCALE_LIBRARY[selectedScale.category][selectedScale.name])
       : [];
   }, [rootNote, selectedScale]);
+
+  // Create a map for O(1) scale note lookups
+  const scaleNoteIndicesMap = useMemo(() => {
+    const map = new Map();
+    scaleNotes.forEach((note, index) => {
+      map.set(note, index);
+    });
+    return map;
+  }, [scaleNotes]);
 
   // Initialize audio on component mount
   useEffect(() => {
@@ -462,7 +473,7 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
           <FretboardGrid
             fretboardGrid={fretboardGrid}
             rootNote={rootNote}
-            scaleNotes={scaleNotes}
+            scaleNoteIndicesMap={scaleNoteIndicesMap}
             selectedScale={selectedScale}
             showScaleDegrees={showScaleDegrees}
             showNonScaleNotes={showNonScaleNotes}

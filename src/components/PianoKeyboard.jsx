@@ -123,6 +123,15 @@ const PianoKeyboard = ({
     return getScaleNotes(rootNote, SCALE_LIBRARY[selectedScale.category][selectedScale.name]);
   }, [rootNote, selectedScale]);
 
+  // Create a map for O(1) scale note lookups
+  const scaleNoteIndicesMap = useMemo(() => {
+    const map = new Map();
+    scaleNotes.forEach((note, index) => {
+      map.set(note, index);
+    });
+    return map;
+  }, [scaleNotes]);
+
   // Memoize keys generation
   const keys = useMemo(() => {
     const generatedKeys = [];
@@ -135,8 +144,8 @@ const PianoKeyboard = ({
         const noteName = note;
         const fullNoteName = `${note}${octave}`;
 
-        // Check if note is in scale
-        const scaleIndex = scaleNotes.indexOf(note);
+        // Check if note is in scale using O(1) lookup
+        const scaleIndex = scaleNoteIndicesMap.has(note) ? scaleNoteIndicesMap.get(note) : -1;
         const isInScale = scaleIndex !== -1;
         const isRoot = note === rootNote;
 
@@ -158,7 +167,7 @@ const PianoKeyboard = ({
       });
     }
     return generatedKeys;
-  }, [startOctave, endOctave, scaleNotes, rootNote, selectedChord]);
+  }, [startOctave, endOctave, scaleNoteIndicesMap, rootNote, selectedChord]);
 
   const playNote = useCallback((note, octave) => {
     SoundfontAudio.playNote(note, null, octave);
