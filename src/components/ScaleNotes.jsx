@@ -1,7 +1,7 @@
 // File: components/ScaleNotes.jsx
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { getScaleNotes, getScalePattern, SCALE_LIBRARY } from '../utils/musicTheory';
+import { getScaleNotes, getScalePattern, SCALE_LIBRARY, NOTES } from '../utils/musicTheory';
 import PropTypes from 'prop-types';
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
 import Spinner from './ui/Spinner';
@@ -34,10 +34,21 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
   if (!rootNote || !selectedScale) return null;
 
   // Memoize expensive calculations to prevent re-computation during playback animation
-  const scaleNotes = useMemo(() =>
-    getScaleNotes(rootNote, SCALE_LIBRARY[selectedScale.category][selectedScale.name]),
-    [rootNote, selectedScale]
-  );
+  const scaleNotes = useMemo(() => {
+    const notes = getScaleNotes(rootNote, SCALE_LIBRARY[selectedScale.category][selectedScale.name]);
+    let currentOctave = 4;
+    let previousNoteIndex = -1;
+
+    return notes.map((note) => {
+      const noteIndex = NOTES.indexOf(note);
+      // If the note index decreases (e.g., B to C), increment the octave
+      if (previousNoteIndex !== -1 && noteIndex < previousNoteIndex) {
+        currentOctave++;
+      }
+      previousNoteIndex = noteIndex;
+      return { note, octave: currentOctave };
+    });
+  }, [rootNote, selectedScale]);
 
   const scalePattern = useMemo(() =>
     getScalePattern(SCALE_LIBRARY[selectedScale.category][selectedScale.name]),
@@ -58,6 +69,25 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
     }
   };
 
+  // Play a single note
+  const handleNoteClick = async (note, octave, index) => {
+    if (!audioInitialized || isPlaying) return;
+
+    // Visual feedback
+    setCurrentNoteIndex(index);
+
+    try {
+      await SoundfontAudio.playNote(note, null, octave);
+    } catch (err) {
+      console.error('Error playing note:', err);
+    }
+
+    // Reset visual feedback after a short delay
+    setTimeout(() => {
+      setCurrentNoteIndex(null);
+    }, 500);
+  };
+
   // Play the scale notes in sequence
   const playScale = async () => {
     if (!audioInitialized || isPlaying) return;
@@ -71,7 +101,7 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
         
         // Play the note and await, catch errors
         try {
-          await SoundfontAudio.playNote(scaleNotes[i]);
+          await SoundfontAudio.playNote(scaleNotes[i].note, null, scaleNotes[i].octave);
         } catch (noteError) {
           console.error('Error playing note:', noteError);
           // Optionally, set an error state here to display in the UI
@@ -115,7 +145,7 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
         <thead>
           <tr>
             <th className="border p-2">Degree</th>
-            {scaleNotes.map((note, index) => (
+            {scaleNotes.map((item, index) => (
               <th key={index} style={{ color: getScaleDegreeColor(index) }}>{index + 1}</th>
             ))}
           </tr>
@@ -123,16 +153,33 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
         <tbody>
           <tr>
             <th scope="row" className="border p-2 font-medium text-left"><b>Note</b></th>
-            {scaleNotes.map((note, index) => (
-              <td key={index} style={{ 
-                color: getScaleDegreeColor(index),
-                fontWeight: 'bold',
-                backgroundColor: currentNoteIndex === index ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
-                transition: 'background-color 0.3s ease',
-                padding: '8px 12px',
-                borderRadius: '4px',
-                transform: currentNoteIndex === index ? 'scale(1.1)' : 'scale(1)',
-              }}>{note}</td>
+            {scaleNotes.map((item, index) => (
+              <td key={index} className="p-0">
+                <button
+                  type="button"
+                  onClick={() => handleNoteClick(item.note, item.octave, index)}
+                  disabled={isPlaying || !audioInitialized}
+                  aria-label={`Play note ${item.note}`}
+                  style={{
+                    color: getScaleDegreeColor(index),
+                    fontWeight: 'bold',
+                    backgroundColor: currentNoteIndex === index ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
+                    transition: 'background-color 0.3s ease',
+                    padding: '8px 12px',
+                    width: '100%',
+                    height: '100%',
+                    display: 'block',
+                    textAlign: 'center',
+                    border: 'none',
+                    borderRadius: '4px', // Added back
+                    cursor: (isPlaying || !audioInitialized) ? 'default' : 'pointer',
+                    transform: currentNoteIndex === index ? 'scale(1.1)' : 'scale(1)',
+                  }}
+                  className="bg-transparent hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  {item.note}
+                </button>
+              </td>
             ))}
           </tr>
         </tbody>
