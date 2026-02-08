@@ -58,6 +58,16 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
     }
   };
 
+  // Play a single note
+  const playSingleNote = async (note) => {
+    if (!audioInitialized) return;
+    try {
+      await SoundfontAudio.playNote(note);
+    } catch (error) {
+      console.error('Error playing note:', error);
+    }
+  };
+
   // Play the scale notes in sequence
   const playScale = async () => {
     if (!audioInitialized || isPlaying) return;
@@ -129,10 +139,23 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
                 fontWeight: 'bold',
                 backgroundColor: currentNoteIndex === index ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
                 transition: 'background-color 0.3s ease',
-                padding: '8px 12px',
+                padding: 0,
                 borderRadius: '4px',
                 transform: currentNoteIndex === index ? 'scale(1.1)' : 'scale(1)',
-              }}>{note}</td>
+                minWidth: '40px',
+                textAlign: 'center'
+              }}>
+                <button
+                  type="button"
+                  onClick={() => playSingleNote(note)}
+                  className="w-full h-full px-3 py-2 bg-transparent border-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300 rounded hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+                  aria-label={`Play note ${note}`}
+                  disabled={!audioInitialized}
+                  style={{ color: 'inherit', fontWeight: 'inherit' }}
+                >
+                  {note}
+                </button>
+              </td>
             ))}
           </tr>
         </tbody>

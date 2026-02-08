@@ -90,6 +90,7 @@ function App() {
             <div className="relative flex-grow sm:flex-grow-0">
               <select
                 id="instrument-select"
+                aria-label="Select Instrument"
                 value={selectedInstrument}
                 onChange={handleInstrumentChange}
                 className="appearance-none bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 pr-8 cursor-pointer font-bold"
