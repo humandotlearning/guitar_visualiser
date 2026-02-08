@@ -1,7 +1,7 @@
 // File: components/ScaleNotes.jsx
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { getScaleNotes, getScalePattern, SCALE_LIBRARY } from '../utils/musicTheory';
+import { getScaleNotes, getScalePattern, SCALE_LIBRARY, NOTES } from '../utils/musicTheory';
 import PropTypes from 'prop-types';
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
 import Spinner from './ui/Spinner';
@@ -34,10 +34,22 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
   if (!rootNote || !selectedScale) return null;
 
   // Memoize expensive calculations to prevent re-computation during playback animation
-  const scaleNotes = useMemo(() =>
-    getScaleNotes(rootNote, SCALE_LIBRARY[selectedScale.category][selectedScale.name]),
-    [rootNote, selectedScale]
-  );
+  const scaleNotes = useMemo(() => {
+    const notes = getScaleNotes(rootNote, SCALE_LIBRARY[selectedScale.category][selectedScale.name]);
+    // Calculate octaves for ascending playback
+    let currentOctave = 4;
+    return notes.map((note, index) => {
+      if (index > 0) {
+        const prevNote = notes[index - 1];
+        const prevIndex = NOTES.indexOf(prevNote);
+        const currentIndex = NOTES.indexOf(note);
+        if (currentIndex < prevIndex) {
+          currentOctave++;
+        }
+      }
+      return { note, octave: currentOctave };
+    });
+  }, [rootNote, selectedScale]);
 
   const scalePattern = useMemo(() =>
     getScalePattern(SCALE_LIBRARY[selectedScale.category][selectedScale.name]),
@@ -71,7 +83,7 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
         
         // Play the note and await, catch errors
         try {
-          await SoundfontAudio.playNote(scaleNotes[i]);
+          await SoundfontAudio.playNote(scaleNotes[i].note, null, scaleNotes[i].octave);
         } catch (noteError) {
           console.error('Error playing note:', noteError);
           // Optionally, set an error state here to display in the UI
@@ -123,16 +135,25 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
         <tbody>
           <tr>
             <th scope="row" className="border p-2 font-medium text-left"><b>Note</b></th>
-            {scaleNotes.map((note, index) => (
+            {scaleNotes.map(({ note, octave }, index) => (
               <td key={index} style={{ 
                 color: getScaleDegreeColor(index),
                 fontWeight: 'bold',
                 backgroundColor: currentNoteIndex === index ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
                 transition: 'background-color 0.3s ease',
-                padding: '8px 12px',
+                padding: 0,
                 borderRadius: '4px',
                 transform: currentNoteIndex === index ? 'scale(1.1)' : 'scale(1)',
-              }}>{note}</td>
+              }}>
+                <button
+                  onClick={() => SoundfontAudio.playNote(note, null, octave)}
+                  aria-label={`Play note ${note}`}
+                  className="w-full h-full px-3 py-2 bg-transparent border-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300 rounded hover:!bg-slate-100 hover:!shadow-none hover:!transform-none"
+                  style={{ color: 'inherit', fontWeight: 'inherit' }}
+                >
+                  {note}
+                </button>
+              </td>
             ))}
           </tr>
         </tbody>
