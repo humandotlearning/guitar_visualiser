@@ -37,3 +37,7 @@
 ## 2026-02-01 - Disclosure vs Toggle Attributes
 **Learning:** A toggle button that controls the visibility of another element (like a settings panel) is a Disclosure pattern, not a simple State Toggle. It requires `aria-expanded` and `aria-controls` to communicate the relationship and state to screen readers, whereas `aria-pressed` is for buttons that toggle their own state (like "Mute").
 **Action:** When implementing a button that opens/closes a panel, menu, or dialog, always use `aria-expanded={isOpen}` and `aria-controls={targetId}` instead of `aria-pressed`.
+
+## 2026-02-02 - Conflict between Animation and User Interaction
+**Learning:** When an element is being animated (like a scale playback highlighting notes sequentially), allowing manual user interaction on the same elements can cause state conflicts and visual glitches.
+**Action:** Explicitly disable manual interaction controls (buttons) while a related automated sequence is running on the same elements.
