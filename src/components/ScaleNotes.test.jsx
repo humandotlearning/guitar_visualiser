@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import ScaleNotes from './ScaleNotes';
 
 // Mock the soundfontAudioUtils to avoid audio context errors
@@ -38,5 +39,32 @@ describe('ScaleNotes', () => {
   test('does not render if props are missing', () => {
     const { container } = render(<ScaleNotes rootNote="" selectedScale={null} />);
     expect(container.firstChild).toBeNull();
+  });
+
+  test('copies notes to clipboard on button click', async () => {
+    // Mock clipboard
+    const writeTextMock = jest.fn().mockResolvedValue();
+    Object.defineProperty(navigator, 'clipboard', {
+      value: {
+        writeText: writeTextMock,
+      },
+      writable: true,
+    });
+
+    render(<ScaleNotes {...mockProps} />);
+
+    // Find copy button by label
+    const copyButton = screen.getByLabelText('Copy notes to clipboard');
+    expect(copyButton).toBeInTheDocument();
+
+    // Click it
+    userEvent.click(copyButton);
+
+    // Verify clipboard write
+    // The scale notes for C Major are C, D, E, F, G, A, B
+    expect(writeTextMock).toHaveBeenCalledWith('C - D - E - F - G - A - B');
+
+    // Verify visual feedback (async)
+    expect(await screen.findByLabelText('Copied notes')).toBeInTheDocument();
   });
 });
