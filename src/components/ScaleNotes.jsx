@@ -5,12 +5,14 @@ import { getScaleNotes, getScalePattern, SCALE_LIBRARY } from '../utils/musicThe
 import PropTypes from 'prop-types';
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
 import Spinner from './ui/Spinner';
+import { Copy, Check } from 'lucide-react';
 
 // Memoized ScaleNotes component to avoid re-rendering when unrelated App state changes (e.g. Chord selection)
 const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentNoteIndex, setCurrentNoteIndex] = useState(null);
   const [audioInitialized, setAudioInitialized] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   // Initialize audio on mount and when instrument changes
   useEffect(() => {
@@ -43,6 +45,17 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
     getScalePattern(SCALE_LIBRARY[selectedScale.category][selectedScale.name]),
     [selectedScale]
   );
+
+  const handleCopyNotes = async () => {
+    const notesString = scaleNotes.join(' - ');
+    try {
+      await navigator.clipboard.writeText(notesString);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy!', err);
+    }
+  };
 
   // Helper function to get color based on scale degree
   const getScaleDegreeColor = (index) => {
@@ -106,7 +119,17 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h2>Notes of {rootNote} {selectedScale.name} </h2>
+        <div className="flex items-center gap-3">
+          <h2 className="text-xl font-bold text-slate-800">Notes of {rootNote} {selectedScale.name} </h2>
+          <button
+            onClick={handleCopyNotes}
+            className="p-1.5 rounded-md hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+            aria-label={copied ? "Copied notes" : "Copy notes to clipboard"}
+            title="Copy notes"
+          >
+            {copied ? <Check size={18} className="text-green-500" /> : <Copy size={18} />}
+          </button>
+        </div>
         <button 
           onClick={playScale}
           disabled={isPlaying || !audioInitialized}
