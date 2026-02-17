@@ -5,10 +5,12 @@ import { getScaleNotes, getScalePattern, SCALE_LIBRARY } from '../utils/musicThe
 import PropTypes from 'prop-types';
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
 import Spinner from './ui/Spinner';
+import { Copy, Check } from 'lucide-react';
 
 // Memoized ScaleNotes component to avoid re-rendering when unrelated App state changes (e.g. Chord selection)
 const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
   const [currentNoteIndex, setCurrentNoteIndex] = useState(null);
   const [audioInitialized, setAudioInitialized] = useState(false);
 
@@ -103,21 +105,42 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
     }
   };
 
+  const handleCopy = async () => {
+    try {
+      const text = scaleNotes.join(', ');
+      await navigator.clipboard.writeText(text);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
         <h2>Notes of {rootNote} {selectedScale.name} </h2>
-        <button 
-          onClick={playScale}
-          disabled={isPlaying || !audioInitialized}
-          className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:opacity-50 flex items-center"
-        >
-          {isPlaying ? (
-            <span><Spinner /> Playing...</span>
-          ) : (
-            <span>Play Scale</span>
-          )}
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={handleCopy}
+            className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-300"
+            title="Copy notes to clipboard"
+            aria-label={isCopied ? "Copied notes to clipboard" : "Copy notes to clipboard"}
+          >
+            {isCopied ? <Check size={20} /> : <Copy size={20} />}
+          </button>
+          <button
+            onClick={playScale}
+            disabled={isPlaying || !audioInitialized}
+            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:opacity-50 flex items-center"
+          >
+            {isPlaying ? (
+              <span><Spinner /> Playing...</span>
+            ) : (
+              <span>Play Scale</span>
+            )}
+          </button>
+        </div>
       </div>
       <h3> {selectedScale.name} Scale Pattern  :  <b>{scalePattern}</b></h3>
       <br></br>
