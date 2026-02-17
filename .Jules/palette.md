@@ -37,3 +37,7 @@
 ## 2026-02-01 - Disclosure vs Toggle Attributes
 **Learning:** A toggle button that controls the visibility of another element (like a settings panel) is a Disclosure pattern, not a simple State Toggle. It requires `aria-expanded` and `aria-controls` to communicate the relationship and state to screen readers, whereas `aria-pressed` is for buttons that toggle their own state (like "Mute").
 **Action:** When implementing a button that opens/closes a panel, menu, or dialog, always use `aria-expanded={isOpen}` and `aria-controls={targetId}` instead of `aria-pressed`.
+
+## 2026-02-02 - Clipboard Feedback
+**Learning:** Clipboard interactions are invisible by default. Without explicit visual confirmation (like a checkmark or toast) that reverts after a delay, users are unsure if the action succeeded.
+**Action:** Always couple `navigator.clipboard.writeText` with a temporary visual state change (e.g., "Copy" icon -> "Check" icon) to provide certainty.
