@@ -3,12 +3,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { getScaleNotes, getScalePattern, SCALE_LIBRARY } from '../utils/musicTheory';
 import PropTypes from 'prop-types';
+import { Copy, Check } from 'lucide-react';
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
 import Spinner from './ui/Spinner';
 
 // Memoized ScaleNotes component to avoid re-rendering when unrelated App state changes (e.g. Chord selection)
 const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
   const [currentNoteIndex, setCurrentNoteIndex] = useState(null);
   const [audioInitialized, setAudioInitialized] = useState(false);
 
@@ -103,10 +105,32 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
     }
   };
 
+  const handleCopyNotes = () => {
+    if (scaleNotes.length > 0) {
+      const textToCopy = scaleNotes.join(', ');
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
+      }).catch(err => {
+        console.error('Failed to copy text: ', err);
+      });
+    }
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h2>Notes of {rootNote} {selectedScale.name} </h2>
+        <div className="flex items-center gap-2">
+          <h2>Notes of {rootNote} {selectedScale.name} </h2>
+          <button
+            onClick={handleCopyNotes}
+            className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all rounded-md focus:outline-none focus:ring-2 focus:ring-blue-300"
+            aria-label="Copy notes to clipboard"
+            title="Copy notes"
+          >
+            {isCopied ? <Check size={18} className="text-green-500" /> : <Copy size={18} />}
+          </button>
+        </div>
         <button 
           onClick={playScale}
           disabled={isPlaying || !audioInitialized}

@@ -37,3 +37,7 @@
 ## 2026-02-01 - Disclosure vs Toggle Attributes
 **Learning:** A toggle button that controls the visibility of another element (like a settings panel) is a Disclosure pattern, not a simple State Toggle. It requires `aria-expanded` and `aria-controls` to communicate the relationship and state to screen readers, whereas `aria-pressed` is for buttons that toggle their own state (like "Mute").
 **Action:** When implementing a button that opens/closes a panel, menu, or dialog, always use `aria-expanded={isOpen}` and `aria-controls={targetId}` instead of `aria-pressed`.
+
+## 2026-02-19 - Copy Utility Feedback
+**Learning:** Copy-to-clipboard actions are invisible without feedback. Users need confirmation that the action succeeded. A simple icon swap (Copy -> Check) for a short duration (e.g., 2s) is an elegant, non-intrusive way to provide this confirmation without using toasts or alerts.
+**Action:** When adding copy functionality, always implement a temporary visual state change (icon swap or text change) to confirm success.
