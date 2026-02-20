@@ -37,3 +37,7 @@
 ## 2026-02-01 - Disclosure vs Toggle Attributes
 **Learning:** A toggle button that controls the visibility of another element (like a settings panel) is a Disclosure pattern, not a simple State Toggle. It requires `aria-expanded` and `aria-controls` to communicate the relationship and state to screen readers, whereas `aria-pressed` is for buttons that toggle their own state (like "Mute").
 **Action:** When implementing a button that opens/closes a panel, menu, or dialog, always use `aria-expanded={isOpen}` and `aria-controls={targetId}` instead of `aria-pressed`.
+
+## 2026-02-02 - Responsive Icon Buttons
+**Learning:** Dense UIs (like mobile instrument views) often require icon-only buttons to save space, but desktop users benefit from explicit text labels. Using `sr-only sm:not-sr-only` on the label text allows the button to seamlessly transition from an accessible icon-only button (mobile) to a labeled button (desktop) without duplicating the element.
+**Action:** When adding utility actions (like Copy/Play) to responsive toolbars, consider hiding the text label on mobile with `sr-only` while keeping the icon visible, revealing the text on larger screens.

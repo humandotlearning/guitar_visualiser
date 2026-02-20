@@ -5,12 +5,14 @@ import { getScaleNotes, getScalePattern, SCALE_LIBRARY } from '../utils/musicThe
 import PropTypes from 'prop-types';
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
 import Spinner from './ui/Spinner';
+import { Copy, Check } from 'lucide-react';
 
 // Memoized ScaleNotes component to avoid re-rendering when unrelated App state changes (e.g. Chord selection)
 const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentNoteIndex, setCurrentNoteIndex] = useState(null);
   const [audioInitialized, setAudioInitialized] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
 
   // Initialize audio on mount and when instrument changes
   useEffect(() => {
@@ -43,6 +45,17 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
     getScalePattern(SCALE_LIBRARY[selectedScale.category][selectedScale.name]),
     [selectedScale]
   );
+
+  // Copy scale notes to clipboard
+  const handleCopy = () => {
+    const notesString = scaleNotes.join(', ');
+    navigator.clipboard.writeText(notesString).then(() => {
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    }).catch(err => {
+      console.error('Failed to copy notes: ', err);
+    });
+  };
 
   // Helper function to get color based on scale degree
   const getScaleDegreeColor = (index) => {
@@ -107,17 +120,30 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
     <div>
       <div className="flex items-center justify-between mb-4">
         <h2>Notes of {rootNote} {selectedScale.name} </h2>
-        <button 
-          onClick={playScale}
-          disabled={isPlaying || !audioInitialized}
-          className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:opacity-50 flex items-center"
-        >
-          {isPlaying ? (
-            <span><Spinner /> Playing...</span>
-          ) : (
-            <span>Play Scale</span>
-          )}
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={handleCopy}
+            className="px-3 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-300 flex items-center gap-2 transition-colors"
+            title="Copy notes to clipboard"
+            aria-label={isCopied ? "Copied to clipboard" : "Copy scale notes"}
+          >
+            {isCopied ? <Check size={18} className="text-green-600" /> : <Copy size={18} />}
+            <span className="sr-only sm:not-sr-only text-sm font-medium">
+              {isCopied ? 'Copied!' : 'Copy'}
+            </span>
+          </button>
+          <button
+            onClick={playScale}
+            disabled={isPlaying || !audioInitialized}
+            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:opacity-50 flex items-center"
+          >
+            {isPlaying ? (
+              <span><Spinner /> Playing...</span>
+            ) : (
+              <span>Play Scale</span>
+            )}
+          </button>
+        </div>
       </div>
       <h3> {selectedScale.name} Scale Pattern  :  <b>{scalePattern}</b></h3>
       <br></br>
