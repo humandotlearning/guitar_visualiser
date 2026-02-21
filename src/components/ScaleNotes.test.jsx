@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import ScaleNotes from './ScaleNotes';
 
 // Mock the soundfontAudioUtils to avoid audio context errors
@@ -15,6 +15,20 @@ describe('ScaleNotes', () => {
     selectedScale: { category: 'Major Family', name: 'Major' },
     selectedInstrument: 'acoustic_guitar_steel'
   };
+
+  beforeEach(() => {
+    // Mock navigator.clipboard
+    Object.assign(navigator, {
+      clipboard: {
+        writeText: jest.fn().mockResolvedValue(),
+      },
+    });
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
 
   test('renders correctly with given props', () => {
     render(<ScaleNotes {...mockProps} />);
@@ -38,5 +52,28 @@ describe('ScaleNotes', () => {
   test('does not render if props are missing', () => {
     const { container } = render(<ScaleNotes rootNote="" selectedScale={null} />);
     expect(container.firstChild).toBeNull();
+  });
+
+  test('copies notes to clipboard when copy button is clicked', async () => {
+    render(<ScaleNotes {...mockProps} />);
+
+    const copyButton = screen.getByLabelText('Copy notes to clipboard');
+
+    await act(async () => {
+      fireEvent.click(copyButton);
+    });
+
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('C, D, E, F, G, A, B');
+
+    // Check if button text changes
+    expect(screen.getByText('Copied!')).toBeInTheDocument();
+
+    // Fast forward time
+    act(() => {
+      jest.advanceTimersByTime(2000);
+    });
+
+    // Check if button text reverts
+    expect(screen.getByText('Copy')).toBeInTheDocument();
   });
 });

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { getScaleNotes, getScalePattern, SCALE_LIBRARY } from '../utils/musicTheory';
 import PropTypes from 'prop-types';
+import { Copy, Check } from 'lucide-react';
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
 import Spinner from './ui/Spinner';
 
@@ -11,6 +12,7 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentNoteIndex, setCurrentNoteIndex] = useState(null);
   const [audioInitialized, setAudioInitialized] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   // Initialize audio on mount and when instrument changes
   useEffect(() => {
@@ -103,21 +105,45 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
     }
   };
 
+  const handleCopyNotes = async () => {
+    const notesString = scaleNotes.join(', ');
+    if (navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(notesString);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch (err) {
+        console.error('Failed to copy text: ', err);
+      }
+    }
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
         <h2>Notes of {rootNote} {selectedScale.name} </h2>
-        <button 
-          onClick={playScale}
-          disabled={isPlaying || !audioInitialized}
-          className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:opacity-50 flex items-center"
-        >
-          {isPlaying ? (
-            <span><Spinner /> Playing...</span>
-          ) : (
-            <span>Play Scale</span>
-          )}
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={handleCopyNotes}
+            className="px-3 py-2 bg-white text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-300 flex items-center gap-2 transition-colors"
+            aria-label={copied ? "Notes copied" : "Copy notes to clipboard"}
+            title="Copy notes"
+          >
+            {copied ? <Check size={18} className="text-green-600" /> : <Copy size={18} />}
+            <span className="text-sm font-medium">{copied ? "Copied!" : "Copy"}</span>
+          </button>
+          <button
+            onClick={playScale}
+            disabled={isPlaying || !audioInitialized}
+            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:opacity-50 flex items-center"
+          >
+            {isPlaying ? (
+              <span><Spinner /> Playing...</span>
+            ) : (
+              <span>Play Scale</span>
+            )}
+          </button>
+        </div>
       </div>
       <h3> {selectedScale.name} Scale Pattern  :  <b>{scalePattern}</b></h3>
       <br></br>
