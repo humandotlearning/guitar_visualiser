@@ -5,12 +5,14 @@ import { getScaleNotes, getScalePattern, SCALE_LIBRARY } from '../utils/musicThe
 import PropTypes from 'prop-types';
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
 import Spinner from './ui/Spinner';
+import { Copy, Check } from 'lucide-react';
 
 // Memoized ScaleNotes component to avoid re-rendering when unrelated App state changes (e.g. Chord selection)
 const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentNoteIndex, setCurrentNoteIndex] = useState(null);
   const [audioInitialized, setAudioInitialized] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   // Initialize audio on mount and when instrument changes
   useEffect(() => {
@@ -103,10 +105,31 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
     }
   };
 
+  const handleCopy = async () => {
+    const notesText = scaleNotes.join(', ');
+    try {
+      await navigator.clipboard.writeText(notesText);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h2>Notes of {rootNote} {selectedScale.name} </h2>
+        <div className="flex items-center gap-2">
+          <h2 className="m-0">Notes of {rootNote} {selectedScale.name} </h2>
+          <button
+            onClick={handleCopy}
+            className="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500 hover:text-gray-900"
+            aria-label={copied ? "Copied scale notes" : "Copy scale notes to clipboard"}
+            title={copied ? "Copied!" : "Copy notes"}
+          >
+            {copied ? <Check size={18} className="text-green-500" /> : <Copy size={18} />}
+          </button>
+        </div>
         <button 
           onClick={playScale}
           disabled={isPlaying || !audioInitialized}
