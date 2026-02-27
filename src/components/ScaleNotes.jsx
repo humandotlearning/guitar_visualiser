@@ -5,12 +5,14 @@ import { getScaleNotes, getScalePattern, SCALE_LIBRARY } from '../utils/musicThe
 import PropTypes from 'prop-types';
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
 import Spinner from './ui/Spinner';
+import { Copy, Check } from 'lucide-react';
 
 // Memoized ScaleNotes component to avoid re-rendering when unrelated App state changes (e.g. Chord selection)
 const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentNoteIndex, setCurrentNoteIndex] = useState(null);
   const [audioInitialized, setAudioInitialized] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
 
   // Initialize audio on mount and when instrument changes
   useEffect(() => {
@@ -71,14 +73,14 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
   // Play the scale notes in sequence
   const playScale = async () => {
     if (!audioInitialized || isPlaying) return;
-    
+
     setIsPlaying(true);
     try {
       // Play notes sequentially with a delay between them
       for (let i = 0; i < scaleNotes.length; i++) {
         // Set current note index immediately before playing
         setCurrentNoteIndex(i);
-        
+
         // Play the note and await, catch errors
         try {
           await SoundfontAudio.playNote(scaleNotes[i]);
@@ -103,11 +105,35 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
     }
   };
 
+  const handleCopyNotes = async () => {
+    try {
+      await navigator.clipboard.writeText(scaleNotes.join(', '));
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy notes:', err);
+    }
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h2>Notes of {rootNote} {selectedScale.name} </h2>
-        <button 
+        <div className="flex items-center gap-3">
+          <h2 className="!m-0">Notes of {rootNote} {selectedScale.name} </h2>
+          <button
+            onClick={handleCopyNotes}
+            className="bg-transparent p-1.5 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-300"
+            aria-label={isCopied ? "Copied to clipboard" : "Copy notes to clipboard"}
+            title="Copy notes"
+          >
+            {isCopied ? (
+              <Check size={18} className="text-green-500" />
+            ) : (
+              <Copy size={18} />
+            )}
+          </button>
+        </div>
+        <button
           onClick={playScale}
           disabled={isPlaying || !audioInitialized}
           className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:opacity-50 flex items-center"
@@ -134,7 +160,7 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
           <tr>
             <th scope="row" className="border p-2 font-medium text-left"><b>Note</b></th>
             {scaleNotes.map((note, index) => (
-              <td key={index} style={{ 
+              <td key={index} style={{
                 color: getScaleDegreeColor(index),
                 fontWeight: 'bold',
                 backgroundColor: currentNoteIndex === index ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
@@ -159,14 +185,14 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
             ))}
           </tr>
         </tbody>
-      </table><br/>
+      </table><br />
       <p className="text-sm text-gray-600">
-        This table shows the notes of the {rootNote} {selectedScale.name} scale in order, 
-        along with their scale degrees. The scale pattern represents the intervals between each note. 
+        This table shows the notes of the {rootNote} {selectedScale.name} scale in order,
+        along with their scale degrees. The scale pattern represents the intervals between each note.
       </p>
-      <br/>
+      <br />
       <p className="text-sm text-gray-600">
-        <b>W </b> refers to Whole Step.<br/>
+        <b>W </b> refers to Whole Step.<br />
         <b>H </b> refers to Half Step
       </p>
     </div>
