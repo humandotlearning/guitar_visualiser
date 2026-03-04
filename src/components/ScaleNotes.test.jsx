@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, act, fireEvent, waitFor } from '@testing-library/react';
 import ScaleNotes from './ScaleNotes';
 
 // Mock the soundfontAudioUtils to avoid audio context errors
@@ -38,5 +38,48 @@ describe('ScaleNotes', () => {
   test('does not render if props are missing', () => {
     const { container } = render(<ScaleNotes rootNote="" selectedScale={null} />);
     expect(container.firstChild).toBeNull();
+  });
+
+  describe('Copy to Clipboard', () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+      Object.assign(navigator, {
+        clipboard: {
+          writeText: jest.fn().mockResolvedValue(),
+        },
+      });
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+      jest.restoreAllMocks();
+    });
+
+    test('copies notes to clipboard and shows feedback', async () => {
+      render(<ScaleNotes {...mockProps} />);
+
+      const copyBtn = screen.getByRole('button', { name: 'Copy scale notes to clipboard' });
+      expect(copyBtn).toBeInTheDocument();
+
+      await act(async () => {
+        fireEvent.click(copyBtn);
+      });
+
+      expect(navigator.clipboard.writeText).toHaveBeenCalledWith('C, D, E, F, G, A, B');
+
+      // Check feedback state
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Copied scale notes' })).toBeInTheDocument();
+      });
+
+      // Fast forward timers to reset state
+      act(() => {
+        jest.advanceTimersByTime(2000);
+      });
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Copy scale notes to clipboard' })).toBeInTheDocument();
+      });
+    });
   });
 });

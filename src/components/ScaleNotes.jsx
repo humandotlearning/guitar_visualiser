@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { getScaleNotes, getScalePattern, SCALE_LIBRARY } from '../utils/musicTheory';
+import { Copy, Check } from 'lucide-react';
 import PropTypes from 'prop-types';
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
 import Spinner from './ui/Spinner';
@@ -11,6 +12,7 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentNoteIndex, setCurrentNoteIndex] = useState(null);
   const [audioInitialized, setAudioInitialized] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
 
   // Initialize audio on mount and when instrument changes
   useEffect(() => {
@@ -68,6 +70,16 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
     }
   };
 
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(scaleNotes.join(', '));
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy to clipboard:', err);
+    }
+  };
+
   // Play the scale notes in sequence
   const playScale = async () => {
     if (!audioInitialized || isPlaying) return;
@@ -106,7 +118,23 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h2>Notes of {rootNote} {selectedScale.name} </h2>
+        <div className="flex items-center gap-3">
+          <h2 className="mb-0">Notes of {rootNote} {selectedScale.name} </h2>
+          <button
+            onClick={copyToClipboard}
+            className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors flex items-center gap-1 bg-transparent"
+            aria-label={isCopied ? "Copied scale notes" : "Copy scale notes to clipboard"}
+            title={isCopied ? "Copied!" : "Copy to clipboard"}
+            type="button"
+          >
+            {isCopied ? (
+              <Check className="w-4 h-4 text-green-500" aria-hidden="true" />
+            ) : (
+              <Copy className="w-4 h-4" aria-hidden="true" />
+            )}
+            <span className="sr-only">{isCopied ? "Copied" : "Copy"}</span>
+          </button>
+        </div>
         <button 
           onClick={playScale}
           disabled={isPlaying || !audioInitialized}
