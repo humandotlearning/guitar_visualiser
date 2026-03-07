@@ -37,3 +37,7 @@
 ## 2026-02-01 - Disclosure vs Toggle Attributes
 **Learning:** A toggle button that controls the visibility of another element (like a settings panel) is a Disclosure pattern, not a simple State Toggle. It requires `aria-expanded` and `aria-controls` to communicate the relationship and state to screen readers, whereas `aria-pressed` is for buttons that toggle their own state (like "Mute").
 **Action:** When implementing a button that opens/closes a panel, menu, or dialog, always use `aria-expanded={isOpen}` and `aria-controls={targetId}` instead of `aria-pressed`.
+
+## 2026-02-02 - Explicit Focus Rings for Custom Buttons
+**Learning:** Tailwind's default focus styles or browser default outlines are often insufficient or completely missing on highly styled custom buttons (like custom selection pills or grids). This leaves keyboard users without clear indication of their current position.
+**Action:** Always add explicit `focus-visible` utility classes (e.g., `focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none`) to interactive elements, especially those with custom background colors, borders, and rounded corners, to ensure keyboard accessibility is not compromised by aesthetic styling.
