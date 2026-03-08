@@ -37,3 +37,10 @@
 ## 2026-02-01 - Disclosure vs Toggle Attributes
 **Learning:** A toggle button that controls the visibility of another element (like a settings panel) is a Disclosure pattern, not a simple State Toggle. It requires `aria-expanded` and `aria-controls` to communicate the relationship and state to screen readers, whereas `aria-pressed` is for buttons that toggle their own state (like "Mute").
 **Action:** When implementing a button that opens/closes a panel, menu, or dialog, always use `aria-expanded={isOpen}` and `aria-controls={targetId}` instead of `aria-pressed`.
+## 2026-03-07 - Settings Panel Accessibility and Loading States
+**Learning:** For settings panels toggled by a button, screen readers need `aria-expanded` and `aria-controls` on the button to understand the relationship, and sliders with percentage or duration values need `aria-valuetext` to provide context beyond raw numbers.
+**Action:** Always add `aria-expanded` and `aria-controls` to disclosure buttons. Add `aria-valuetext` to `input[type="range"]` when the value represents a non-linear or formatted metric (like % or seconds).
+
+## 2026-03-07 - Safe Async UI Feedback
+**Learning:** When adding asynchronous visual feedback (like a "Playing..." state that resets via a timeout) to a component that can be unmounted (like a settings modal), attempting to update state after unmount causes React warnings and potential memory leaks.
+**Action:** Use a `mountedRef` pattern within a `useEffect` cleanup block to safely guard any `setTimeout` or async state updates, ensuring they only run if `mountedRef.current` is true.
