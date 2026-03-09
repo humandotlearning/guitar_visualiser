@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
+import Spinner from './ui/Spinner';
 import './SoundSettings.css';
 
 const SoundSettings = ({ onInstrumentChange }) => {
@@ -8,9 +9,17 @@ const SoundSettings = ({ onInstrumentChange }) => {
   const [volume, setVolume] = useState(0.8);
   const [sustain, setSustain] = useState(1.5);
   const [isOpen, setIsOpen] = useState(false);
+  const [isTesting, setIsTesting] = useState(false);
   
   // Reference to detect clicks outside the settings panel
   const settingsRef = useRef(null);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   // Available guitar instruments
   const instruments = {
@@ -64,11 +73,21 @@ const SoundSettings = ({ onInstrumentChange }) => {
 
   // Play a test note with the current instrument
   const playTestNote = async () => {
+    if (isTesting) return;
+    setIsTesting(true);
     try {
       // Play a simple E chord to test the instrument
       await SoundfontAudio.playChord(['E', 'G#', 'B'], sustain);
+      setTimeout(() => {
+        if (mountedRef.current) {
+          setIsTesting(false);
+        }
+      }, 1500);
     } catch (error) {
       console.error('Error playing test note:', error);
+      if (mountedRef.current) {
+        setIsTesting(false);
+      }
     }
   };
 
@@ -78,6 +97,8 @@ const SoundSettings = ({ onInstrumentChange }) => {
         className={`settings-toggle ${isOpen ? 'active' : ''}`}
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Sound Settings"
+        aria-expanded={isOpen}
+        aria-controls="sound-settings-panel"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="3"></circle>
@@ -86,7 +107,7 @@ const SoundSettings = ({ onInstrumentChange }) => {
       </button>
       
       {isOpen && (
-        <div className="settings-panel">
+        <div className="settings-panel" id="sound-settings-panel">
           <div className="setting-group">
             <label htmlFor="instrument-select">Guitar Sound</label>
             <div className="selected-instrument">
@@ -106,10 +127,18 @@ const SoundSettings = ({ onInstrumentChange }) => {
                 ))}
               </select>
               <button 
-                className="test-sound-button"
+                className={`test-sound-button ${isTesting ? 'opacity-90 cursor-wait' : ''}`}
                 onClick={playTestNote}
+                disabled={isTesting}
+                aria-label={isTesting ? "Playing test sound" : "Test instrument sound"}
               >
-                Test Sound
+                {isTesting ? (
+                  <span className="flex items-center justify-center">
+                    <Spinner /> Playing...
+                  </span>
+                ) : (
+                  'Test Sound'
+                )}
               </button>
             </div>
           </div>
@@ -127,6 +156,7 @@ const SoundSettings = ({ onInstrumentChange }) => {
                   value={volume}
                   onChange={(e) => setVolume(parseFloat(e.target.value))}
                   className="slider"
+                  aria-valuetext={`${Math.round(volume * 100)}%`}
                 />
               </div>
             </div>
@@ -145,6 +175,7 @@ const SoundSettings = ({ onInstrumentChange }) => {
                   value={sustain}
                   onChange={(e) => setSustain(parseFloat(e.target.value))}
                   className="slider"
+                  aria-valuetext={`${sustain.toFixed(1)} seconds`}
                 />
               </div>
             </div>
