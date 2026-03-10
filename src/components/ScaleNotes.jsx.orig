@@ -5,17 +5,12 @@ import { getScaleNotes, getScalePattern, SCALE_LIBRARY } from '../utils/musicThe
 import PropTypes from 'prop-types';
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
 import Spinner from './ui/Spinner';
-import { Copy, Check } from 'lucide-react';
 
 // Memoized ScaleNotes component to avoid re-rendering when unrelated App state changes (e.g. Chord selection)
 const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentNoteIndex, setCurrentNoteIndex] = useState(null);
   const [audioInitialized, setAudioInitialized] = useState(false);
-  const [isCopied, setIsCopied] = useState(false);
-
-  const copyTimeoutRef = React.useRef(null);
-  const mountedRef = React.useRef(true);
 
   // Initialize audio on mount and when instrument changes
   useEffect(() => {
@@ -32,8 +27,7 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
     initAudio();
 
     return () => {
-      mountedRef.current = false;
-      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+      // Cleanup if needed
     };
   }, [selectedInstrument]);
 
@@ -77,14 +71,14 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
   // Play the scale notes in sequence
   const playScale = async () => {
     if (!audioInitialized || isPlaying) return;
-    
+
     setIsPlaying(true);
     try {
       // Play notes sequentially with a delay between them
       for (let i = 0; i < scaleNotes.length; i++) {
         // Set current note index immediately before playing
         setCurrentNoteIndex(i);
-        
+
         // Play the note and await, catch errors
         try {
           await SoundfontAudio.playNote(scaleNotes[i]);
@@ -109,36 +103,11 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
     }
   };
 
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(scaleNotes.join(', '));
-      if (mountedRef.current) {
-        setIsCopied(true);
-        if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
-        copyTimeoutRef.current = setTimeout(() => {
-          if (mountedRef.current) setIsCopied(false);
-        }, 2000);
-      }
-    } catch (err) {
-      console.error('Failed to copy to clipboard:', err);
-    }
-  };
-
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="flex items-center gap-2 m-0 text-xl font-bold">
-          Notes of {rootNote} {selectedScale.name}
-          <button
-            onClick={handleCopy}
-            className="p-1.5 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1 bg-transparent border-none flex items-center justify-center cursor-pointer"
-            title="Copy notes to clipboard"
-            aria-label="Copy scale notes to clipboard"
-          >
-            {isCopied ? <Check size={18} className="text-green-600" aria-hidden="true" /> : <Copy size={18} aria-hidden="true" />}
-          </button>
-        </h2>
-        <button 
+        <h2>Notes of {rootNote} {selectedScale.name} </h2>
+        <button
           onClick={playScale}
           disabled={isPlaying || !audioInitialized}
           className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:opacity-50 flex items-center"
@@ -165,7 +134,7 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
           <tr>
             <th scope="row" className="border p-2 font-medium text-left"><b>Note</b></th>
             {scaleNotes.map((note, index) => (
-              <td key={index} style={{ 
+              <td key={index} style={{
                 color: getScaleDegreeColor(index),
                 fontWeight: 'bold',
                 backgroundColor: currentNoteIndex === index ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
@@ -192,8 +161,8 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
         </tbody>
       </table><br/>
       <p className="text-sm text-gray-600">
-        This table shows the notes of the {rootNote} {selectedScale.name} scale in order, 
-        along with their scale degrees. The scale pattern represents the intervals between each note. 
+        This table shows the notes of the {rootNote} {selectedScale.name} scale in order,
+        along with their scale degrees. The scale pattern represents the intervals between each note.
       </p>
       <br/>
       <p className="text-sm text-gray-600">
