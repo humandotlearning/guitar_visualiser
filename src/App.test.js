@@ -1,6 +1,6 @@
+import React from 'react';
 import { render, screen, act } from '@testing-library/react';
 import App from './App';
-import * as SoundfontAudio from './utils/soundfontAudioUtils';
 
 // Mock the utils directly to avoid dealing with external library mocks and audio context
 jest.mock('./utils/soundfontAudioUtils', () => ({
