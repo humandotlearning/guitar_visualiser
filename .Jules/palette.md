@@ -37,3 +37,7 @@
 ## 2026-02-01 - Disclosure vs Toggle Attributes
 **Learning:** A toggle button that controls the visibility of another element (like a settings panel) is a Disclosure pattern, not a simple State Toggle. It requires `aria-expanded` and `aria-controls` to communicate the relationship and state to screen readers, whereas `aria-pressed` is for buttons that toggle their own state (like "Mute").
 **Action:** When implementing a button that opens/closes a panel, menu, or dialog, always use `aria-expanded={isOpen}` and `aria-controls={targetId}` instead of `aria-pressed`.
+
+## 2026-03-14 - Focus Visible Custom Controls
+**Learning:** Highly customized interactive elements (like custom tabs, pills, or grids) often have default browser focus outlines removed or obscured by complex borders/backgrounds. This makes keyboard navigation nearly impossible for sighted keyboard users.
+**Action:** When creating custom selection controls, explicitly add `focus-visible` utility classes (e.g., `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1`) to ensure clear, consistent keyboard focus indicators that don't interfere with mouse interactions.
