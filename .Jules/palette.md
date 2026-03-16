@@ -37,3 +37,9 @@
 ## 2026-02-01 - Disclosure vs Toggle Attributes
 **Learning:** A toggle button that controls the visibility of another element (like a settings panel) is a Disclosure pattern, not a simple State Toggle. It requires `aria-expanded` and `aria-controls` to communicate the relationship and state to screen readers, whereas `aria-pressed` is for buttons that toggle their own state (like "Mute").
 **Action:** When implementing a button that opens/closes a panel, menu, or dialog, always use `aria-expanded={isOpen}` and `aria-controls={targetId}` instead of `aria-pressed`.
+## 2024-03-24 - Added visual feedback to Test Sound button in SoundSettings
+**Learning:** The `SoundSettings` component lacked temporary disabled state and clear visual feedback when testing a sound, which allowed rapid repetitive clicking and could queue overlapping sounds.
+**Action:** Implemented an `isTestingSound` state with a `disabled` attribute and updated the button text to "Playing..." to provide immediate visual feedback and prevent simultaneous playback spamming. Also ensured `aria-label` was updated to reflect the state for screen readers.
+## 2024-03-24 - Changed Select Instrument div to label
+**Learning:** The `App.js` main instrument selector lacked a valid `label` linked via `htmlFor`, violating standard accessibility guidelines for inputs.
+**Action:** Transformed the `div` containing "Select Instrument" to a proper `<label htmlFor="instrument-select">` with the `cursor-pointer` class, enabling click-to-focus and providing correct context for screen readers.
