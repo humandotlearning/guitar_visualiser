@@ -37,3 +37,6 @@
 ## 2026-02-01 - Disclosure vs Toggle Attributes
 **Learning:** A toggle button that controls the visibility of another element (like a settings panel) is a Disclosure pattern, not a simple State Toggle. It requires `aria-expanded` and `aria-controls` to communicate the relationship and state to screen readers, whereas `aria-pressed` is for buttons that toggle their own state (like "Mute").
 **Action:** When implementing a button that opens/closes a panel, menu, or dialog, always use `aria-expanded={isOpen}` and `aria-controls={targetId}` instead of `aria-pressed`.
+## 2026-02-02 - Keyboard Focus in Custom Modals
+**Learning:** Custom UI elements in modals, like settings panels (e.g., `SoundSettings.css`), often lack clear `focus-visible` styles on inputs, selects, and icon buttons since default browser outlines are overridden or hidden by complex CSS or `appearance: none`. This makes keyboard navigation extremely difficult or impossible to track.
+**Action:** When working with custom modals or panels, explicitly define `.component:focus-visible` styles with clear outlines (e.g., `outline: 2px solid #3b82f6; outline-offset: 2px;`) for all interactive elements (buttons, selects, toggles) to ensure keyboard users can navigate confidently.

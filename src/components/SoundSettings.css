@@ -40,6 +40,11 @@
   transform: rotate(30deg);
 }
 
+.settings-toggle:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
 .settings-toggle.active {
   background-color: #1e40af;
   transform: rotate(90deg);
@@ -140,6 +145,11 @@
   padding-right: 2rem;
 }
 
+.instrument-select:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 1px;
+}
+
 .selected-instrument {
   display: flex;
   align-items: center;
@@ -211,6 +221,11 @@
 
 .test-sound-button:hover {
   background-color: #2563eb;
+}
+
+.test-sound-button:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
 }
 
 .slider-container {
@@ -319,4 +334,10 @@
 
 .settings-close:hover {
   color: #1f2937;
+}
+
+.settings-close:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+  border-radius: 4px;
 }
