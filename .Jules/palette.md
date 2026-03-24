@@ -37,3 +37,7 @@
 ## 2026-02-01 - Disclosure vs Toggle Attributes
 **Learning:** A toggle button that controls the visibility of another element (like a settings panel) is a Disclosure pattern, not a simple State Toggle. It requires `aria-expanded` and `aria-controls` to communicate the relationship and state to screen readers, whereas `aria-pressed` is for buttons that toggle their own state (like "Mute").
 **Action:** When implementing a button that opens/closes a panel, menu, or dialog, always use `aria-expanded={isOpen}` and `aria-controls={targetId}` instead of `aria-pressed`.
+
+## 2026-03-24 - Interactive Component Accessibility and ARIA Attributes
+**Learning:** Adding ARIA attributes to UI components is crucial for accessibility. When managing collapsible sections (like a settings panel toggled by a button), using `aria-expanded` and `aria-controls` on the button and a matching `id` on the target panel informs screen readers about the control's relationship to the content and its current state.
+**Action:** When creating or maintaining disclosure widgets or toggles that expand/collapse content, always include `aria-expanded` indicating the state and `aria-controls` referencing the `id` of the controlled element.
