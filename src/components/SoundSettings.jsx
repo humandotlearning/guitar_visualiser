@@ -8,9 +8,17 @@ const SoundSettings = ({ onInstrumentChange }) => {
   const [volume, setVolume] = useState(0.8);
   const [sustain, setSustain] = useState(1.5);
   const [isOpen, setIsOpen] = useState(false);
+  const [isTestingSound, setIsTestingSound] = useState(false);
   
   // Reference to detect clicks outside the settings panel
   const settingsRef = useRef(null);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   // Available guitar instruments
   const instruments = {
@@ -64,11 +72,22 @@ const SoundSettings = ({ onInstrumentChange }) => {
 
   // Play a test note with the current instrument
   const playTestNote = async () => {
+    if (isTestingSound) return;
+    setIsTestingSound(true);
     try {
       // Play a simple E chord to test the instrument
       await SoundfontAudio.playChord(['E', 'G#', 'B'], sustain);
+      // Keep "Playing..." state active for roughly the duration of the sustain
+      setTimeout(() => {
+        if (mountedRef.current) {
+          setIsTestingSound(false);
+        }
+      }, sustain * 1000);
     } catch (error) {
       console.error('Error playing test note:', error);
+      if (mountedRef.current) {
+        setIsTestingSound(false);
+      }
     }
   };
 
@@ -78,6 +97,8 @@ const SoundSettings = ({ onInstrumentChange }) => {
         className={`settings-toggle ${isOpen ? 'active' : ''}`}
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Sound Settings"
+        aria-expanded={isOpen}
+        aria-controls="sound-settings-panel"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="3"></circle>
@@ -86,7 +107,7 @@ const SoundSettings = ({ onInstrumentChange }) => {
       </button>
       
       {isOpen && (
-        <div className="settings-panel">
+        <div className="settings-panel" id="sound-settings-panel">
           <div className="setting-group">
             <label htmlFor="instrument-select">Guitar Sound</label>
             <div className="selected-instrument">
@@ -106,10 +127,11 @@ const SoundSettings = ({ onInstrumentChange }) => {
                 ))}
               </select>
               <button 
-                className="test-sound-button"
+                className={`test-sound-button ${isTestingSound ? 'opacity-90 cursor-wait' : ''}`}
                 onClick={playTestNote}
+                disabled={isTestingSound}
               >
-                Test Sound
+                {isTestingSound ? 'Playing...' : 'Test Sound'}
               </button>
             </div>
           </div>
@@ -127,6 +149,7 @@ const SoundSettings = ({ onInstrumentChange }) => {
                   value={volume}
                   onChange={(e) => setVolume(parseFloat(e.target.value))}
                   className="slider"
+                  aria-valuetext={`${Math.round(volume * 100)}%`}
                 />
               </div>
             </div>
@@ -145,6 +168,7 @@ const SoundSettings = ({ onInstrumentChange }) => {
                   value={sustain}
                   onChange={(e) => setSustain(parseFloat(e.target.value))}
                   className="slider"
+                  aria-valuetext={`${sustain.toFixed(1)} seconds`}
                 />
               </div>
             </div>
