@@ -17,7 +17,7 @@ const RootNoteSelector = memo(({ rootNote, setRootNote }) => {
             onClick={() => setRootNote(note)}
             aria-pressed={rootNote === note}
             className={`
-                px-2 py-2 rounded-lg text-sm font-bold transition-all duration-200 border
+                px-2 py-2 rounded-lg text-sm font-bold transition-all duration-200 border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2
                 ${rootNote === note
                 ? 'bg-blue-600 text-white border-blue-600 shadow-md transform scale-105'
                 : 'bg-white text-slate-600 border-slate-200 hover:border-blue-300 hover:bg-blue-50'
