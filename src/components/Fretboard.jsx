@@ -413,23 +413,25 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
 
           <button
             onClick={() => setShowLegend(!showLegend)}
-            className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-            aria-pressed={showLegend}
+            className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
+            aria-expanded={showLegend}
+            aria-controls="fretboard-legend"
           >
             {showLegend ? 'Hide Legend' : 'Show Legend'}
           </button>
 
           <button
             onClick={() => setShowHints(!showHints)}
-            className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-            aria-pressed={showHints}
+            className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
+            aria-expanded={showHints}
+            aria-controls="fretboard-hints"
           >
             {showHints ? 'Hide Hints' : 'Show Hints'}
           </button>
 
           <button
             onClick={() => setShowNonScaleNotes(!showNonScaleNotes)}
-            className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+            className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
             aria-pressed={showNonScaleNotes}
           >
             {showNonScaleNotes ? 'Hide Non-Scale Notes' : 'Show Non-Scale Notes'}
@@ -485,7 +487,7 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
       </div>
 
       {showLegend && (
-        <div className="scale-legend">
+        <div id="fretboard-legend" className="scale-legend">
           <div className="legend-item">
             <div className="legend-color legend-root"></div>
             <span>Root Note</span>
@@ -510,7 +512,7 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
       )}
 
       {showHints && (
-        <div className="fretboard-hints">
+        <div id="fretboard-hints" className="fretboard-hints">
           <h4>Fretboard Tips</h4>
           <ul className="hint-list">
             <li>Click on any note to hear how it sounds</li>
