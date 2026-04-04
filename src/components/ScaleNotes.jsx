@@ -31,18 +31,30 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
     };
   }, [selectedInstrument]);
 
-  if (!rootNote || !selectedScale) return null;
-
   // Memoize expensive calculations to prevent re-computation during playback animation
-  const scaleNotes = useMemo(() =>
-    getScaleNotes(rootNote, SCALE_LIBRARY[selectedScale.category][selectedScale.name]),
-    [rootNote, selectedScale]
-  );
+  const scaleNotes = useMemo(() => {
+    if (!rootNote || !selectedScale) return [];
+    return getScaleNotes(rootNote, SCALE_LIBRARY[selectedScale.category][selectedScale.name]);
+  }, [rootNote, selectedScale]);
 
-  const scalePattern = useMemo(() =>
-    getScalePattern(SCALE_LIBRARY[selectedScale.category][selectedScale.name]),
-    [selectedScale]
-  );
+  const scalePattern = useMemo(() => {
+    if (!selectedScale) return '';
+    return getScalePattern(SCALE_LIBRARY[selectedScale.category][selectedScale.name]);
+  }, [selectedScale]);
+
+  if (!rootNote || !selectedScale) {
+    return (
+      <div className="flex flex-col items-center justify-center p-8 text-center text-slate-500 h-full min-h-[200px]">
+        <div className="p-3 bg-slate-100 rounded-full mb-3">
+          <svg className="w-8 h-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+          </svg>
+        </div>
+        <p className="text-base font-medium text-slate-700 mb-1">No Scale Selected</p>
+        <p className="text-sm">Please select a root note and scale type to view its notes and pattern.</p>
+      </div>
+    );
+  }
 
   // Helper function to get color based on scale degree
   const getScaleDegreeColor = (index) => {

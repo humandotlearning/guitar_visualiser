@@ -37,3 +37,6 @@
 ## 2026-02-01 - Disclosure vs Toggle Attributes
 **Learning:** A toggle button that controls the visibility of another element (like a settings panel) is a Disclosure pattern, not a simple State Toggle. It requires `aria-expanded` and `aria-controls` to communicate the relationship and state to screen readers, whereas `aria-pressed` is for buttons that toggle their own state (like "Mute").
 **Action:** When implementing a button that opens/closes a panel, menu, or dialog, always use `aria-expanded={isOpen}` and `aria-controls={targetId}` instead of `aria-pressed`.
+## 2026-04-04 - Adding Empty States for Improved Context
+**Learning:** The ScaleNotes component previously returned null when no scale was selected, leading to confusing blank areas in the UI and potential layout shifts. React Hook rule violations also surfaced during the fix when early returns were placed before useMemo hooks.
+**Action:** Implemented an Empty State UI instead of returning null to provide clear user guidance, and ensured that all early returns are placed strictly *after* unconditional React hooks (like useMemo and useEffect) when refactoring components to display these empty states.

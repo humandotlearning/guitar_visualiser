@@ -35,8 +35,8 @@ describe('ScaleNotes', () => {
     });
   });
 
-  test('does not render if props are missing', () => {
-    const { container } = render(<ScaleNotes rootNote="" selectedScale={null} />);
-    expect(container.firstChild).toBeNull();
+  test('renders empty state if props are missing', () => {
+    render(<ScaleNotes rootNote="" selectedScale={null} />);
+    expect(screen.getByText('No Scale Selected')).toBeInTheDocument();
   });
 });
