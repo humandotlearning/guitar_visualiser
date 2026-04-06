@@ -414,7 +414,8 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
           <button
             onClick={() => setShowLegend(!showLegend)}
             className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-            aria-pressed={showLegend}
+            aria-expanded={showLegend}
+            aria-controls="scale-legend-panel"
           >
             {showLegend ? 'Hide Legend' : 'Show Legend'}
           </button>
@@ -422,7 +423,8 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
           <button
             onClick={() => setShowHints(!showHints)}
             className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-            aria-pressed={showHints}
+            aria-expanded={showHints}
+            aria-controls="fretboard-hints-panel"
           >
             {showHints ? 'Hide Hints' : 'Show Hints'}
           </button>
@@ -485,7 +487,7 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
       </div>
 
       {showLegend && (
-        <div className="scale-legend">
+        <div id="scale-legend-panel" className="scale-legend">
           <div className="legend-item">
             <div className="legend-color legend-root"></div>
             <span>Root Note</span>
@@ -510,7 +512,7 @@ const Fretboard = ({ rootNote, selectedScale, showScaleDegrees, setShowScaleDegr
       )}
 
       {showHints && (
-        <div className="fretboard-hints">
+        <div id="fretboard-hints-panel" className="fretboard-hints">
           <h4>Fretboard Tips</h4>
           <ul className="hint-list">
             <li>Click on any note to hear how it sounds</li>
