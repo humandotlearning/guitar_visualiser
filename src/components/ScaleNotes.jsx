@@ -110,7 +110,7 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
         <button 
           onClick={playScale}
           disabled={isPlaying || !audioInitialized}
-          className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:opacity-50 flex items-center"
+          className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 disabled:opacity-50 flex items-center"
         >
           {isPlaying ? (
             <span><Spinner /> Playing...</span>
@@ -148,7 +148,7 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
                 <button
                   type="button"
                   onClick={() => playSingleNote(note)}
-                  className="w-full h-full px-3 py-2 bg-transparent border-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300 rounded hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+                  className="w-full h-full px-3 py-2 bg-transparent border-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 rounded hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
                   aria-label={`Play note ${note}`}
                   disabled={!audioInitialized}
                   style={{ color: 'inherit', fontWeight: 'inherit' }}
