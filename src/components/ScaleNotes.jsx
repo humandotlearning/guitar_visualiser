@@ -1,6 +1,6 @@
 // File: components/ScaleNotes.jsx
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { getScaleNotes, getScalePattern, SCALE_LIBRARY } from '../utils/musicTheory';
 import PropTypes from 'prop-types';
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
@@ -11,6 +11,13 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentNoteIndex, setCurrentNoteIndex] = useState(null);
   const [audioInitialized, setAudioInitialized] = useState(false);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   // Initialize audio on mount and when instrument changes
   useEffect(() => {
@@ -58,13 +65,28 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
     }
   };
 
+  const timeoutRef = useRef(null);
+
   // Play a single note
-  const playSingleNote = async (note) => {
+  const playSingleNote = async (note, index) => {
     if (!audioInitialized) return;
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    setCurrentNoteIndex(index);
     try {
       await SoundfontAudio.playNote(note);
     } catch (error) {
       console.error('Error playing note:', error);
+    } finally {
+      timeoutRef.current = setTimeout(() => {
+        if (mountedRef.current) {
+          setCurrentNoteIndex(null);
+          timeoutRef.current = null;
+        }
+      }, 500);
     }
   };
 
@@ -147,10 +169,10 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
               }}>
                 <button
                   type="button"
-                  onClick={() => playSingleNote(note)}
+                  onClick={() => playSingleNote(note, index)}
                   className="w-full h-full px-3 py-2 bg-transparent border-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300 rounded hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
                   aria-label={`Play note ${note}`}
-                  disabled={!audioInitialized}
+                  disabled={!audioInitialized || isPlaying}
                   style={{ color: 'inherit', fontWeight: 'inherit' }}
                 >
                   {note}

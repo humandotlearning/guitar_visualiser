@@ -37,3 +37,7 @@
 ## 2026-02-01 - Disclosure vs Toggle Attributes
 **Learning:** A toggle button that controls the visibility of another element (like a settings panel) is a Disclosure pattern, not a simple State Toggle. It requires `aria-expanded` and `aria-controls` to communicate the relationship and state to screen readers, whereas `aria-pressed` is for buttons that toggle their own state (like "Mute").
 **Action:** When implementing a button that opens/closes a panel, menu, or dialog, always use `aria-expanded={isOpen}` and `aria-controls={targetId}` instead of `aria-pressed`.
+
+## 2026-02-02 - Memory Leaks in Delayed UI Updates
+**Learning:** During UI interactions that involve short delays for visual feedback (e.g., `setTimeout` to reset a playing state or remove a visual class), the component might unmount before the timeout completes. This leads to React state-update warnings and potential memory leaks if the delayed state update isn't cancelled or guarded.
+**Action:** Always implement a `mountedRef` in a `useEffect` with an empty dependency array (`[]`) to track the mounted status of the component. Use this ref to check `mountedRef.current` before calling state setter functions inside asynchronous callbacks or timeouts.

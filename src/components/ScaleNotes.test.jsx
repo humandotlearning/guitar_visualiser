@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import ScaleNotes from './ScaleNotes';
 
 // Mock the soundfontAudioUtils to avoid audio context errors
@@ -16,8 +16,10 @@ describe('ScaleNotes', () => {
     selectedInstrument: 'acoustic_guitar_steel'
   };
 
-  test('renders correctly with given props', () => {
-    render(<ScaleNotes {...mockProps} />);
+  test('renders correctly with given props', async () => {
+    await act(async () => {
+      render(<ScaleNotes {...mockProps} />);
+    });
 
     // Check title
     expect(screen.getByText('Notes of C Major')).toBeInTheDocument();
@@ -35,8 +37,11 @@ describe('ScaleNotes', () => {
     });
   });
 
-  test('does not render if props are missing', () => {
-    const { container } = render(<ScaleNotes rootNote="" selectedScale={null} />);
+  test('does not render if props are missing', async () => {
+    let container;
+    await act(async () => {
+      ({ container } = render(<ScaleNotes rootNote="" selectedScale={null} />));
+    });
     expect(container.firstChild).toBeNull();
   });
 });
