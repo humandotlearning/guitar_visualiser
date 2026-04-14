@@ -37,3 +37,7 @@
 ## 2026-02-01 - Disclosure vs Toggle Attributes
 **Learning:** A toggle button that controls the visibility of another element (like a settings panel) is a Disclosure pattern, not a simple State Toggle. It requires `aria-expanded` and `aria-controls` to communicate the relationship and state to screen readers, whereas `aria-pressed` is for buttons that toggle their own state (like "Mute").
 **Action:** When implementing a button that opens/closes a panel, menu, or dialog, always use `aria-expanded={isOpen}` and `aria-controls={targetId}` instead of `aria-pressed`.
+
+## 2026-02-02 - Hiding Text-Based Icons
+**Learning:** Text characters used as icons (like ✓ or ✕) inside buttons are read aloud by screen readers (e.g., "Check Show Scale Notes"), which can clutter the auditory experience or confuse users, especially if the button already uses `aria-pressed`.
+**Action:** Always wrap text-based decorative icons in a `<span aria-hidden="true">` to keep the auditory experience clean and semantically pure.

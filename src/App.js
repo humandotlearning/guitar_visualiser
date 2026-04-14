@@ -108,9 +108,9 @@ function App() {
             </div>
           </div>
 
-          <div className="hidden sm:block text-xs text-slate-400 font-medium uppercase tracking-wide">
+          <label htmlFor="instrument-select" className="hidden sm:block text-xs text-slate-400 font-medium uppercase tracking-wide cursor-pointer">
             Select Instrument
-          </div>
+          </label>
         </div>
 
         {/* Theory Mode Selector */}
