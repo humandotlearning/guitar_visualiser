@@ -37,3 +37,6 @@
 ## 2026-02-01 - Disclosure vs Toggle Attributes
 **Learning:** A toggle button that controls the visibility of another element (like a settings panel) is a Disclosure pattern, not a simple State Toggle. It requires `aria-expanded` and `aria-controls` to communicate the relationship and state to screen readers, whereas `aria-pressed` is for buttons that toggle their own state (like "Mute").
 **Action:** When implementing a button that opens/closes a panel, menu, or dialog, always use `aria-expanded={isOpen}` and `aria-controls={targetId}` instead of `aria-pressed`.
+## 2025-02-12 - Explicit Focus Visible Utility Classes for Keyboards
+**Learning:** Playwright tests using `locator.focus()` often fail to trigger browser-native `:focus-visible` pseudo-classes if not combined with simulated keyboard interaction (`page.keyboard.press('Tab')`).
+**Action:** When validating accessibility states with Playwright, simulate real user keyboard navigation flows instead of programmatic focus methods to accurately capture visual focus indicators.
