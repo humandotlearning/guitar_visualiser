@@ -11,7 +11,7 @@ const HelpIcon = ({ helpText }) => {
       onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
     >
-      <button className="help-icon">?</button>
+      <button className="help-icon" aria-label="Help information"><span aria-hidden="true">?</span></button>
       {showTooltip && (
         <div className="tooltip">
           {helpText}

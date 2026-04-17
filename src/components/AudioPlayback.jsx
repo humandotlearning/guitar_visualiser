@@ -295,9 +295,7 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
               className="settings-close focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
               onClick={closeSettings}
               aria-label="Close settings"
-            >
-              ×
-            </button>
+            ><span aria-hidden="true">×</span></button>
           </div>
 
           <div className="setting-group">
