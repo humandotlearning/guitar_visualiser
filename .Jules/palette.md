@@ -37,3 +37,7 @@
 ## 2026-02-01 - Disclosure vs Toggle Attributes
 **Learning:** A toggle button that controls the visibility of another element (like a settings panel) is a Disclosure pattern, not a simple State Toggle. It requires `aria-expanded` and `aria-controls` to communicate the relationship and state to screen readers, whereas `aria-pressed` is for buttons that toggle their own state (like "Mute").
 **Action:** When implementing a button that opens/closes a panel, menu, or dialog, always use `aria-expanded={isOpen}` and `aria-controls={targetId}` instead of `aria-pressed`.
+
+## 2026-04-18 - Async Feedback Consistency for Key Presses
+**Learning:** Just like full scale playback requires loading states, individual note playback via key clicks needs immediate visual confirmation that the click registered, especially since audio loading or playback may be async. Relying solely on auditory feedback is insufficient and leads to a disconnected experience.
+**Action:** When a user triggers an individual sound event (like clicking a note in a scale table), implement a temporary visual active state (e.g., via `setTimeout`) combined with a clear disabled state during automated playback to prevent conflicts and provide tactile confirmation.
