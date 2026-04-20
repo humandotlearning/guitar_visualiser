@@ -3,12 +3,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { getScaleNotes, getScalePattern, SCALE_LIBRARY } from '../utils/musicTheory';
 import PropTypes from 'prop-types';
+import { Copy, Check } from 'lucide-react';
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
 import Spinner from './ui/Spinner';
 
 // Memoized ScaleNotes component to avoid re-rendering when unrelated App state changes (e.g. Chord selection)
 const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
   const [currentNoteIndex, setCurrentNoteIndex] = useState(null);
   const [audioInitialized, setAudioInitialized] = useState(false);
   const timeoutRef = React.useRef(null);
@@ -66,6 +68,18 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
       case 5: return 'var(--color-major)';      // Major Step (VI)
       case 6: return 'var(--color-minor)';      // Minor Step (VII)
       default: return 'black';
+    }
+  };
+
+  // Copy notes to clipboard
+  const handleCopyNotes = async () => {
+    const notesString = scaleNotes.join(', ');
+    try {
+      await navigator.clipboard.writeText(notesString);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy notes:', err);
     }
   };
 
@@ -133,7 +147,17 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h2>Notes of {rootNote} {selectedScale.name} </h2>
+        <div className="flex items-center gap-3">
+          <h2>Notes of {rootNote} {selectedScale.name} </h2>
+          <button
+            onClick={handleCopyNotes}
+            className="p-1.5 text-gray-400 hover:text-blue-600 rounded-md hover:bg-blue-50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-300 bg-transparent shadow-none transform-none"
+            title="Copy notes to clipboard"
+            aria-label={isCopied ? "Notes copied" : "Copy notes to clipboard"}
+          >
+            {isCopied ? <Check size={20} className="text-green-500" /> : <Copy size={20} />}
+          </button>
+        </div>
         <button 
           onClick={playScale}
           disabled={isPlaying || !audioInitialized}
