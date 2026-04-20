@@ -3,6 +3,7 @@ import { getChordNotes, CHORD_TYPES, SCALE_LIBRARY, getScaleNotes } from '../uti
 import PropTypes from 'prop-types';
 import ClientOnly from '../utils/clientOnly';
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
+import Spinner from './ui/Spinner';
 import './ChordVisualizer.css';
 
 // Dynamically import the Chord component to avoid SSR issues
@@ -387,7 +388,7 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
             className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:opacity-50 flex items-center"
           >
             {playingAllChords ? (
-              <span>Playing Chords...</span>
+              <span><Spinner /> Playing Chords...</span>
             ) : (
               <span>Play All Chords</span>
             )}
@@ -414,6 +415,7 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
                         onClick={() => handleChordTap(chordRoot)}
                         className={`chord-button ${isSelected ? 'selected-chord' : ''} ${isPlaying ? 'playing-chord' : ''}`}
                         title="Click to select"
+                        aria-pressed={isSelected}
                       >
                         {chordRoot}{chordTypes[index]}
                       </button>
@@ -423,19 +425,19 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
                       <div className="chord-degree">
                         {index + 1} {chordTypes[index]}
                       </div>
-                      {isSelected && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            playSpecificChord(chords[chordRoot]);
-                          }}
-                          className="play-button w-full mt-2"
-                          disabled={isPlaying || !audioInitialized}
-                          aria-label={`Play ${chordRoot} ${chordTypes[index]} chord`}
-                        >
-                          ▶ Play
-                        </button>
-                      )}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          playSpecificChord(chords[chordRoot]);
+                        }}
+                        className={`play-button w-full mt-2 ${!isSelected ? 'invisible' : ''}`}
+                        disabled={!isSelected || isPlaying || !audioInitialized}
+                        aria-hidden={!isSelected}
+                        tabIndex={!isSelected ? -1 : 0}
+                        aria-label={`Play ${chordRoot} ${chordTypes[index]} chord`}
+                      >
+                        ▶ Play
+                      </button>
                     </td>
                   );
                 })}
