@@ -11,6 +11,17 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentNoteIndex, setCurrentNoteIndex] = useState(null);
   const [audioInitialized, setAudioInitialized] = useState(false);
+  const timeoutRef = React.useRef(null);
+  const mountedRef = React.useRef(true);
+
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   // Initialize audio on mount and when instrument changes
   useEffect(() => {
@@ -59,12 +70,28 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
   };
 
   // Play a single note
-  const playSingleNote = async (note) => {
+  const playSingleNote = async (note, index) => {
     if (!audioInitialized) return;
+
+    // Clear any existing timeout for visual feedback
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    // Set active index for visual feedback
+    setCurrentNoteIndex(index);
+
     try {
       await SoundfontAudio.playNote(note);
     } catch (error) {
       console.error('Error playing note:', error);
+    } finally {
+      // Reset active index after a delay
+      timeoutRef.current = setTimeout(() => {
+        if (mountedRef.current) {
+          setCurrentNoteIndex(null);
+        }
+      }, 500);
     }
   };
 
@@ -147,10 +174,10 @@ const ScaleNotes = ({ rootNote, selectedScale, selectedInstrument }) => {
               }}>
                 <button
                   type="button"
-                  onClick={() => playSingleNote(note)}
+                  onClick={() => playSingleNote(note, index)}
                   className="w-full h-full px-3 py-2 bg-transparent border-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300 rounded hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
                   aria-label={`Play note ${note}`}
-                  disabled={!audioInitialized}
+                  disabled={!audioInitialized || isPlaying}
                   style={{ color: 'inherit', fontWeight: 'inherit' }}
                 >
                   {note}
