@@ -41,3 +41,6 @@
 ## 2026-02-02 - State Toggle vs Layout Disclosure Patterns
 **Learning:** In interactive tools, there's a distinction between buttons that toggle visual properties within an existing layout (e.g., highlighting non-scale notes) versus buttons that reveal entirely new layout blocks (e.g., showing a Legend or Hints panel). The former correctly uses `aria-pressed`, but the latter is a disclosure pattern.
 **Action:** Always use `aria-expanded` and `aria-controls` for buttons that show/hide informational panels or layout blocks, restricting `aria-pressed` to inline visual or state toggles.
+## 2026-02-02 - Grid Selection Focus Visibility
+**Learning:** Adding `focus-visible` to grid selection items (like root notes and scale types) drastically improves keyboard navigation without affecting mouse users, making the interface far more accessible.
+**Action:** Always add `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1` to custom button selections in grids that act as filters or toggles.
