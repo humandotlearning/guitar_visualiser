@@ -433,7 +433,7 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
                           disabled={isPlaying || !audioInitialized}
                           aria-label={`Play ${chordRoot} ${chordTypes[index]} chord`}
                         >
-                          ▶ Play
+                          <span aria-hidden="true">▶</span> Play
                         </button>
                       )}
                     </td>
