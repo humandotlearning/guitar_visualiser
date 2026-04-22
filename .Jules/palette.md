@@ -47,3 +47,7 @@
 ## 2026-02-02 - Grid Selection Focus Visibility
 **Learning:** Adding `focus-visible` to grid selection items (like root notes and scale types) drastically improves keyboard navigation without affecting mouse users, making the interface far more accessible.
 **Action:** Always add `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1` to custom button selections in grids that act as filters or toggles.
+
+## 2026-06-25 - Hover-Based Tooltip Keyboard Accessibility
+**Learning:** Tooltips triggered only by `onMouseEnter`/`onMouseLeave` are completely inaccessible to keyboard users. Simply adding focus styles isn't enough if the tooltip content doesn't appear.
+**Action:** Always pair `onMouseEnter` with `onFocus` and `onMouseLeave` with `onBlur` on interactive elements to ensure tooltips are accessible via keyboard navigation. Additionally, pair the trigger button with `aria-expanded` reflecting the tooltip state.
