@@ -1,13 +1,17 @@
 import React, { useState, memo } from 'react';
 import PropTypes from 'prop-types';
 import { SCALE_LIBRARY } from '../utils/musicTheory';
+import HelpIcon from './HelpIcon';
 
 const ScaleTypeSelector = memo(({ selectedScale, setSelectedScale }) => {
   const [activeCategory, setActiveCategory] = useState(Object.keys(SCALE_LIBRARY)[0]);
 
   return (
     <div>
-      <h3 id="scale-type-label" className="block text-sm font-semibold text-slate-700 mb-2">Scale Type</h3>
+      <div className="flex items-center gap-2 mb-2">
+        <h3 id="scale-type-label" className="block text-sm font-semibold text-slate-700">Scale Type</h3>
+        <HelpIcon helpText="Select a category, then choose a specific scale pattern." />
+      </div>
       <div
         role="tablist"
         aria-labelledby="scale-type-label"
