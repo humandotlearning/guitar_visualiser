@@ -1,11 +1,15 @@
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { NOTES } from '../utils/musicTheory';
+import HelpIcon from './HelpIcon';
 
 const RootNoteSelector = memo(({ rootNote, setRootNote }) => {
   return (
     <div>
-      <h3 id="root-note-label" className="block text-sm font-semibold text-slate-700 mb-2">Root Note</h3>
+      <div className="flex items-center gap-2 mb-2">
+        <h3 id="root-note-label" className="block text-sm font-semibold text-slate-700">Root Note</h3>
+        <HelpIcon helpText="Select the starting note (root) for your scale or chord." />
+      </div>
       <div
         role="group"
         aria-labelledby="root-note-label"
