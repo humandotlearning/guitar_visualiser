@@ -47,3 +47,7 @@
 ## 2026-02-02 - Grid Selection Focus Visibility
 **Learning:** Adding `focus-visible` to grid selection items (like root notes and scale types) drastically improves keyboard navigation without affecting mouse users, making the interface far more accessible.
 **Action:** Always add `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1` to custom button selections in grids that act as filters or toggles.
+
+## 2026-04-18 - Decorative Character Accessibility
+**Learning:** Decorative characters (like ✓) inside interactive elements are redundantly announced by screen readers if not properly hidden. This adds unnecessary noise to the auditory experience, especially when the button's name and state (`aria-pressed`) already convey the required information.
+**Action:** When adding decorative characters to interactive elements, always wrap them in a `<span aria-hidden="true">`. Update Playwright locators to match the accessible name without the hidden character (e.g., `name="Show Scale Notes"` instead of `name="✓ Show Scale Notes"`).
