@@ -47,3 +47,11 @@
 ## 2026-02-02 - Grid Selection Focus Visibility
 **Learning:** Adding `focus-visible` to grid selection items (like root notes and scale types) drastically improves keyboard navigation without affecting mouse users, making the interface far more accessible.
 **Action:** Always add `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1` to custom button selections in grids that act as filters or toggles.
+
+## 2026-04-19 - Decorative Characters in Toggle Buttons
+**Learning:** Text characters used as decorative icons (like checkmarks ✓) inside interactive elements are announced by screen readers, which can clutter the auditory experience (e.g., "Checkmark Show Scale Notes").
+**Action:** Always wrap decorative characters in interactive elements with a `<span aria-hidden="true">` to hide them from screen readers, leaving only the meaningful text.
+
+## 2026-04-19 - Focus-Visible for Custom Toggle Buttons
+**Learning:** Custom toggle buttons without explicit `:focus-visible` styles lack a clear focus indicator during keyboard navigation, making the interface less accessible for non-mouse users.
+**Action:** When implementing custom interactive elements or overriding standard button styles, always explicitly define a clear `:focus-visible` style (e.g., `outline: 2px solid #3b82f6; outline-offset: 2px;`) to ensure robust keyboard accessibility.

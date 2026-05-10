@@ -37,6 +37,11 @@
   transform: translateY(-1px);
 }
 
+.toggle-button:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
 .toggle-button.active {
   border-color: #3b82f6;
   background-color: #eff6ff;
