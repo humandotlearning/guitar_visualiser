@@ -47,3 +47,7 @@
 ## 2026-02-02 - Grid Selection Focus Visibility
 **Learning:** Adding `focus-visible` to grid selection items (like root notes and scale types) drastically improves keyboard navigation without affecting mouse users, making the interface far more accessible.
 **Action:** Always add `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1` to custom button selections in grids that act as filters or toggles.
+
+## 2026-05-11 - Hiding Decorative Characters from Screen Readers
+**Learning:** Decorative text characters (like ✓ or ✕) used inside interactive elements like toggle buttons are read aloud by screen readers (e.g., "check mark Show Scale Notes"). This creates a redundant and cluttered auditory experience since the state is already conveyed via `aria-pressed`.
+**Action:** Always wrap decorative icon-like characters in a `<span aria-hidden="true">` when they are inside buttons or links, allowing visual users to see the state while keeping the accessible name clean for screen reader users.
