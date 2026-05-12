@@ -296,7 +296,7 @@ const AudioPlayback = ({ rootNote, selectedScale, selectedChord, selectedInstrum
               onClick={closeSettings}
               aria-label="Close settings"
             >
-              ×
+              <span aria-hidden="true">×</span>
             </button>
           </div>
 
