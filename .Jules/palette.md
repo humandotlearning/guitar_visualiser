@@ -47,3 +47,6 @@
 ## 2026-02-02 - Grid Selection Focus Visibility
 **Learning:** Adding `focus-visible` to grid selection items (like root notes and scale types) drastically improves keyboard navigation without affecting mouse users, making the interface far more accessible.
 **Action:** Always add `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1` to custom button selections in grids that act as filters or toggles.
+## 2026-05-18 - Stable Layout for Conditional Icons
+**Learning:** In flexbox toggle buttons, conditionally rendering decorative checkmarks based on state (e.g., `aria-pressed`) can cause layout jitter if the icon lacks a stable container. It also creates screen reader redundancy if the character isn't explicitly hidden while the state is conveyed by `aria-pressed`.
+**Action:** When adding conditional inline icons to flex layouts, use a fixed-width container for the icon, apply `aria-hidden="true"`, and provide an empty placeholder span of the exact same dimensions when the icon is absent. Wrap accompanying text in a `<span>` to ensure proper gap spacing.
