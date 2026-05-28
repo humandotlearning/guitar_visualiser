@@ -72,11 +72,17 @@ const OrientationPrompt = () => {
   }
 
   return (
-    <div className="orientation-prompt">
+    <div
+      className="orientation-prompt"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="orientation-title"
+      aria-describedby="orientation-desc"
+    >
       <div className="orientation-prompt-content">
-        <div className="rotate-icon"></div>
-        <h3>Rotate Your Device</h3>
-        <p>For the best experience viewing the fretboard, please rotate your device to landscape mode.</p>
+        <div className="rotate-icon" aria-hidden="true"></div>
+        <h3 id="orientation-title">Rotate Your Device</h3>
+        <p id="orientation-desc">For the best experience viewing the fretboard, please rotate your device to landscape mode.</p>
         <button onClick={dismissPrompt} className="dismiss-button">
           Dismiss
         </button>
