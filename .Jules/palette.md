@@ -47,3 +47,6 @@
 ## 2026-02-02 - Grid Selection Focus Visibility
 **Learning:** Adding `focus-visible` to grid selection items (like root notes and scale types) drastically improves keyboard navigation without affecting mouse users, making the interface far more accessible.
 **Action:** Always add `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1` to custom button selections in grids that act as filters or toggles.
+## 2026-05-28 - Dialog and Modal Accessibility
+**Learning:** Full-screen overlays or modal dialogs (like the `OrientationPrompt` on mobile) can trap keyboard users or confuse screen readers if not marked semantically. Using a standard `div` means the screen reader doesn't know a modal context has opened.
+**Action:** Always add `role="alertdialog"` (or `dialog`), `aria-modal="true"`, and connect visible text using `aria-labelledby` and `aria-describedby` when creating full-screen prompts or modal overlays.
