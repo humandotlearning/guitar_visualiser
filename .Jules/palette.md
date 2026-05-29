@@ -47,3 +47,6 @@
 ## 2026-02-02 - Grid Selection Focus Visibility
 **Learning:** Adding `focus-visible` to grid selection items (like root notes and scale types) drastically improves keyboard navigation without affecting mouse users, making the interface far more accessible.
 **Action:** Always add `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1` to custom button selections in grids that act as filters or toggles.
+## 2026-05-29 - Layout Shift Prevention in Conditional Flex Icons
+**Learning:** When using flexbox and `gap` for layout in buttons with conditional icons (like a checkmark), adding or removing the icon element causes the text to shift (jitter), creating a jarring UX.
+**Action:** Always provide a fixed-width container for the icon (e.g., `w-4 h-4 min-w-[1rem]`), use an empty placeholder span of identical dimensions when the icon is inactive, and wrap the adjoining text in a `<span>` to ensure consistent flex gap spacing.
