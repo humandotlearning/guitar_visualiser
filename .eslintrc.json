@@ -1,6 +1,8 @@
 {
     "env": {
       "browser": true,
+      "jest": true,
+      "node": true,
       "es2021": true
     },
     "extends": [
@@ -18,6 +20,7 @@
       "react"
     ],
     "rules": {
-      // Add your custom rules here
+      "react/react-in-jsx-scope": "off",
+      "no-unused-vars": ["error", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }]
     }
   }
