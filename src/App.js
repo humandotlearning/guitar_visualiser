@@ -1,5 +1,11 @@
 import React, { useState, lazy, Suspense, useCallback } from 'react';
 import INSTRUMENTS from './instruments';
+// Keep smaller components eagerly loaded
+import ScaleSelector from './components/ScaleSelector';
+import ScaleNotes from './components/ScaleNotes';
+import OrientationPrompt from './components/OrientationPrompt';
+import TheoryModeSelector from './components/theory/TheoryModeSelector';
+import './App.css';
 // Lazy load the larger components
 const Fretboard = lazy(() => import('./components/Fretboard'));
 const PianoKeyboard = lazy(() => import('./components/PianoKeyboard'));
@@ -11,12 +17,6 @@ const CircleOfFifths = lazy(() => import('./components/theory/CircleOfFifths'));
 const ChordProgressions = lazy(() => import('./components/theory/ChordProgressions'));
 const HarmonicFunctions = lazy(() => import('./components/theory/HarmonicFunctions'));
 const CAGEDSystem = lazy(() => import('./components/theory/CAGEDSystem'));
-// Keep smaller components eagerly loaded
-import ScaleSelector from './components/ScaleSelector';
-import ScaleNotes from './components/ScaleNotes';
-import OrientationPrompt from './components/OrientationPrompt';
-import TheoryModeSelector from './components/theory/TheoryModeSelector';
-import './App.css';
 
 // Define NOOP function outside component for stable reference
 const NOOP = () => { };
