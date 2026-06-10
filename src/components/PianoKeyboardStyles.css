@@ -37,6 +37,11 @@
   transform: translateY(-1px);
 }
 
+.toggle-button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #3b82f6;
+}
+
 .toggle-button.active {
   border-color: #3b82f6;
   background-color: #eff6ff;
