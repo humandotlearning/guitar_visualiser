@@ -179,19 +179,25 @@ const PianoKeyboard = ({
       <div className="piano-controls">
         <button
           onClick={onToggleScale}
-          className={`toggle-button ${showScaleVisualization ? 'active' : ''}`}
+          className={`toggle-button focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1 ${showScaleVisualization ? 'active' : ''}`}
           title="Toggle scale note visualization"
           aria-pressed={showScaleVisualization}
         >
-          {showScaleVisualization ? '✓' : ''} Show Scale Notes
+          <span aria-hidden="true" className="w-4 h-4 min-w-[1rem] inline-flex items-center justify-center">
+            {showScaleVisualization ? '✓' : ''}
+          </span>
+          <span>Show Scale Notes</span>
         </button>
         <button
           onClick={onToggleChord}
-          className={`toggle-button ${showChordVisualization ? 'active' : ''}`}
+          className={`toggle-button focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1 ${showChordVisualization ? 'active' : ''}`}
           title="Toggle chord note highlighting"
           aria-pressed={showChordVisualization}
         >
-          {showChordVisualization ? '✓' : ''} Show Chord Highlighting
+          <span aria-hidden="true" className="w-4 h-4 min-w-[1rem] inline-flex items-center justify-center">
+            {showChordVisualization ? '✓' : ''}
+          </span>
+          <span>Show Chord Highlighting</span>
         </button>
       </div>
 
