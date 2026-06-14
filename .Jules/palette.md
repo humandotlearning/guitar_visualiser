@@ -47,3 +47,6 @@
 ## 2026-02-02 - Grid Selection Focus Visibility
 **Learning:** Adding `focus-visible` to grid selection items (like root notes and scale types) drastically improves keyboard navigation without affecting mouse users, making the interface far more accessible.
 **Action:** Always add `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1` to custom button selections in grids that act as filters or toggles.
+## 2026-02-03 - Flexible Checkmark Spacing
+**Learning:** Adding dynamic icons (like checkmarks) to flexbox buttons can cause unwanted layout shifts (jitter) when toggled, and screen readers will redundantly read the checkmark character.
+**Action:** When creating toggle buttons with conditional checkmarks, always wrap the text in a span, use a fixed-width `span` for the checkmark with `aria-hidden="true"`, and provide an identically sized empty `span` when the checkmark is absent to preserve flex gap spacing.
