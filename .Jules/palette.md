@@ -47,3 +47,7 @@
 ## 2026-02-02 - Grid Selection Focus Visibility
 **Learning:** Adding `focus-visible` to grid selection items (like root notes and scale types) drastically improves keyboard navigation without affecting mouse users, making the interface far more accessible.
 **Action:** Always add `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1` to custom button selections in grids that act as filters or toggles.
+
+## 2026-02-03 - Decorative Characters in Text
+**Learning:** Text characters used as icons (like ✓ or ✕) inside interactive elements are read literally by screen readers, leading to confusing announcements like "check Show Scale Notes".
+**Action:** When using text characters as purely decorative elements, always wrap them in `<span aria-hidden="true">` to prevent redundant or confusing screen reader announcements.
