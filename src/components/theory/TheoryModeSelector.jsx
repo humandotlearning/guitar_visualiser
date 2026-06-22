@@ -48,6 +48,7 @@ export default function TheoryModeSelector({ selectedMode, setSelectedMode, inst
                   aria-pressed={selectedMode === mode}
                   className={`
                     flex flex-col items-center justify-center px-4 py-3 rounded-xl transition-all duration-200 border min-w-[140px]
+                    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1
                     ${selectedMode === mode
                       ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-200 scale-105'
                       : 'bg-white text-slate-600 border-slate-200 hover:border-blue-300 hover:shadow-md'
