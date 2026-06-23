@@ -106,6 +106,8 @@ const FretboardNote = React.memo(({
         title={`${noteWithOctave}${scaleDegree ? ` (${scaleDegree})` : ''}`}
         aria-label={`Play ${noteWithOctave}${scaleDegree ? `, Degree ${scaleDegree}` : ''}`}
         disabled={isHidden}
+        aria-hidden={isHidden}
+        tabIndex={isHidden ? -1 : 0}
       >
         {isInScale ? (showScaleDegrees ? scaleDegree : note) : note}
       </button>
