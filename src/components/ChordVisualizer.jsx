@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import { getChordNotes, CHORD_TYPES, SCALE_LIBRARY, getScaleNotes } from '../utils/musicTheory';
+import { getChordNotes, CHORD_TYPES, SCALE_LIBRARY, getScaleNotes, NOTES } from '../utils/musicTheory';
 import PropTypes from 'prop-types';
 import ClientOnly from '../utils/clientOnly';
 import * as SoundfontAudio from '../utils/soundfontAudioUtils';
@@ -123,6 +123,7 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
 
   const [audioInitialized, setAudioInitialized] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const isPlayingRef = React.useRef(false);
   const [lastTapTime, setLastTapTime] = useState(0);
   const [lastTapChord, setLastTapChord] = useState(null);
   const [playingAllChords, setPlayingAllChords] = useState(false);
@@ -260,22 +261,28 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
 
   // Play a specific chord (helper for the individual play buttons)
   const playSpecificChord = async (chordNotes) => {
-    if (!audioInitialized || isPlaying || !chordNotes) return;
+    if (!audioInitialized || isPlayingRef.current || !chordNotes) return;
 
+    isPlayingRef.current = true;
     setIsPlaying(true);
     try {
       await SoundfontAudio.playChord(chordNotes);
-      setTimeout(() => setIsPlaying(false), 1500);
+      setTimeout(() => {
+        isPlayingRef.current = false;
+        setIsPlaying(false);
+      }, 1500);
     } catch (error) {
       console.error('Error playing chord:', error);
+      isPlayingRef.current = false;
       setIsPlaying(false);
     }
   };
 
   // Play a chord based on variation
   const playChordVariation = useCallback(async (variation) => {
-    if (!audioInitialized || isPlaying || !instrumentConfig) return;
+    if (!audioInitialized || isPlayingRef.current || !instrumentConfig) return;
 
+    isPlayingRef.current = true;
     setIsPlaying(true);
     try {
       const notes = [];
@@ -291,7 +298,6 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
           const stringNote = tuning[tuningIndex];
           const baseOctave = octaves ? octaves[tuningIndex] : 3;
 
-          const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
           const noteIndex = (NOTES.indexOf(stringNote) + fret) % 12;
           const note = NOTES[noteIndex];
 
@@ -306,12 +312,16 @@ const ChordVisualizer = ({ rootNote, selectedScale, onChordSelect, instrumentCon
         SoundfontAudio.playNote(note, null, octave)
       ));
 
-      setTimeout(() => setIsPlaying(false), 1500);
+      setTimeout(() => {
+        isPlayingRef.current = false;
+        setIsPlaying(false);
+      }, 1500);
     } catch (error) {
       console.error('Error playing chord:', error);
+      isPlayingRef.current = false;
       setIsPlaying(false);
     }
-  }, [audioInitialized, isPlaying, instrumentConfig]);
+  }, [audioInitialized, instrumentConfig]);
 
   // Play the selected chord (all notes)
   const playSelectedChord = async () => {
