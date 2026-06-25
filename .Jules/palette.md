@@ -50,3 +50,6 @@
 ## 2026-02-02 - Theory Mode Selector Focus Visibility
 **Learning:** The `TheoryModeSelector` buttons lacked `focus-visible` styles, making it hard to track keyboard navigation when selecting theory modes.
 **Action:** Always add explicit `focus-visible` utility classes (e.g., `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1`) to custom button containers to ensure proper accessibility for keyboard users without affecting mouse users.
+## 2026-02-03 - Decorative Checkmarks
+**Learning:** Decorative characters (like ✓) inside an interactive element must be hidden from screen readers using `aria-hidden='true'` to avoid cluttering auditory experience. In flexbox containers, fixed-width placeholder spans prevent layout shift when the checkmark toggles.
+**Action:** Wrap decorative state checkmarks in `<span aria-hidden='true'>` with explicit sizing classes (e.g., `w-4 h-4 min-w-[1rem]`) and wrap accompanying text in a `<span>` to maintain flex gap spacing.
