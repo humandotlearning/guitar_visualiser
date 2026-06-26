@@ -50,3 +50,7 @@
 ## 2026-02-02 - Theory Mode Selector Focus Visibility
 **Learning:** The `TheoryModeSelector` buttons lacked `focus-visible` styles, making it hard to track keyboard navigation when selecting theory modes.
 **Action:** Always add explicit `focus-visible` utility classes (e.g., `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1`) to custom button containers to ensure proper accessibility for keyboard users without affecting mouse users.
+
+## 2026-06-26 - Decorative Icons in Toggles
+**Learning:** Text characters used as decorative icons (like ✓) inside interactive elements must be hidden from screen readers using `aria-hidden="true"` to prevent redundant announcements. In flex layouts, providing a fixed-width container for conditional icons prevents layout shift.
+**Action:** Wrap conditional icons in an `aria-hidden` span with fixed dimensions (e.g., `w-4 h-4 p-0 min-w-[1rem]`) and wrap the accompanying text in a span.
