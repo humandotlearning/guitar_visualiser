@@ -50,3 +50,7 @@
 ## 2026-02-02 - Theory Mode Selector Focus Visibility
 **Learning:** The `TheoryModeSelector` buttons lacked `focus-visible` styles, making it hard to track keyboard navigation when selecting theory modes.
 **Action:** Always add explicit `focus-visible` utility classes (e.g., `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1`) to custom button containers to ensure proper accessibility for keyboard users without affecting mouse users.
+
+## 2024-05-24 - Modal Overlay Accessibility
+**Learning:** Full-screen or modal overlays acting as prompts must have proper ARIA dialog semantics (`role="alertdialog"`, `aria-modal="true"`, `aria-labelledby`, `aria-describedby`) to convey context to screen readers.
+**Action:** Always add ARIA dialog semantics to full-screen prompts and modal overlays.
