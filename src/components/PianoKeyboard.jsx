@@ -183,7 +183,12 @@ const PianoKeyboard = ({
           title="Toggle scale note visualization"
           aria-pressed={showScaleVisualization}
         >
-          {showScaleVisualization ? '✓' : ''} Show Scale Notes
+          {showScaleVisualization ? (
+            <span aria-hidden="true" className="inline-block w-4 h-4 text-center">✓</span>
+          ) : (
+            <span className="inline-block w-4 h-4"></span>
+          )}
+          <span>Show Scale Notes</span>
         </button>
         <button
           onClick={onToggleChord}
@@ -191,7 +196,12 @@ const PianoKeyboard = ({
           title="Toggle chord note highlighting"
           aria-pressed={showChordVisualization}
         >
-          {showChordVisualization ? '✓' : ''} Show Chord Highlighting
+          {showChordVisualization ? (
+            <span aria-hidden="true" className="inline-block w-4 h-4 text-center">✓</span>
+          ) : (
+            <span className="inline-block w-4 h-4"></span>
+          )}
+          <span>Show Chord Highlighting</span>
         </button>
       </div>
 

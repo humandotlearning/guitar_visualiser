@@ -50,3 +50,7 @@
 ## 2026-02-02 - Theory Mode Selector Focus Visibility
 **Learning:** The `TheoryModeSelector` buttons lacked `focus-visible` styles, making it hard to track keyboard navigation when selecting theory modes.
 **Action:** Always add explicit `focus-visible` utility classes (e.g., `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1`) to custom button containers to ensure proper accessibility for keyboard users without affecting mouse users.
+
+## 2026-07-02 - Conditional Text Icons in Flex Layouts
+**Learning:** When using text characters (like ✓) as conditional icons inside flex buttons, their presence or absence changes the button's layout and affects screen reader pronunciation.
+**Action:** Wrap such characters in a span with `aria-hidden="true"` and fixed dimensions (e.g., `inline-block w-4 h-4`), providing an identically sized empty span when inactive to prevent layout jitter.
