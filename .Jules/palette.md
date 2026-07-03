@@ -50,3 +50,7 @@
 ## 2026-02-02 - Theory Mode Selector Focus Visibility
 **Learning:** The `TheoryModeSelector` buttons lacked `focus-visible` styles, making it hard to track keyboard navigation when selecting theory modes.
 **Action:** Always add explicit `focus-visible` utility classes (e.g., `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1`) to custom button containers to ensure proper accessibility for keyboard users without affecting mouse users.
+
+## 2026-07-03 - Toggle Layout Shift and A11y
+**Learning:** Conditional inline elements (like checkmarks) in flex containers cause layout shift (jitter) and are redundantly read by screen readers.
+**Action:** Use fixed-width containers for conditional icons (with empty placeholders when absent) and always wrap purely decorative characters in `<span aria-hidden="true">`. Wrap adjacent text in its own `<span>` for consistent flex gap alignment.
