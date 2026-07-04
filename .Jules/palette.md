@@ -50,3 +50,6 @@
 ## 2026-02-02 - Theory Mode Selector Focus Visibility
 **Learning:** The `TheoryModeSelector` buttons lacked `focus-visible` styles, making it hard to track keyboard navigation when selecting theory modes.
 **Action:** Always add explicit `focus-visible` utility classes (e.g., `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1`) to custom button containers to ensure proper accessibility for keyboard users without affecting mouse users.
+## 2026-06-25 - Layout Shift & Flex Gap with Conditional Inline Icons
+**Learning:** When toggle buttons conditionally render inline icons (like a '✓') alongside text inside a flexbox container (which applies 'gap' spacing), appearing/disappearing the icon creates layout shift (jitter). Additionally, screen readers announce decorative text characters if not properly hidden.
+**Action:** Always wrap conditional inline icons in a fixed-width container (e.g., `w-4 h-4 min-w-[1rem]`) with `aria-hidden="true"`, and wrap the adjacent text node in its own `<span>` to ensure the flex gap applies consistently, preventing layout shifts when toggled.
