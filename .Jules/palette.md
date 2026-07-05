@@ -50,3 +50,6 @@
 ## 2026-02-02 - Theory Mode Selector Focus Visibility
 **Learning:** The `TheoryModeSelector` buttons lacked `focus-visible` styles, making it hard to track keyboard navigation when selecting theory modes.
 **Action:** Always add explicit `focus-visible` utility classes (e.g., `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1`) to custom button containers to ensure proper accessibility for keyboard users without affecting mouse users.
+## 2024-05-18 - Avoid Jitter in Toggle Buttons with Icons
+**Learning:** When using conditional inline elements (like `aria-hidden` icons) inside flexbox containers (e.g., toggle buttons), adding/removing the icon can cause the layout to shift (jitter).
+**Action:** Use a fixed-width container for the icon and provide an empty placeholder span of the exact same dimensions when the icon is absent. Wrap accompanying text nodes in a `<span>` to ensure the flex gap spacing applies correctly.
