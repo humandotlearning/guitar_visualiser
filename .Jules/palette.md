@@ -50,3 +50,6 @@
 ## 2026-02-02 - Theory Mode Selector Focus Visibility
 **Learning:** The `TheoryModeSelector` buttons lacked `focus-visible` styles, making it hard to track keyboard navigation when selecting theory modes.
 **Action:** Always add explicit `focus-visible` utility classes (e.g., `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1`) to custom button containers to ensure proper accessibility for keyboard users without affecting mouse users.
+## 2026-02-03 - Conditional Inline Icons Layout Shift
+**Learning:** When conditional inline elements (like a checkmark icon) are shown or hidden within a flex layout, they can cause a layout shift (jitter) in the adjacent text if a fixed-width placeholder is not used.
+**Action:** Always provide an empty placeholder `<span aria-hidden="true" className="w-4 h-4 p-0 min-w-[1rem] inline-block"></span>` with the same dimensions as the icon when the icon is conditionally hidden, and wrap the adjacent text in a `<span>` to maintain stable flex gap alignment.
